@@ -1,0 +1,11 @@
+Exception: D:\a\RADVPN\RADVPN\scripts\test-windows-installer.ps1:12
+Line |
+  12 |  … if ($p.ExitCode -ne 0) { throw "$file failed with $($p.ExitCode)" } }
+     |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | C:\Users\runneradmin\AppData\Local\RADVPN-Install-Smoke/RADVPN.exe failed with 2
+
+
+at Run-Wait, D:\a\RADVPN\RADVPN\scripts\test-windows-installer.ps1: line 12
+at <ScriptBlock>, D:\a\RADVPN\RADVPN\scripts\test-windows-installer.ps1: line 25
+at <ScriptBlock>, D:\a\_temp\cc66493e-8aa4-4ca6-82e1-8a6f8143acc0.ps1: line 2
+at <ScriptBlock>, <No file>: line 1
