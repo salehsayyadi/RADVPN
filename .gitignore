@@ -21,3 +21,8 @@ vault.bin*
 !*.example
 /assets/RADVPN.ico
 /assets/logo-256.png
+
+# Reproducibly generated Android runtime notice bundle
+/apps/android/app/src/main/assets/licenses/go/
+/apps/android/app/src/main/assets/licenses/maven/
+/apps/android/app/src/main/assets/licenses/ANDROID-NOTICES.txt

@@ -191,5 +191,19 @@
   "safe_name": "Names and URLs are excluded from exported diagnostics.",
   "storage_recovered": "Encrypted backup recovered after the primary vault could not be read.",
   "not_installed_driver": "No driver is installed by setup; Tunnel loads the bundled vendor driver only after an elevated Connect action.",
-  "core_loaded": "Core IPC ready (not a connected VPN)"
+  "core_loaded": "Core IPC ready (not a connected VPN)",
+  "add_config": "Add configuration",
+  "add_subscription": "Add subscription",
+  "more": "More pages and language",
+  "advanced_short": "Advanced",
+  "english": "English",
+  "persian": "فارسی",
+  "qr_help": "Scan a trusted profile QR code. Camera permission is requested by the scanner.",
+  "profile_count": "Profiles",
+  "android_refresh_help": "Refresh is manual on Android. Downloads contact only your subscription provider; existing profiles survive failed refreshes.",
+  "android_ipv6_help": "Android Tunnel requests IPv4 and IPv6 routes. This app has no independent kill switch; device leak tests are still required.",
+  "android_traffic_help": "Actual current-session proxy counters. The graph contains only samples collected while this screen/app is visible; no historical totals are invented.",
+  "android_testing_channel": "Android design update 1 · debug-signed testing build · not production verified",
+  "no_events": "No recorded events in this app session.",
+  "theme_description": "Dark blue-black surfaces, orange accents. No unsupported theme toggle."
 }

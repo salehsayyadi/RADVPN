@@ -9,4 +9,5 @@ go install "golang.org/x/mobile/cmd/gomobile@$version"
 go install "golang.org/x/mobile/cmd/gobind@$version"
 mkdir -p apps/android/app/libs
 gomobile bind -ldflags='-checklinkname=0 -s -w' -target=android/arm64,android/amd64 -androidapi=26 -o apps/android/app/libs/radengine.aar ./packages/mobile
-gradle -p apps/android --no-daemon assembleDebug lintDebug
+python3 scripts/collect-android-licenses.py
+gradle -p apps/android --no-daemon assembleDebug assembleDebugAndroidTest lintDebug
