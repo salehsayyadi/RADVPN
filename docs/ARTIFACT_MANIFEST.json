@@ -1,0 +1,20 @@
+{
+  "app_version": "2.0.0",
+  "release_published": false,
+  "artifacts": [
+    {
+      "filename": "RADVPN-2.0.0-windows-x64-testing.zip",
+      "bytes": 77893888,
+      "sha256": "d9c8698130d67dc0217c533b2d8961f3558ac5bbfc0cc2d24b9c9c9ab1435051",
+      "status": "built and structurally checked; native device runtime NOT verified",
+      "signing": "Application unsigned; vendor driver signature not checked on Linux"
+    },
+    {
+      "filename": "RADVPN-2.0.0-android-debug-testing.apk",
+      "bytes": 70711789,
+      "sha256": "3712f70775ac07ad71a8c8afa9e898fe33e435ed63b08088e6159a64706115a6",
+      "status": "built and structurally checked; native device runtime NOT verified",
+      "signing": "Android debug key only"
+    }
+  ]
+}

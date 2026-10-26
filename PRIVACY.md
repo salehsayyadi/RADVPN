@@ -1,0 +1,14 @@
+# Privacy — RADVPN 2.0.0 development build
+
+RADVPN has no account, activation server, advertising SDK or analytics/telemetry system. There is no automatic update service. Native interfaces call the embedded core locally. User configurations are not uploaded to RADVPN or any third-party conversion service.
+
+- Profile credentials, selected settings and subscription URLs are encrypted locally using Windows DPAPI CurrentUser or Android Keystore AES-GCM. Plaintext necessarily exists in app/core memory while used. A compromised device or administrator can still access it.
+- HTTPS subscription refresh sends requests to the provider the user supplies and up to three HTTPS redirects. The provider receives its own URL, token and normal network metadata. Windows refresh schedules run only while the app is open and disconnected; Android refresh is manual. No third-party request is used to decode subscriptions.
+- Every connection makes an HTTPS GET to `https://cp.cloudflare.com/generate_204` through the selected proxy, to avoid reporting listener startup as Internet connectivity. Cloudflare sees the exit IP and normal HTTPS metadata; the chosen VPN/proxy operator sees proxy traffic. It is not telemetry, but it is an external dependency and is disclosed here.
+- The configured DNS resolvers receive DNS queries as determined by core/platform routing. There is no claim of anonymity or DNS leak protection before device QA. Android excludes RADVPN's own UID from TUN capture for bootstrap/subscriptions; other user applications are not excluded by that implementation.
+- Raw Xray access and error logs are disabled. Application diagnostic events contain localized states/error codes only, are bounded and remain in memory. Core errors are not echoed with UUIDs or credentials. Profile names/URLs are not written to diagnostic logs.
+- QR capture is performed locally with ZXing; camera permission is requested through Android. No QR cloud API is used. Clipboard/file content is read only for user-initiated import. Android prevents screenshots of sensitive app pages and disables cloud backup.
+- Backups contain credentials but remain encrypted and device/account-bound. They are not portable password-protected exports. Uninstalling Android removes the app data and may invalidate all such backups. Windows vault deletion is an explicit separate step described in INSTALL.md.
+- GitHub is used for public source and CI, not user profile storage. Source builds contact Go, NuGet, Maven/Google, Gradle and official driver endpoints. These build-time requests are separate from application runtime behavior.
+
+No VPN can prevent all endpoint, browser, provider or operating-system tracking. This development build has not passed platform leak, forced-crash, lifecycle or network-switch tests. Do not rely on it for safety-critical privacy.

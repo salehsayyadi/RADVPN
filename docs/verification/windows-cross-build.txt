@@ -1,0 +1,5 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+CSC : warning WFAC010: Remove high DPI settings from /vercel/sandbox/data/RADVPN/apps/windows/app.manifest and configure via Application.SetHighDpiMode API or 'ApplicationHighDpiMode' project property [/vercel/sandbox/data/RADVPN/apps/windows/RADVPN.csproj]
+  RADVPN -> /vercel/sandbox/data/RADVPN/apps/windows/bin/Release/net8.0-windows/win-x64/RADVPN.dll
+  RADVPN -> /vercel/sandbox/data/RADVPN/dist/windows/
