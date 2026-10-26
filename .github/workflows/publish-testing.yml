@@ -1,90 +1,10 @@
-name: Publish RADVPN testing prerelease
+name: Legacy testing publication (disabled)
 on:
-  workflow_run:
-    workflows: ['RADVPN testing builds']
-    types: [completed]
-    branches: [main]
+  workflow_dispatch:
 permissions:
-  actions: read
-  contents: write
-concurrency:
-  group: publish-radvpn-v2.0.0
-  cancel-in-progress: false
+  contents: read
 jobs:
-  publish:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository
-    runs-on: ubuntu-latest
+  notice:
+    runs-on: ubuntu-24.04
     steps:
-      - name: Download Windows testing build from successful CI
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: RADVPN-2.0.0-windows-x64-testing
-          path: release/windows
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
-      - name: Download Android testing build from successful CI
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: RADVPN-2.0.0-android-debug-testing
-          path: release/android
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
-      - name: Validate archives and prepare downloadable assets
-        env:
-          BUILD_COMMIT: ${{ github.event.workflow_run.head_sha }}
-          BUILD_URL: ${{ github.event.workflow_run.html_url }}
-        run: |
-          set -euo pipefail
-          mkdir -p assets
-          cp release/windows/RADVPN-2.0.0-windows-x64-testing.zip assets/
-          mapfile -t apks < <(find release/android -type f -name app-debug.apk)
-          test "${#apks[@]}" -eq 1
-          cp "${apks[0]}" assets/RADVPN-2.0.0-android-debug-testing.apk
-          python3 - <<'PY'
-          import pathlib, zipfile
-          for p in pathlib.Path('assets').iterdir():
-              with zipfile.ZipFile(p) as z:
-                  assert z.testzip() is None, p.name
-                  names = z.namelist()
-                  if p.suffix == '.apk':
-                      assert 'AndroidManifest.xml' in names
-                      assert any(n.endswith('/libgojni.so') for n in names)
-                  else:
-                      assert any(n.endswith('RADVPN.exe') for n in names)
-                      assert any(n.endswith('radcore.exe') for n in names)
-          PY
-          (cd assets && sha256sum *.zip *.apk > SHA256SUMS.txt)
-          cat > notes.md <<'NOTES'
-          ## Experimental testing build — not a production-ready VPN
-
-          **فارسی:** این نسخه آزمایشی است. فایل ویندوز یک بسته portable است و APK اندروید با کلید debug امضا شده است. عملکرد تونل، نشت DNS/IPv6، بازیابی پس از خرابی و اتصال به سرور واقعی روی دستگاه‌های کاربر تأیید نشده‌اند. برای حفاظت حساس از حریم خصوصی به این نسخه تکیه نکنید.
-
-          **English:** This user-requested prerelease contains CI-built testing packages, not a completed production release. Android is debug-signed. Windows is a portable package, not an installer. No production signing identity or Android AAB is included.
-
-          ### Downloads
-          - `RADVPN-2.0.0-windows-x64-testing.zip` — extract the entire archive and run RADVPN.exe. Tunnel testing requires administrator rights.
-          - `RADVPN-2.0.0-android-debug-testing.apk` — Android 8+; ARM64/x86_64; testing/debug signed.
-          - `SHA256SUMS.txt` — checksums for these exact CI-built assets; they may differ from earlier sandbox builds.
-
-          ### Usage
-          Profiles → Import links / Base64 → select your own profile → Overview → Connect. Tunnel is the initial default. To use Proxy mode, switch mode and configure applications for SOCKS5 127.0.0.1:10808 or HTTP 127.0.0.1:10809. To change port: disconnect → Settings → SOCKS port → Save → reconnect; HTTP uses the next port.
-
-          ### Important limitations
-          CI builds/tests do not validate device-wide tunnel routing, DNS/IPv6 leaks, forced-crash recovery, network changes or remote Xray protocol compatibility. No authorized remote test server was supplied. Automatic reconnect, batch server testing, startup integration, user-configurable Android per-app routing and a Windows installer remain incomplete.
-
-          See docs/TESTING.md and docs/KNOWN_LIMITATIONS.md in the source. Those documents record the original no-release decision; this testing prerelease was subsequently requested by the user. Their unverified-platform warnings still apply.
-          NOTES
-          printf '\nBuild commit: `%s`\n\nSuccessful CI build: %s\n' "$BUILD_COMMIT" "$BUILD_URL" >> notes.md
-      - name: Publish prerelease and upload actual build assets
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-          BUILD_COMMIT: ${{ github.event.workflow_run.head_sha }}
-        run: |
-          set -euo pipefail
-          if gh release view v2.0.0 >/dev/null 2>&1; then
-            echo 'v2.0.0 already exists; refusing to overwrite release assets.' >&2
-            exit 1
-          fi
-          gh release create v2.0.0 assets/* --target "$BUILD_COMMIT" --title 'RADVPN 2.0.0' --notes-file notes.md --prerelease
-          gh release view v2.0.0 --json url,isPrerelease,assets
+      - run: echo "Superseded by the Windows installer release workflow. No legacy release will be published."
