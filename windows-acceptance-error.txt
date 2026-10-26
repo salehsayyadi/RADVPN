@@ -1,0 +1,10 @@
+Exception: D:\a\RADVPN\RADVPN\scripts\test-windows-installer.ps1:21
+Line |
+  21 |  … arget -ne "$install\RADVPN.exe") { throw 'Shortcut target mismatch' }
+     |                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Shortcut target mismatch
+
+
+at <ScriptBlock>, D:\a\RADVPN\RADVPN\scripts\test-windows-installer.ps1: line 21
+at <ScriptBlock>, D:\a\_temp\1affb51d-d7df-49f6-8d71-934af940d2b6.ps1: line 2
+at <ScriptBlock>, <No file>: line 1
