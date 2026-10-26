@@ -1,0 +1,736 @@
+{
+  "passed": false,
+  "captures": [
+    {
+      "page": "home",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "home-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "servers",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "servers-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "subscriptions",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "subscriptions-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "configs",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "configs-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "profiles",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "profiles-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "traffic",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "traffic-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "settings-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings-connection",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "settings-connection-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings-security",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "settings-security-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings-advanced",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "settings-advanced-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "advanced",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "advanced-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "logs",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "logs-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "about",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "about-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "home-proxy",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "home-proxy-en-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "home",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "home-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "servers",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "servers-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "subscriptions",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "subscriptions-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "configs",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "configs-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "profiles",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "profiles-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "traffic",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "traffic-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "settings-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings-connection",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "settings-connection-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings-security",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "settings-security-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings-advanced",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "settings-advanced-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "advanced",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "advanced-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "logs",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "logs-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "about",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "about-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "home-proxy",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "home-proxy-en-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "home",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "home-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "servers",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "servers-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "subscriptions",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "subscriptions-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "configs",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "configs-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "profiles",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "profiles-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "traffic",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "traffic-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "settings-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings-connection",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "settings-connection-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings-security",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "settings-security-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings-advanced",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "settings-advanced-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "advanced",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "advanced-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "logs",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "logs-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "about",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "about-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "home-proxy",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1104,
+      "clientHeight": 749,
+      "filename": "home-proxy-fa-1440x900.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "home",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "home-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "servers",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "servers-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "subscriptions",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "subscriptions-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "configs",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "configs-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "profiles",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "profiles-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "traffic",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "traffic-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "settings-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings-connection",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "settings-connection-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings-security",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "settings-security-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "settings-advanced",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "settings-advanced-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "advanced",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "advanced-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "logs",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "logs-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "about",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "about-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    },
+    {
+      "page": "home-proxy",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1104,
+      "clientHeight": 681,
+      "filename": "home-proxy-fa-1280x720.png",
+      "overflow": [
+        "Requested native window size was constrained by the runner display"
+      ]
+    }
+  ],
+  "failures": [
+    "home-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "servers-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "subscriptions-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "configs-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "profiles-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "traffic-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "settings-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "settings-connection-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "settings-security-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "settings-advanced-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "advanced-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "logs-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "about-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "home-proxy-en-1440x900.png: Requested native window size was constrained by the runner display",
+    "home-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "servers-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "subscriptions-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "configs-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "profiles-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "traffic-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "settings-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "settings-connection-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "settings-security-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "settings-advanced-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "advanced-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "logs-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "about-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "home-proxy-en-1280x720.png: Requested native window size was constrained by the runner display",
+    "home-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "servers-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "subscriptions-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "configs-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "profiles-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "traffic-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "settings-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "settings-connection-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "settings-security-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "settings-advanced-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "advanced-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "logs-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "about-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "home-proxy-fa-1440x900.png: Requested native window size was constrained by the runner display",
+    "home-fa-1280x720.png: Requested native window size was constrained by the runner display",
+    "servers-fa-1280x720.png: Requested native window size was constrained by the runner display",
+    "subscriptions-fa-1280x720.png: Requested native window size was constrained by the runner display",
+    "configs-fa-1280x720.png: Requested native window size was constrained by the runner display",
+    "profiles-fa-1280x720.png: Requested native window size was constrained by the runner display",
+    "traffic-fa-1280x720.png: Requested native window size was constrained by the runner display",
+    "settings-fa-1280x720.png: Requested native window size was constrained by the runner display",
+    "settings-connection-fa-1280x720.png: Requested native window size was constrained by the runner display",
+    "settings-security-fa-1280x720.png: Requested native window size was constrained by the runner display",
+    "settings-advanced-fa-1280x720.png: Requested native window size was constrained by the runner display",
+    "advanced-fa-1280x720.png: Requested native window size was constrained by the runner display",
+    "logs-fa-1280x720.png: Requested native window size was constrained by the runner display",
+    "about-fa-1280x720.png: Requested native window size was constrained by the runner display",
+    "home-proxy-fa-1280x720.png: Requested native window size was constrained by the runner display"
+  ],
+  "scope": "Actual compiled WPF client subtree rendered offscreen with inherited RTL root transform restored; not a physical display or VPN leak test"
+}

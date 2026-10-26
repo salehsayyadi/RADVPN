@@ -1,0 +1,1 @@
+Native diagnostic UI exit: 2
