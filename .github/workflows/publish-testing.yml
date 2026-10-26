@@ -37,7 +37,9 @@ jobs:
           set -euo pipefail
           mkdir -p assets
           cp release/windows/RADVPN-2.0.0-windows-x64-testing.zip assets/
-          cp release/android/app-debug.apk assets/RADVPN-2.0.0-android-debug-testing.apk
+          mapfile -t apks < <(find release/android -type f -name app-debug.apk)
+          test "${#apks[@]}" -eq 1
+          cp "${apks[0]}" assets/RADVPN-2.0.0-android-debug-testing.apk
           python3 - <<'PY'
           import pathlib, zipfile
           for p in pathlib.Path('assets').iterdir():
