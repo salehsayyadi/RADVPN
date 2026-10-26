@@ -1,0 +1,9 @@
+{
+  "version": "2.0.0",
+  "version_code": 20001,
+  "run_id": 40390344459,
+  "source_sha": "1adc48804f02b8900baaeaa16ed2e542c871f3d5",
+  "native_ui_reviewed": true,
+  "channel": "debug-testing",
+  "device_tunnel_verified": false
+}
