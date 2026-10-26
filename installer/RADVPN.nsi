@@ -11,13 +11,13 @@ Unicode true
 !define VERSION "2.0.0"
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\RADVPN"
 !ifndef APP_DIR
-!define APP_DIR "${REPO_ROOT}/dist/windows"
+!define APP_DIR "${REPO_ROOT}\dist\windows"
 !endif
 !ifndef REMOVE_MANIFEST
-!define REMOVE_MANIFEST "${REPO_ROOT}/dist/UninstallFiles.nsh"
+!define REMOVE_MANIFEST "${REPO_ROOT}\dist\UninstallFiles.nsh"
 !endif
 Name "RADVPN 2.0.0"
-OutFile "${REPO_ROOT}/dist/RADVPN-Setup-2.0.0-x64.exe"
+OutFile "${REPO_ROOT}\dist\RADVPN-Setup-2.0.0-x64.exe"
 InstallDir "$LOCALAPPDATA\Programs\RADVPN"
 InstallDirRegKey HKCU "${UNINSTALL_KEY}" "InstallLocation"
 RequestExecutionLevel user
@@ -28,13 +28,13 @@ VIAddVersionKey /LANG=1033 "FileVersion" "2.0.0.0"
 VIAddVersionKey /LANG=1033 "ProductVersion" "2.0.0"
 VIAddVersionKey /LANG=1033 "FileDescription" "RADVPN x64 experimental application setup"
 VIAddVersionKey /LANG=1033 "LegalCopyright" "RADVPN contributors"
-!define MUI_ICON "${REPO_ROOT}/assets/RADVPN.ico"
-!define MUI_UNICON "${REPO_ROOT}/assets/RADVPN.ico"
+!define MUI_ICON "${REPO_ROOT}\assets\RADVPN.ico"
+!define MUI_UNICON "${REPO_ROOT}\assets\RADVPN.ico"
 !define MUI_ABORTWARNING
 !define MUI_WELCOMEPAGE_TITLE "RADVPN 2.0.0"
 !define MUI_WELCOMEPAGE_TEXT "Install RADVPN for the current Windows user.$\r$\n$\r$\nThis is an unsigned experimental build. No driver is installed and no network settings are changed by setup. Tunnel mode requires a later, explicit administrator Connect action.$\r$\n$\r$\nProfiles are encrypted in the user's LocalAppData folder and are preserved during upgrades and uninstall. Device-wide tunnel safety is not verified."
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "${REPO_ROOT}/LICENSE"
+!insertmacro MUI_PAGE_LICENSE "${REPO_ROOT}\LICENSE"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -82,7 +82,7 @@ FunctionEnd
 Section "RADVPN application (required)" Main
  SectionIn RO
  SetOutPath "$INSTDIR"
- File /r "${APP_DIR}/*.*"
+ File /r "${APP_DIR}\*.*"
  WriteUninstaller "$INSTDIR\Uninstall.exe"
  CreateDirectory "$SMPROGRAMS\RADVPN"
  CreateShortcut "$SMPROGRAMS\RADVPN\RADVPN.lnk" "$INSTDIR\RADVPN.exe" "" "$INSTDIR\RADVPN.ico"

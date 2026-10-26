@@ -29,7 +29,6 @@ jobs:
         run: go test ./packages/engine -run '^$' -fuzz FuzzImport -fuzztime 20s -parallel 2
   windows:
     runs-on: windows-2022
-    needs: shared
     permissions:
       contents: write
     steps:
@@ -56,6 +55,15 @@ jobs:
       - name: Build self-contained installer and verify vendor driver signature
         shell: pwsh
         run: ./scripts/build-windows.ps1 *>&1 | Tee-Object -FilePath dist/windows-build.txt
+      - name: Capture compiled native UI for diagnosis if packaging fails
+        if: failure()
+        shell: pwsh
+        timeout-minutes: 3
+        run: |
+          if (Test-Path dist/windows/RADVPN.exe) {
+            $p = Start-Process dist/windows/RADVPN.exe -ArgumentList "--ui-smoke --capture-dir `"$PWD/dist/ui-evidence`"" -PassThru -Wait
+            "Native diagnostic UI exit: $($p.ExitCode)" | Set-Content dist/windows-ui-diagnostic.txt
+          }
       - name: Install, launch, capture actual WPF UI, repair and uninstall
         shell: pwsh
         timeout-minutes: 8
@@ -88,7 +96,6 @@ jobs:
         run: bash scripts/publish-evidence.sh
   android:
     runs-on: ubuntu-24.04
-    needs: shared
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff

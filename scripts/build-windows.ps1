@@ -30,6 +30,7 @@ foreach ($module in @('microsoft.netcore.app.runtime.win-x64','microsoft.windows
   }
 }
 Get-ChildItem dist/windows -Filter *.pdb | Remove-Item
+Get-ChildItem dist/windows | Select-Object Name,Length | Format-Table
 python scripts/installer-manifest.py
 if ($LASTEXITCODE -ne 0) { throw 'Uninstall manifest generation failed' }
 $compilerPath = (Get-Command makensis.exe -ErrorAction SilentlyContinue).Source
