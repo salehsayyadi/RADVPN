@@ -233,7 +233,8 @@ internal sealed partial class MainWindow
                 panel.Children.Add(Actions(Action("save", () => Task.CompletedTask, "check", true), Action("cancel", () => Task.CompletedTask)));
                 dialog.Show();
                 await Task.Delay(200);
-                NativeSmoke.Bitmap((FrameworkElement)dialog.Content, Path.Combine(directory, "dialog-" + language + ".png"));
+                // Capture the complete native Window so the content margin does not crop buttons.
+                NativeSmoke.Bitmap(dialog, Path.Combine(directory, "dialog-" + language + ".png"));
                 dialog.Close();
             }
             File.WriteAllText(Path.Combine(directory, "ui-report.json"), JsonSerializer.Serialize(new
