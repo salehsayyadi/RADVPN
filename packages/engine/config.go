@@ -15,6 +15,7 @@ type Rule struct {
 	Action  string   `json:"action"`
 }
 type Settings struct {
+	IPv6  string   `json:"ipv6"`
 	Mode  string   `json:"mode"`
 	Port  int      `json:"port"`
 	Bind  string   `json:"bind"`
@@ -24,9 +25,23 @@ type Settings struct {
 }
 
 func Defaults() Settings {
-	return Settings{Mode: "tunnel", Port: 10808, Bind: "127.0.0.1", MTU: 1500, DNS: []string{"1.1.1.1", "2606:4700:4700::1111"}}
+	return Settings{IPv6: "tunnel", Mode: "tunnel", Port: 10808, Bind: "127.0.0.1", MTU: 1500, DNS: []string{"1.1.1.1", "2606:4700:4700::1111"}}
 }
 func (s Settings) Validate() error {
+	if s.IPv6 != "" && s.IPv6 != "tunnel" && s.IPv6 != "block" {
+		return errors.New("invalid_settings")
+	}
+	if s.IPv6 == "block" {
+		has4 := false
+		for _, d := range s.DNS {
+			if ip := net.ParseIP(d); ip != nil && ip.To4() != nil {
+				has4 = true
+			}
+		}
+		if !has4 {
+			return errors.New("invalid_dns")
+		}
+	}
 	if s.Mode != "tunnel" && s.Mode != "proxy" {
 		return errors.New("invalid_settings")
 	}
@@ -84,6 +99,9 @@ func Build(p Profile, s Settings, platform string) ([]byte, error) {
 	outbound["tag"] = "proxy"
 	inbounds := []any{map[string]any{"tag": "socks", "listen": s.Bind, "port": s.Port, "protocol": "socks", "settings": map[string]any{"auth": "noauth", "udp": true}}, map[string]any{"tag": "http", "listen": s.Bind, "port": s.Port + 1, "protocol": "http", "settings": map[string]any{}}}
 	if s.Mode == "tunnel" {
+		if platform == "android" && s.IPv6 == "block" {
+			return nil, errors.New("unsupported_feature")
+		}
 		if platform != "windows" && platform != "android" {
 			return nil, errors.New("unsupported_platform")
 		}
@@ -94,6 +112,17 @@ func Build(p Profile, s Settings, platform string) ([]byte, error) {
 			tun["autoSystemRoutingTable"] = []string{"0.0.0.0/1", "128.0.0.0/1", "::/1", "8000::/1"}
 			tun["autoOutboundsInterface"] = "auto"
 			tun["autoSystemWfpBlockLeak"] = []string{"dns", "misconfigtun"}
+			if s.IPv6 == "block" {
+				tun["gateway"] = []string{"172.29.83.1/30"}
+				tun["autoSystemRoutingTable"] = []string{"0.0.0.0/1", "128.0.0.0/1"}
+				resolvers := []string{}
+				for _, d := range s.DNS {
+					if net.ParseIP(d).To4() != nil {
+						resolvers = append(resolvers, d)
+					}
+				}
+				tun["dns"] = resolvers
+			}
 		}
 		inbounds = append(inbounds, map[string]any{"tag": "tun", "protocol": "tun", "port": 0, "settings": tun})
 	}

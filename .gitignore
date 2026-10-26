@@ -19,3 +19,5 @@
 vault.bin*
 .env*
 !*.example
+/assets/RADVPN.ico
+/assets/logo-256.png

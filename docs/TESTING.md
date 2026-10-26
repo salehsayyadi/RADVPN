@@ -1,5 +1,14 @@
 # Actual verification — 2026-10-26
 
+## Redesign verification (current work)
+
+Local Linux: redesigned native WPF cross-publish succeeded, Go race tests including JSON boundaries and IPv6 policy passed, and a real NSIS installer compiled (56,745,919 bytes at this intermediate build). This is not Windows execution evidence. Hosted Windows installation/UI/repair/uninstall tests are being run; results are pending and must not be presumed passed. The original record below documents the earlier baseline, not the redesigned UI.
+
+New tests: `TestJSONImportBoundary`, `TestWindowsIPv6Policy`; new CI native test commands: `./scripts/build-windows.ps1`, `./scripts/test-windows-installer.ps1`, installed `RADVPN.exe --self-test`, installed `RADVPN.exe --ui-smoke --capture-dir`. Native UI screenshots are rendered by actual compiled WPF, not a HTML mockup.
+
+## Historical baseline record
+
+
 ## Release decision
 
 **Development implementation and testing artifacts only. `v2.0.0` is NOT tagged or published as a release.** Source and native builds are real, but native tunnel safety/cleanup and the full product specification have not passed acceptance. A successful cross-build is not a Windows launch test; an APK signature check is not an Android VPN test.

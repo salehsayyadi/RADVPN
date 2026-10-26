@@ -286,3 +286,37 @@ func FuzzImport(f *testing.F) {
 		_, _ = Import(s)
 	})
 }
+
+func TestJSONImportBoundary(t *testing.T) {
+	safe := `{"protocol":"http","tag":"local node","settings":{"servers":[{"address":"127.0.0.1","port":3128}]}}`
+	for _, text := range []string{safe, `[` + safe + `]`, `{"outbounds":[` + safe + `]}`} {
+		r, e := Import(text)
+		if e != nil || len(r.Profiles) != 1 {
+			t.Fatalf("safe outbound rejected: %v", e)
+		}
+	}
+	for _, text := range []string{`{"outbounds":[` + safe + `],"env":{"xray.tun.fd":"5"}}`, `{"protocol":"freedom","settings":{}}`, `{"protocol":"http","settings":{},"streamSettings":{"network":"tcp","security":"tls","tlsSettings":{"allowInsecure":true}}}`} {
+		if _, e := Import(text); e == nil {
+			t.Fatal("unsafe JSON imported")
+		}
+	}
+}
+func TestWindowsIPv6Policy(t *testing.T) {
+	p, _ := ParseLink("trojan://test@example.com:443")
+	s := Defaults()
+	s.IPv6 = "block"
+	b, e := Build(p, s, "windows")
+	if e != nil {
+		t.Fatal(e)
+	}
+	if _, e = serial.LoadJSONConfig(bytes.NewReader(b)); e != nil {
+		t.Fatal(e)
+	}
+	if bytes.Contains(b, []byte(`"::/1"`)) {
+		t.Fatal("IPv6 route installed in block policy")
+	}
+	s.DNS = []string{"2606:4700:4700::1111"}
+	if s.Validate() == nil {
+		t.Fatal("IPv4 DNS missing in IPv6 block policy")
+	}
+}

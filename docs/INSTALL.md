@@ -4,11 +4,15 @@
 
 ## Windows 10/11 x64
 
-Prerequisites: Go 1.27.3, .NET 8 SDK, Python 3, PowerShell, network access to authenticated dependency sources. Run `./scripts/build-windows.ps1` from the checkout. The script builds the native engine and self-contained WPF app, verifies the pinned official Wintun ZIP SHA256 and validates its Authenticode signature, then creates `dist/RADVPN-2.0.0-windows-x64-testing.zip`.
+Prerequisites for building: Go 1.27.3, .NET 8 SDK, Python 3, PowerShell and Unicode NSIS 3.12. Run `./scripts/build-windows.ps1`. It generates the original RADVPN icon from its checked-in source, builds the native core and self-contained WPF runtime, verifies pinned Wintun SHA256 plus vendor Authenticode, collects notices, builds `dist/RADVPN-Setup-2.0.0-x64.exe` and writes `dist/SHA256SUMS.txt`.
 
-Extract the **whole folder**, not just RADVPN.exe: the desktop runtime's native DLLs, `radcore.exe`, `wintun.dll`, localization files and license notices must stay together. Run `RADVPN.exe`. For Tunnel, close it completely via tray → Quit and start **Run as administrator**. Proxy mode does not require elevation. This is a portable build, not an installed service. Close/minimize behavior defaults to tray; disconnect before quitting.
+Run the actual installer from a verified GitHub prerelease (when available), check its SHA256, and follow the installation wizard. **Unsigned / experimental:** Windows SmartScreen may warn; no digital signature is claimed. Setup installs only for the current user under `%LOCALAPPDATA%\Programs\RADVPN`, registers an uninstaller and Start Menu shortcuts, and offers a desktop shortcut. Setup does not change routes or install a network driver silently. No development server or separately installed .NET runtime is required.
 
-To remove: disconnect, choose Quit, remove extracted application folder. To remove saved profiles intentionally, delete `%LOCALAPPDATA%\RADVPN` after exiting. Never remove a shared Windows network driver blindly; inspect Device Manager if an app-owned adapter persists after a crash and record the failure for QA.
+Launch from Start Menu. Proxy mode does not require elevation. Tunnel is the default; quit fully using the tray, then Run as administrator for an explicit Tunnel connection. A failed permission check is not Connected. The TUN safety acceptance matrix is not yet passed.
+
+Before upgrade or uninstall, disconnect and choose Quit. Setup refuses while the application mutex is active; a newer installed version cannot be downgraded. The same installation location is reused. Uninstall removes only listed app-owned payload/shortcuts/startup registration; `%LOCALAPPDATA%\RADVPN` encrypted profiles, settings and sampled history are deliberately preserved. Remove that data folder yourself only if you intentionally want to erase it. Never remove shared Windows networking drivers blindly.
+
+For reproducible native smoke checks after building: `./scripts/test-windows-installer.ps1`. It uses an isolated install folder, real DPAPI and child IPC, actual WPF captures at two sizes in both languages, Start Menu launch, graceful shutdown, same-version repair and uninstall. It is not a physical-device TUN/leak test.
 
 ## Android 8+ (API 26), arm64 / x86_64
 
@@ -33,7 +37,7 @@ The app does not silently request battery-optimization exemption. Device power-m
 4. Open Overview. Tunnel is the initial default. Press Connect. Windows requires administrator rights and the verified Wintun DLL; Android requires VPN consent.
 5. Connecting is not Connected: wait for an actual policy-routed HTTPS 204 result. An error closes the core. A successful result is **not** evidence that every other application was captured by the device routes.
 6. Press Disconnect before changing network configuration. To switch modes, select Tunnel or Local proxy on Overview; the old engine is shut down first. In Proxy mode, configure each application to use `127.0.0.1:10808` SOCKS5, or `127.0.0.1:10809` HTTP. The app does not change the operating-system proxy globally.
-7. To change the port: disconnect → Settings → SOCKS port → Save → reconnect. Range: 1024–65534. HTTP uses the next port. A conflict on either listener fails startup with a localized error. Only loopback addresses are allowed; `0.0.0.0` and public interfaces are rejected.
+7. To change the port: disconnect → Settings → Connection → SOCKS port → Save → reconnect. Range: 1024–65534. HTTP uses the next port. A conflict on either listener fails startup with a localized error. Only loopback addresses are allowed; `0.0.0.0` and public interfaces are rejected.
 8. Settings supports validated DNS IPs, MTU and domain/IP routing JSON. Example:
 
 ```json

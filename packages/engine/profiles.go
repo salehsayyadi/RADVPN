@@ -310,6 +310,9 @@ func Import(text string) (ImportResult, error) {
 		return r, errors.New("import_too_large")
 	}
 	text = strings.TrimSpace(text)
+	if strings.HasPrefix(text, "{") || strings.HasPrefix(text, "[") {
+		return ImportOutbounds(text)
+	}
 	if !strings.Contains(text, "://") {
 		b, e := decode64(text)
 		if e != nil {
