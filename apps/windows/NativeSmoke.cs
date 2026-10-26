@@ -180,6 +180,11 @@ internal sealed partial class MainWindow
                         root.FlowDirection = FlowDirection;
                         root.Resources.MergedDictionaries.Add(Resources.MergedDictionaries[0]);
                         Content = null;
+                        UpdateLayout();
+                        await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+                        root.Width = size.Width;
+                        root.Height = size.Height;
+                        root.InvalidateMeasure();
                         root.Measure(new Size(size.Width, size.Height));
                         root.Arrange(new Rect(0, 0, size.Width, size.Height));
                         root.UpdateLayout();
