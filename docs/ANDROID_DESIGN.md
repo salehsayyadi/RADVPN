@@ -10,7 +10,7 @@ Language switches immediately between English and Persian with a mirrored native
 
 `.github/workflows/android-design.yml` builds the actual APK + instrumentation APK, collects Android-selected Go licenses and resolved Maven runtime notices, runs lint/signature checks, and exercises the installed native APK on an API35 x86_64 emulator at two phone viewports (360×720 and 390×844 dp). It captures all 11 pages in both languages and tests core import/defaults, invalid DNS, real local port conflict and Android Keystore tamper rejection. Successful compilation is not a substitute for those reports or visual inspection.
 
-At implementation commit time, this gate is being executed; no emulator pass is presumed. Reviewed successful source run and actual released checksum will be recorded separately. The already published Windows v2.0.0 tag will not be moved. Android publication uses a distinct tag after verification.
+The final strict build/lint and installed-emulator gate passed at source `1adc48804f02b8900baaeaa16ed2e542c871f3d5`, run40390344459 attempt2. The reviewed APK is published under the separate `v2.0.0-android.1` prerelease. See [publication receipt](ANDROID_RELEASE_RECEIPT.md) for actual checksums, test scope and public-asset verification. Windows v2.0.0 was not moved or replaced.
 
 ## Limits
 

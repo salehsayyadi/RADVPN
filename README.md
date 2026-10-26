@@ -2,7 +2,14 @@
 
 Native Windows x64 and Android Xray client, with English/Persian UI and Tunnel selected by default.
 
-> **Experimental testing software, NOT a completed production release.** The redesigned Windows installer passed hosted install/launch/repair/uninstall checks and native offscreen visual review. Only an experimental unsigned prerelease is authorized; see [GitHub Releases](https://github.com/salehsayyadi/RADVPN/releases) for published assets. Compiling a TUN integration is not evidence of leak protection. See [testing](docs/TESTING.md) and the [remaining release blockers](docs/KNOWN_LIMITATIONS.md).
+> **Experimental testing software, NOT a completed production release.** The redesigned Windows installer passed hosted install/launch/repair/uninstall checks and native offscreen visual review. Windows remains an unsigned experimental prerelease; Android is a debug-signed experimental prerelease; see [GitHub Releases](https://github.com/salehsayyadi/RADVPN/releases) for published assets. Compiling a TUN integration is not evidence of leak protection. See [testing](docs/TESTING.md) and the [remaining release blockers](docs/KNOWN_LIMITATIONS.md).
+
+## Downloads / دانلود
+
+- [Windows 2.0.0 installer](https://github.com/salehsayyadi/RADVPN/releases/tag/v2.0.0) — experimental, unsigned; unchanged.
+- [Android 2.0.0 design update1 APK](https://github.com/salehsayyadi/RADVPN/releases/download/v2.0.0-android.1/RADVPN-2.0.0-android-design1-debug.apk) — debug/testing signature, Android8+64-bit (ARM64/x86_64), native dark/orange design and Persian/English UI. [Release notes](docs/ANDROID_RELEASE_NOTES.md) · [verified publication receipt](docs/ANDROID_RELEASE_RECEIPT.md).
+
+Both are testing releases, not device-network privacy certification. Check release SHA256SUMS before installing. Android debug signing keys may differ: do not uninstall an older app blindly because its Keystore-bound data can become unreadable.
 
 ## What is implemented
 
@@ -10,8 +17,8 @@ Native Windows x64 and Android Xray client, with English/Persian UI and Tunnel s
 - Redesigned native WPF desktop: reusable blue-black/orange tokens, circular power control, Home, Servers, Subscriptions, Configs, Profiles, Traffic, Settings, Logs, Advanced and About; immediate English/Persian RTL.
 - Real NSIS per-user installer/uninstaller, self-contained desktop runtime, Start Menu and optional desktop shortcut; DPAPI atomic vault with recovery backup, tray and explicit current-user startup registration.
 - Bounded, cancellable TCP endpoint tests with concurrency 4 and measured best-endpoint selection. TCP reachability is distinct from the real connected-session proxy HTTPS check.
-- Encrypted daily traffic totals from real counter deltas and native live graphs without sample traffic.
-- Android native Kotlin client with Keystore AES-GCM storage, official VPN consent, foreground `VpnService`, native TUN FD handoff and socket protection.
+- Windows encrypted daily traffic totals from real counter deltas; Android current-session counters and foreground samples. Native live graphs without sample traffic.
+- Redesigned Android native Kotlin client: dark/orange panels, circular power control, bottom navigation, native server/configuration/subscription/settings/traffic/diagnostic pages, immediate Persian RTL; Keystore AES-GCM storage, official VPN consent, foreground `VpnService`, native TUN FD handoff and socket protection.
 - Tunnel/proxy switching with explicit shutdown. Loopback SOCKS5 defaults to `127.0.0.1:10808`; HTTP uses `10809` (SOCKS port + 1).
 - VLESS, legacy VMess Base64 JSON, Trojan, SIP002 Shadowsocks, SOCKS and HTTP links; TCP, WS, gRPC and bounded XHTTP settings. Unsupported combinations are rejected rather than silently approximated.
 - Plain/Base64 link-list import, clipboard/file import, deduplication, search, favorites, rename/duplicate/enable/delete, safe advanced outbound editing, HTTPS subscriptions, encrypted same-device backups.
