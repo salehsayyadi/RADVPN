@@ -1,0 +1,23 @@
+go: downloading golang.org/x/mobile v0.0.0-20261011034528-197770444867
+go: downloading golang.org/x/mod v0.42.0
+go: downloading golang.org/x/tools v0.52.0
+Bundled Android selected-module licenses: 46
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :app:collectAndroidNotices FAILED
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1793042677283.json
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:collectAndroidNotices'.
+> No declared runtime license in POM: com.google.zxing:core:3.4.1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 20s
+1 actionable task: 1 executed
