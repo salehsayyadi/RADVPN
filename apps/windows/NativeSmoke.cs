@@ -121,8 +121,8 @@ internal static class NativeSmoke
         var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
         bitmap.Render(element);
         // Rendering a subtree omits the inherited RTL root transform applied by its Window.
-        BitmapSource frame = element.FlowDirection == FlowDirection.RightToLeft
-            ? new TransformedBitmap(bitmap, new ScaleTransform(-1, 1)) : bitmap;
+        bool inheritedMirror = element.FlowDirection == FlowDirection.RightToLeft && PresentationSource.FromVisual(element)?.RootVisual != element;
+        BitmapSource frame = inheritedMirror ? new TransformedBitmap(bitmap, new ScaleTransform(-1, 1)) : bitmap;
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(frame));
         using var file = File.Create(path);
