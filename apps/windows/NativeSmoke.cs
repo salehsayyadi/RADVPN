@@ -228,8 +228,8 @@ internal sealed partial class MainWindow
                 {
                     try
                     {
-                        var point = element.TransformToAncestor(root).Transform(new Point(0, 0));
-                        if (point.X < -3 || point.X + element.ActualWidth > root.ActualWidth + 3)
+                        var bounds = element.TransformToAncestor(root).TransformBounds(new Rect(0, 0, element.ActualWidth, element.ActualHeight));
+                        if (bounds.Left < -3 || bounds.Right > root.ActualWidth + 3)
                             errors.Add(element.GetType().Name + " horizontal overflow");
                     }
                     catch { }
