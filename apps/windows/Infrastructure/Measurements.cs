@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+
 namespace RADVPN;
 internal sealed record ProbeResult(string Id, long? Milliseconds, bool Reachable);
 internal static class EndpointProbe

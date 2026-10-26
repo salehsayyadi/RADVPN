@@ -13,8 +13,9 @@ Xray-core v26.10.21 is pinned to commit `1b1647cd9ddf0abc34b981d4611fc03bcac1ca7
 - `packages/engine/engine.go`: serialized lifecycle, HTTPS probe, actual counters, protected dialer and bounded HTTPS subscription fetch.
 - `packages/mobile`: small gomobile-safe JSON boundary; a single Go runtime.
 - `cmd/radcore`: inherited stdin/stdout JSON IPC. EOF stops the engine. There is no unauthenticated control listener.
-- `packages/localization`: 101 matching English and Persian keys; native direction changes without process restart.
-- `apps/windows`: async sequential IPC, DPAPI vault, native WPF UI, session-only redacted diagnostic events, tray and size persistence.
+- `packages/localization`: 193 matching English and Persian keys; native direction changes without process restart.
+- `apps/windows`: native WPF partial page classes, centralized Theme.xaml tokens and original vector icons; sequential IPC, timeout process termination, atomic DPAPI vault/backups, real bounded TCP measurements, encrypted sampled daily traffic totals, tray and geometry persistence.
+- `installer`: NSIS per-user installer; exact generated uninstall manifest, no silent driver install or route changes, app data deliberately preserved.
 - `apps/android`: native Activity, service-owned TUN descriptor, foreground notification, AES-GCM Android Keystore vault, file/share/camera imports.
 
 ## Networking

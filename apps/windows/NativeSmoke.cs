@@ -13,6 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+
 namespace RADVPN;
 internal static class NativeSmoke
 {
@@ -41,10 +42,16 @@ internal sealed partial class MainWindow
         string Read(string key, string fallback) { var index = Array.IndexOf(options, key); return index >= 0 && index + 1 < options.Length ? options[index + 1] : fallback; }
         var directory = Read("--capture-dir", Path.Combine(Path.GetTempPath(), "RADVPN-captures")); Directory.CreateDirectory(directory); var results = new List<object>(); var failures = new List<string>(); try
         {
-            foreach (var language in new[] { "en", "fa" }) foreach (var size in new[] { (Width: 1440, Height: 900), (Width: 1280, Height: 720) }) foreach (var target in new[] { "home", "servers", "subscriptions", "configs", "profiles", "traffic", "settings", "advanced", "logs", "about" })
+            foreach (var language in new[] { "en", "fa" })
+            {
+                foreach (var size in new[] { (Width: 1440, Height: 900), (Width: 1280, Height: 720) })
+                {
+                    foreach (var target in new[] { "home", "servers", "subscriptions", "configs", "profiles", "traffic", "settings", "advanced", "logs", "about" })
                     {
                         Width = size.Width; Height = size.Height; data["lang"] = language; LoadWords(); Navigate(target); await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle); await Task.Delay(160); var root = (FrameworkElement)Content; root.UpdateLayout(); var filename = $"{target}-{language}-{size.Width}x{size.Height}.png"; NativeSmoke.Bitmap(root, Path.Combine(directory, filename)); var overflow = Audit(root); results.Add(new { page = target, language, windowWidth = ActualWidth, windowHeight = ActualHeight, clientWidth = root.ActualWidth, clientHeight = root.ActualHeight, filename, overflow }); failures.AddRange(overflow.Select(x => filename + ": " + x));
                     }
+                }
+            }
             data["lang"] = "en"; LoadWords(); var dialog = Dialog(T("invalid_profile")); var panel = (StackPanel)dialog.Content; Field(panel, "import", "", true); panel.Children.Add(Actions(Action("save", () => Task.CompletedTask, "check", true), Action("cancel", () => Task.CompletedTask))); dialog.Show(); await Task.Delay(200); NativeSmoke.Bitmap((FrameworkElement)dialog.Content, Path.Combine(directory, "dialog-en.png")); dialog.Close();
             File.WriteAllText(Path.Combine(directory, "ui-report.json"), JsonSerializer.Serialize(new { passed = failures.Count == 0, captures = results, failures, scope = "Actual compiled WPF client rendered with RenderTargetBitmap; not a physical display or VPN leak test" }, new JsonSerializerOptions { WriteIndented = true }));
             Environment.ExitCode = failures.Count == 0 ? 0 : 2;

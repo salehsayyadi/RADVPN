@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+
 namespace RADVPN;
 // Consistent 24-unit line icon vocabulary, original paths inspired by common UI geometry.
 internal static class Glyphs

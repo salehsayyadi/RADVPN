@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+
 namespace RADVPN;
 internal sealed class Core : IDisposable
 {
@@ -26,6 +27,7 @@ internal sealed class Core : IDisposable
             if (response["ok"]?.GetValue<bool>() != true) throw new InvalidOperationException(response["error"]?.ToString() ?? "operation_failed");
             return response["data"]?.DeepClone() ?? new JsonObject();
         }
+        catch (TimeoutException) { try { process.Kill(true); } catch { } throw new InvalidOperationException("core_start_failed"); }
         finally { gate.Release(); }
     }
     public void Dispose() { try { process.StandardInput.Close(); if (!process.WaitForExit(8000)) process.Kill(true); } catch { } process.Dispose(); }
