@@ -1,0 +1,97 @@
+go: downloading github.com/xtls/xray-core v1.260327.1-0.20261021115930-1b1647cd9ddf
+go: downloading golang.org/x/net v0.61.0
+go: downloading github.com/ghodss/yaml v1.0.1-0.20220118164431-d8423dcdf344
+go: downloading github.com/pelletier/go-toml v1.9.5
+go: downloading github.com/yuin/gopher-lua v1.1.2
+go: downloading google.golang.org/protobuf v1.36.12
+go: downloading github.com/pires/go-proxyproto v0.15.0
+go: downloading github.com/google/uuid v1.6.0
+go: downloading github.com/refraction-networking/utls v1.8.3-0.20260301010127-aa6edf4b11af
+go: downloading github.com/robfig/cron/v3 v3.0.1
+go: downloading gopkg.in/yaml.v2 v2.4.0
+go: downloading google.golang.org/grpc v1.84.0
+go: downloading github.com/apernet/quic-go v0.61.1-0.20260806010916-184d081eef3e
+go: downloading golang.org/x/sync v0.24.0
+go: downloading golang.org/x/sys v0.49.0
+go: downloading lukechampine.com/blake3 v1.4.1
+go: downloading golang.zx2c4.com/wireguard v0.0.0-20250521234502-f333402bd9cb
+go: downloading golang.org/x/crypto v0.58.0
+go: downloading github.com/xtls/reality v0.0.0-20261014101318-83f621788ca8
+go: downloading github.com/miekg/dns v1.1.73
+go: downloading golang.org/x/crypto/x509roots/fallback v0.0.0-20261020153306-9f2b28d4331a
+go: downloading github.com/gorilla/websocket v1.5.3
+go: downloading go4.org/netipx v0.0.0-20231129151722-fdeea329fbba
+go: downloading layeh.com/gopher-luar v1.0.11
+go: downloading github.com/klauspost/cpuid/v2 v2.4.1
+go: downloading golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2
+go: downloading golang.zx2c4.com/wireguard/windows v1.1.1
+go: downloading github.com/libp2p/go-nat v1.0.1-0.20250821073202-01afc089f138
+go: downloading github.com/pion/stun/v3 v3.1.7
+go: downloading golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
+go: downloading github.com/andybalholm/brotli v1.2.3
+go: downloading github.com/klauspost/compress v1.20.0
+go: downloading google.golang.org/genproto/googleapis/rpc v0.0.0-20260706201446-f0a921348800
+go: downloading github.com/quic-go/qpack v0.6.0
+go: downloading github.com/juju/ratelimit v1.0.2
+go: downloading golang.org/x/text v0.43.0
+go: downloading github.com/pion/dtls/v3 v3.1.5
+go: downloading github.com/pion/logging v0.2.4
+go: downloading github.com/pion/transport/v4 v4.1.0
+go: downloading github.com/huin/goupnp v1.2.0
+go: downloading github.com/jackpal/go-nat-pmp v1.0.2
+go: downloading github.com/koron/go-ssdp v0.0.4
+go: downloading github.com/libp2p/go-netroute v0.2.1
+go: downloading github.com/wlynxg/anet v0.0.5
+go: downloading github.com/google/gopacket v1.1.19
+?   	radvpn/cmd/radcore	[no test files]
+=== RUN   TestProfiles
+=== RUN   TestProfiles/vless
+=== RUN   TestProfiles/vless#01
+=== RUN   TestProfiles/trojan
+=== RUN   TestProfiles/ss
+=== RUN   TestProfiles/socks
+=== RUN   TestProfiles/http
+=== RUN   TestProfiles/vmess
+--- PASS: TestProfiles (0.01s)
+    --- PASS: TestProfiles/vless (0.00s)
+    --- PASS: TestProfiles/vless#01 (0.00s)
+    --- PASS: TestProfiles/trojan (0.00s)
+    --- PASS: TestProfiles/ss (0.00s)
+    --- PASS: TestProfiles/socks (0.00s)
+    --- PASS: TestProfiles/http (0.00s)
+    --- PASS: TestProfiles/vmess (0.00s)
+=== RUN   TestRejectUnsafe
+--- PASS: TestRejectUnsafe (0.00s)
+=== RUN   TestImport
+--- PASS: TestImport (0.00s)
+=== RUN   TestSettings
+--- PASS: TestSettings (0.00s)
+=== RUN   TestLocalization
+--- PASS: TestLocalization (0.00s)
+=== RUN   TestErrorsAreRedacted
+--- PASS: TestErrorsAreRedacted (0.00s)
+=== RUN   TestCoreTrafficAndCleanup
+--- PASS: TestCoreTrafficAndCleanup (0.02s)
+=== RUN   TestPortConflict
+--- PASS: TestPortConflict (0.00s)
+=== RUN   TestStopIdempotent
+--- PASS: TestStopIdempotent (0.00s)
+=== RUN   TestJSONImportBoundary
+--- PASS: TestJSONImportBoundary (0.00s)
+=== RUN   TestWindowsIPv6Policy
+--- PASS: TestWindowsIPv6Policy (0.00s)
+=== RUN   FuzzImport
+=== RUN   FuzzImport/seed#0
+=== RUN   FuzzImport/seed#1
+=== RUN   FuzzImport/seed#2
+=== RUN   FuzzImport/seed#3
+=== RUN   FuzzImport/seed#4
+--- PASS: FuzzImport (0.00s)
+    --- PASS: FuzzImport/seed#0 (0.00s)
+    --- PASS: FuzzImport/seed#1 (0.00s)
+    --- PASS: FuzzImport/seed#2 (0.00s)
+    --- PASS: FuzzImport/seed#3 (0.00s)
+    --- PASS: FuzzImport/seed#4 (0.00s)
+PASS
+ok  	radvpn/packages/engine	0.102s
+?   	radvpn/packages/mobile	[no test files]
