@@ -39,6 +39,9 @@ jobs:
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
         with:
           dotnet-version: '8.0.427'
+      - name: Configure runner display for actual native window sizes
+        shell: pwsh
+        run: ./scripts/prepare-windows-display.ps1
       - name: Install pinned NSIS compiler
         run: choco install nsis --version=3.12 -y --no-progress
       - name: Core tests and desktop formatting
