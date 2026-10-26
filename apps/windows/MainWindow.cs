@@ -55,13 +55,6 @@ internal sealed partial class MainWindow : Window
         catch { storageLocked = true; events.Add((DateTime.Now, "storage_failed")); }
         SourceInitialized += (_, _) => System.Windows.Interop.HwndSource.FromHwnd(new System.Windows.Interop.WindowInteropHelper(this).Handle)?.AddHook((IntPtr hwnd, int message, IntPtr w, IntPtr l, ref bool handled) =>
         {
-            if (smoke && message == 0x0024)
-            {
-                System.Runtime.InteropServices.Marshal.WriteInt32(l, 32, 4096);
-                System.Runtime.InteropServices.Marshal.WriteInt32(l, 36, 4096);
-                handled = true;
-                return IntPtr.Zero;
-            }
             if (message == WindowSignals.QuitMessage)
             {
                 handled = true;

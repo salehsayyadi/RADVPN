@@ -174,12 +174,20 @@ internal sealed partial class MainWindow
                         await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
                         await Task.Delay(160);
                         var root = (FrameworkElement)Content;
+                        // A hosted service-session display constrains native window size. Render the
+                        // real compiled page offscreen at the requested CLIENT viewport instead;
+                        // retain both actual native-window dimensions and layout dimensions in evidence.
+                        root.FlowDirection = FlowDirection;
+                        root.Resources.MergedDictionaries.Add(Resources.MergedDictionaries[0]);
+                        Content = null;
+                        root.Measure(new Size(size.Width, size.Height));
+                        root.Arrange(new Rect(0, 0, size.Width, size.Height));
                         root.UpdateLayout();
                         var filename = $"{target}-{language}-{size.Width}x{size.Height}.png";
                         NativeSmoke.Bitmap(root, Path.Combine(directory, filename));
                         var overflow = Audit(root);
-                        if (Math.Abs(ActualWidth - size.Width) > 1 || Math.Abs(ActualHeight - size.Height) > 1)
-                            overflow.Add("Requested native window size was constrained by the runner display");
+                        if (Math.Abs(root.ActualWidth - size.Width) > 1 || Math.Abs(root.ActualHeight - size.Height) > 1)
+                            overflow.Add("Offscreen native viewport size mismatch");
                         results.Add(new
                         {
                             page = target,
@@ -192,6 +200,7 @@ internal sealed partial class MainWindow
                             overflow
                         });
                         failures.AddRange(overflow.Select(x => filename + ": " + x));
+                        Content = root;
                         Settings["mode"] = priorMode;
                     }
                 }
@@ -214,7 +223,7 @@ internal sealed partial class MainWindow
                 passed = failures.Count == 0,
                 captures = results,
                 failures,
-                scope = "Actual compiled WPF client subtree rendered offscreen with inherited RTL root transform restored; not a physical display or VPN leak test"
+                scope = "Actual compiled WPF pages rendered offscreen at requested CLIENT viewport sizes with RTL root transform restored. Native host window dimensions are recorded separately. Physical window-resize/desktop-display QA and VPN leak tests are NOT RUN."
             }, new JsonSerializerOptions { WriteIndented = true }));
             Environment.ExitCode = failures.Count == 0 ? 0 : 2;
         }

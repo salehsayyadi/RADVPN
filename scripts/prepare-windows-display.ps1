@@ -1,4 +1,11 @@
 $ErrorActionPreference = 'Stop'
+trap {
+ $text = 'Interactive runner display is unavailable; native offscreen layout tests will be used. ' + $_.Exception.GetType().Name
+ Write-Host "::warning::$text"
+ New-Item dist -ItemType Directory -Force | Out-Null
+ $text | Set-Content dist/windows-display.txt
+ exit 0
+}
 Add-Type @'
 using System;
 using System.Runtime.InteropServices;

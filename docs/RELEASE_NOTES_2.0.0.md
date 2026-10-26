@@ -7,7 +7,7 @@
 - `RADVPN-Setup-2.0.0-x64.exe`: real per-user Windows 10/11 x64 NSIS installer, self-contained .NET runtime, actual Go/Xray core and vendor-signed Wintun DLL. **RADVPN and the installer are unsigned.** SmartScreen may warn.
 - `RADVPN-2.0.0-android-debug-testing.apk`: ARM64/x86_64, Android 8+, **debug-signed testing build**, not production-signed. Android UI was not redesigned in this Windows-focused update.
 - `SHA256SUMS.txt`: SHA-256 for every published asset.
-- Native test reports and actual WPF English/Persian captures are included for inspection; they are not proof of TUN routing or leak protection.
+- Native test reports and actual compiled WPF English/Persian **offscreen client-viewport** captures are included for inspection; they are not proof of TUN routing or leak protection.
 
 ## Windows redesign and functional scope
 
@@ -29,6 +29,6 @@ The pinned embedded Xray core validates supported VLESS, legacy VMess JSON, Troj
 
 Published only from a successful immutable CI source run, after review of actual native captures. CI executes Go tests on Windows and Linux (including real local HTTP CONNECT → Xray SOCKS → destination, counters and cleanup), race/vet/fuzz checks, formatter/localization checks, installer build, vendor driver signature verification, silent install, native IPC/DPAPI tests, Start Menu launch, graceful shutdown/no stale core, same-version repair and uninstall. Android APK build, lint and signature verification run separately. Full reports identify their exact scope.
 
-**NOT RUN:** physical-device TUN capture, remote VLESS/VMess/Trojan/REALITY interoperability, DNS/IPv6 leaks, forced-crash route recovery, UAC interaction, Wi-Fi/sleep/network changes, interactive setup/SmartScreen, or Android device VPN lifecycle. No remote test credentials, Windows signing certificate or production Android keystore were supplied. No app-level strict kill switch, automatic reconnect supervisor or privileged Windows service is implemented. TCP latency is direct endpoint reachability, not VPN handshake latency. Daily traffic covers only real samples collected while the app runs.
+**NOT RUN:** physical-device TUN capture, remote VLESS/VMess/Trojan/REALITY interoperability, DNS/IPv6 leaks, forced-crash route recovery, UAC interaction, Wi-Fi/sleep/network changes, physical desktop/window-resize UI testing, interactive setup/SmartScreen, or Android device VPN lifecycle. No remote test credentials, Windows signing certificate or production Android keystore were supplied. No app-level strict kill switch, automatic reconnect supervisor or privileged Windows service is implemented. TCP latency is direct endpoint reachability, not VPN handshake latency. Daily traffic covers only real samples collected while the app runs.
 
 No account, activation, payment or telemetry. Subscription requests contact your provider; each connection's disclosed HTTPS health check contacts Cloudflare through your selected proxy. Direct server tests contact your endpoints outside the tunnel. Raw core logs are disabled. Read PRIVACY.md, SECURITY.md, THIRD_PARTY_NOTICES.md and docs/KNOWN_LIMITATIONS.md before use.
