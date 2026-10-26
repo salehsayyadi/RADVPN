@@ -438,7 +438,7 @@ class MainActivity : Activity() {
     private fun settingsPage() {
         row { button("general", page == "settings") { go("settings") }; button("connection", page == "connection") { go("connection") }; button("advanced_short", page == "advanced") { go("advanced") } }
         if (page == "settings") {
-            card { title("language"); row { button("english", data.optString("lang") != "fa") { changeLanguage("en") }; button("persian", data.optString("lang") == "fa") { changeLanguage("fa") } }
+            card { title("language"); row { button("english", data.optString("lang") != "fa") { changeLanguage("en") }; button("persian", data.optString("lang") == "fa") { changeLanguage("fa") } } }
             card { title("dark"); help("theme_description"); button("subscriptions") { go("subscriptions") }; button("traffic") { go("traffic") }; button("logs") { go("logs") }; button("about") { go("about") } }
             card { help("privacy"); help("not_full_protection") }
             return

@@ -60,7 +60,7 @@ class NativeUiTest {
             for (language in listOf("en", "fa")) for (page in MainActivity.qaPages) {
                 inst.runOnMainSync { activity.showForCapture(page, language) }
                 inst.waitForIdleSync(); SystemClock.sleep(300)
-                val bitmap = inst.uiAutomation.takeScreenshot(); assertNotNull(bitmap)
+                val bitmap = requireNotNull(inst.uiAutomation.takeScreenshot())
                 val name = "$page-$language-${bitmap.width}x${bitmap.height}.png"
                 File(out, name).outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
                 inst.runOnMainSync {
@@ -81,7 +81,7 @@ class NativeUiTest {
                 lateinit var dialog: android.app.AlertDialog
                 inst.runOnMainSync { activity.showForCapture("connection", language); dialog = activity.showErrorForCapture() }
                 inst.waitForIdleSync(); SystemClock.sleep(250)
-                val bitmap = inst.uiAutomation.takeScreenshot()
+                val bitmap = requireNotNull(inst.uiAutomation.takeScreenshot())
                 val name = "dialog-$language-${bitmap.width}x${bitmap.height}.png"
                 File(out, name).outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
                 captures.put(JSONObject().put("page", "dialog").put("language", language).put("file", name)); bitmap.recycle()
