@@ -9,8 +9,8 @@
 - [x] Add bounded real TCP endpoint tests, cancellation and measured best-server selection; label TCP vs proxy HTTPS separately.
 - [x] Add durable measured traffic totals, diagnostics, atomic vault backup/recovery and explicit user startup registration.
 - [x] Add a real NSIS x64 installer, shortcuts, app icon, upgrades and safe uninstall preserving user profiles.
-- [ ] Fix cross-platform CI line endings and Android SDK bootstrap; build and exercise Windows installer/UI on a hosted Windows runner.
-- [ ] Inspect actual WPF screenshots at 1280x720 / 1440x900 in English/Persian.
+- [x] Fix cross-platform CI line endings and Android SDK bootstrap; build and exercise Windows installer/UI on a hosted Windows runner.
+- [x] Inspect actual offscreen WPF screenshots at 1280x720 / 1440x900 in English/Persian.
 - [ ] Publish only genuinely produced artifacts with explicit signing, network-test and device-test limitations.
 
 Baseline: shared Go and Windows core tests passed in the first hosted run; the original Windows job failed at formatting and Android failed during SDK setup. No public tag or Release exists at redesign start. Native full-tunnel/leak/crash-recovery acceptance remains NOT RUN until there is actual evidence.

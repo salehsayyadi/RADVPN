@@ -4,7 +4,7 @@ This is a substantive implementation, **not the completed product requested in t
 
 ## Verification blockers
 
-- No local Windows desktop. Hosted Windows installer/native UI tests are configured; see their recorded results. Physical-adapter TUN, UAC, IPv4/IPv6 capture, WFP leak behavior, DNS/route restoration, sleep and forced-crash recovery remain unverified.
+- No local Windows desktop. Hosted Windows install/launch/repair/uninstall and offscreen native UI tests passed; see their recorded results. Physical-adapter TUN, UAC, IPv4/IPv6 capture, WFP leak behavior, DNS/route restoration, sleep and forced-crash recovery remain unverified.
 - No Android device/emulator: runtime consent, QR camera permission, foreground lifecycle, UI/RTL/insets, service revocation, screen-off/background behavior, network switching and always-on/block-without-VPN are unverified.
 - No authorized remote Xray test server credentials: remote VLESS/VMess/Trojan/REALITY/XTLS and real Internet tunneling are unverified. Local integration tests are not a substitute.
 - No release-signing keys: no production-signed Android APK/AAB or Windows installer is provided.
@@ -32,4 +32,4 @@ This is a substantive implementation, **not the completed product requested in t
 3. Test every advertised remote protocol/transport against an authorized endpoint; never use example credentials.
 4. Review dependencies, licensing, leaks, logging, privilege boundaries and installer/signing policy.
 5. Build from the final commit, inspect signatures, run artifact smoke tests and record checksums.
-6. Only then tag `v2.0.0` and publish **only those verified artifacts**.
+6. Only then publish a production-ready follow-up version. The v2.0.0 experimental prerelease is explicitly not that certification.

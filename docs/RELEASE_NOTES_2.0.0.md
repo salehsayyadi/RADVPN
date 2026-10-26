@@ -5,7 +5,7 @@
 ## Downloads
 
 - `RADVPN-Setup-2.0.0-x64.exe`: real per-user Windows 10/11 x64 NSIS installer, self-contained .NET runtime, actual Go/Xray core and vendor-signed Wintun DLL. **RADVPN and the installer are unsigned.** SmartScreen may warn.
-- `RADVPN-2.0.0-android-debug-testing.apk`: ARM64/x86_64, Android 8+, **debug-signed testing build**, not production-signed. Android UI was not redesigned in this Windows-focused update.
+- Android is **not a public release asset** in this Windows-focused release. Its debug APK builds/lints/signature-verifies in the linked CI run, but Android device acceptance and a complete mobile distribution-notice review remain outstanding. The Android UI was not redesigned here.
 - `SHA256SUMS.txt`: SHA-256 for every published asset.
 - Native test reports and actual compiled WPF English/Persian **offscreen client-viewport** captures are included for inspection; they are not proof of TUN routing or leak protection.
 

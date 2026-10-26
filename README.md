@@ -2,7 +2,7 @@
 
 Native Windows x64 and Android Xray client, with English/Persian UI and Tunnel selected by default.
 
-> **Experimental testing software, NOT a completed production release.** The redesigned Windows installer is being built and tested; publication requires successful native installer tests and review of the actual WPF captures. Compiling a TUN integration is not evidence of leak protection. See [testing](docs/TESTING.md) and the [remaining release blockers](docs/KNOWN_LIMITATIONS.md).
+> **Experimental testing software, NOT a completed production release.** The redesigned Windows installer passed hosted install/launch/repair/uninstall checks and native offscreen visual review. Only an experimental unsigned prerelease is authorized; see [GitHub Releases](https://github.com/salehsayyadi/RADVPN/releases) for published assets. Compiling a TUN integration is not evidence of leak protection. See [testing](docs/TESTING.md) and the [remaining release blockers](docs/KNOWN_LIMITATIONS.md).
 
 ## What is implemented
 

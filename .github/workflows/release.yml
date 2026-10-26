@@ -26,7 +26,6 @@ jobs:
           RUN=$(python3 -c 'import json; print(json.load(open(".github/release-approval.json"))["run_id"])')
           gh run download "$RUN" --repo "$GITHUB_REPOSITORY" -n RADVPN-2.0.0-windows-x64-installer -D release/windows
           gh run download "$RUN" --repo "$GITHUB_REPOSITORY" -n RADVPN-native-evidence -D release/evidence
-          gh run download "$RUN" --repo "$GITHUB_REPOSITORY" -n RADVPN-2.0.0-android-debug-testing -D release/android
           python3 scripts/prepare-release.py
       - name: Create a new immutable tag and experimental prerelease, never move an existing tag
         env:
