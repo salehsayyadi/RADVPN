@@ -1,0 +1,18 @@
+RADVPN icon generated: 706e56cc38f7105e850b0ea5c271bff83b57883477cdb34e84451bdb83f84b7e
+  Determining projects to restore...
+  Restored D:\a\RADVPN\RADVPN\apps\windows\RADVPN.csproj (in 10.01 sec).
+  RADVPN -> D:\a\RADVPN\RADVPN\apps\windows\bin\Release\net8.0-windows\win-x64\RADVPN.dll
+  RADVPN -> D:\a\RADVPN\RADVPN\dist\windows\
+Collected notices for 49 of 120 modules; review missing entries before release
+Generated exact uninstall manifest: 84 entries
+MakeNSIS v3.12 - Copyright 1999-2026 Contributors
+See the file COPYING for license details.
+Credits can be found in the Users Manual.
+
+Command line defined: "REPO_ROOT=D:\a\RADVPN\RADVPN"
+Processing config: C:\Program Files (x86)\NSIS\nsisconf.nsh
+Processing script file: "installer/RADVPN.nsi" (UTF8)
+File: "D:\a\RADVPN\RADVPN/dist/windows/*.*" -> no files found.
+Usage: File [/nonfatal] [/a] ([/r] [/x filespec [...]] filespec [...] |
+   /oname=outfile one_file_only)
+Error in script "installer/RADVPN.nsi" on line 85 -- aborting creation process
