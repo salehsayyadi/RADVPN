@@ -1,0 +1,68 @@
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	﻿2026-10-26T19:53:24.7491620Z ##[group]Run reactivecircus/android-emulator-runner@4c44018e59b437e86cdfc41da381398f93ed8808
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7491926Z with:
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7492261Z   api-level: 35
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7492410Z   arch: x86_64
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7492554Z   target: google_apis
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7492712Z   profile: pixel_6
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7493037Z   emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7493360Z   disable-animations: true
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7493551Z   script: bash scripts/test-android-native.sh
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7493763Z   cores: 2
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7493899Z   avd-name: test
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7494056Z   force-avd-creation: true
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7494228Z   emulator-boot-timeout: 600
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7494401Z   emulator-port: 5554
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7494564Z   disable-spellchecker: false
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7494746Z   disable-linux-hw-accel: auto
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7494923Z   enable-hw-keyboard: false
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7495116Z   channel: stable
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7495262Z env:
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7495468Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7495772Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7496039Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7496245Z   GRADLE_USER_HOME: /home/runner/.gradle
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7496442Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7496646Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7496927Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7497229Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7497442Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7497624Z ##[endgroup]
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7881412Z ##[group]Configure emulator
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7882251Z API level: 35
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7882535Z System image API level: 35
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7882854Z target: google_apis
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7884794Z CPU architecture: x86_64
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7885148Z Hardware profile: pixel_6
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7885426Z Cores: 2
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7885647Z RAM size: 
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7885819Z Heap size: 
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7886001Z SD card path or size: 
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7886219Z Disk size: 
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7886463Z AVD name: test
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7886686Z force avd creation: true
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7886908Z Emulator boot timeout: 600
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7887091Z emulator port: 5554
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7887426Z emulator options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7887781Z disable animations: true
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7888062Z disable spellchecker: false
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7888288Z disable Linux hardware acceleration: false
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7888488Z enable hardware keyboard: false
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7888665Z Channel: 0 (stable)
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7888817Z Script:
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7888969Z bash scripts/test-android-native.sh
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7889208Z Pre emulator launch script:
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7889565Z ##[endgroup]
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7889820Z ##[group]Install Android SDK
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:24.7917391Z [command]/usr/bin/sh -c \yes | sdkmanager --licenses > /dev/null
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:25.6982481Z Installing latest build tools, platform tools, and platform.
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:25.6991290Z [command]/usr/bin/sh -c \sdkmanager --install 'build-tools;37.0.0' platform-tools 'platforms;android-35'> /dev/null
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:26.6364677Z Installing latest emulator.
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:53:26.6373192Z [command]/usr/bin/sh -c \sdkmanager --install emulator --channel=0 > /dev/null
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:54:42.1714876Z Warning: An error occurred while preparing SDK package Android Emulator: Error on ZipFile unknown archive.
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:54:42.1838758Z ##[endgroup]
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:54:42.1839195Z ##[group]Terminate Emulator
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:54:42.1848549Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 emu kill
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:54:42.4293774Z error: could not connect to TCP port 5554: Connection refused
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:54:42.4297991Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:54:42.4298600Z ##[endgroup]
+android-native	Run installed native APK on API35 emulator, two phone sizes and both languages	2026-10-26T19:54:42.4303222Z ##[error]The process '/usr/bin/sh' failed with exit code 1
