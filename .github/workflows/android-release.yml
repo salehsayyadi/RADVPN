@@ -1,0 +1,36 @@
+name: Publish reviewed Android design APK
+on:
+  push:
+    branches: [main]
+    paths: ['.github/android-release-approval.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: radvpn-android-design-publication
+  cancel-in-progress: false
+jobs:
+  publish-android:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Validate reviewed source run and unused Android-specific tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/verify-android-release.py
+      - name: Retrieve actual emulator-tested APK and verify evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RUN=$(python3 -c 'import json;print(json.load(open(".github/android-release-approval.json"))["run_id"])')
+          gh run download "$RUN" --repo "$GITHUB_REPOSITORY" -n RADVPN-Android-native-design -D release/android-input
+          python3 scripts/prepare-android-release.py
+      - name: Publish testing APK without changing Windows tag or assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SHA=$(python3 -c 'import json;print(json.load(open(".github/android-release-approval.json"))["source_sha"])')
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref=refs/tags/v2.0.0-android.1 -f sha="$SHA"
+          gh release create v2.0.0-android.1 release/android-assets/* --repo "$GITHUB_REPOSITORY" --verify-tag --prerelease --title 'RADVPN Android 2.0.0 — Design update 1' --notes-file docs/ANDROID_RELEASE_NOTES.md
+          gh release view v2.0.0-android.1 --repo "$GITHUB_REPOSITORY" --json url,assets,isPrerelease

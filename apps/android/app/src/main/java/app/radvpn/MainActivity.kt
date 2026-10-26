@@ -105,7 +105,12 @@ class MainActivity : Activity() {
     override fun onDestroy() { destroyed = true; handler.removeCallbacksAndMessages(null); probeCancel.set(true); worker.shutdownNow(); probes.shutdownNow(); super.onDestroy() }
     private fun save() { if (qa) return; try { Vault.save(this, data) } catch (_: Exception) { report("storage_failed") } }
     private fun event(key: String) { events.add(0, clock() to key); while (events.size > 100) events.removeAt(events.lastIndex) }
-    private fun report(key: String) { if (destroyed) return; event(key); AlertDialog.Builder(this).setTitle("RADVPN").setMessage(t(key)).setPositiveButton(t("close"), null).show() }
+    private fun showDialog(builder: AlertDialog.Builder): AlertDialog {
+        val dialog = builder.create(); dialog.show()
+        dialog.window?.decorView?.layoutDirection = if (::data.isInitialized && data.optString("lang") == "fa") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
+        return dialog
+    }
+    private fun report(key: String) { if (destroyed) return; event(key); showDialog(AlertDialog.Builder(this).setTitle("RADVPN").setMessage(t(key)).setPositiveButton(t("close"), null)) }
     private fun job(action: () -> Unit) { if (destroyed) return; worker.execute { try { action() } catch (e: Exception) { handler.post { pending = false; report(if (e is IllegalStateException) e.message ?: "operation_failed" else "operation_failed"); updateMetrics() } } } }
     private fun idle(action: () -> Unit) { if (!isIdle) report("already_running") else action() }
     private fun go(target: String) { page = target; filter = ""; render() }
@@ -488,12 +493,12 @@ class MainActivity : Activity() {
             button("license_notices") { val notice = assets.open("licenses/ANDROID-NOTICES.txt").bufferedReader().use { it.readText() }; prompt("license_notices", notice.take(180000), true, readOnly = true) {} }
         }
     }
-    private fun confirm(key: String, action: () -> Unit) { AlertDialog.Builder(this).setTitle("RADVPN").setMessage(t(key)).setPositiveButton(t("save")) { _, _ -> action() }.setNegativeButton(t("cancel"), null).show() }
+    private fun confirm(key: String, action: () -> Unit) { showDialog(AlertDialog.Builder(this).setTitle("RADVPN").setMessage(t(key)).setPositiveButton(t("save")) { _, _ -> action() }.setNegativeButton(t("cancel"), null)) }
     private fun prompt(key: String, value: String, multiline: Boolean = false, readOnly: Boolean = false, action: (String) -> Unit) {
         val parent = vertical().apply { setPadding(dp(20), dp(8), dp(20), dp(8)) }; val old = body; body = parent; val input = field(key, value, multiline); body = old
         input.isFocusable = !readOnly
         val scroll = ScrollView(this).apply { addView(parent) }
-        AlertDialog.Builder(this).setTitle(t(key)).setView(scroll).setPositiveButton(t(if (readOnly) "close" else "save")) { _, _ -> if (!readOnly) action(input.text.toString()) }.setNegativeButton(t("cancel"), null).show()
+        showDialog(AlertDialog.Builder(this).setTitle(t(key)).setView(scroll).setPositiveButton(t(if (readOnly) "close" else "save")) { _, _ -> if (!readOnly) action(input.text.toString()) }.setNegativeButton(t("cancel"), null))
     }
     private fun bounded(input: java.io.InputStream, limit: Int): ByteArray { val out = java.io.ByteArrayOutputStream(); val buffer = ByteArray(8192); while (out.size() < limit) { val n = input.read(buffer, 0, minOf(buffer.size, limit - out.size())); if (n < 0) break; out.write(buffer, 0, n) }; return out.toByteArray() }
     @Deprecated("Native Activity permission and document flow")
@@ -512,5 +517,6 @@ class MainActivity : Activity() {
         IntentIntegrator.parseActivityResult(code, resultCode, result)?.contents?.let { importText(it) }
     }
     @Deprecated("Native back navigation") override fun onBackPressed() { if (page != "home") go("home") else super.onBackPressed() }
+    fun showErrorForCapture(): AlertDialog { check(qa); return showDialog(AlertDialog.Builder(this).setTitle("RADVPN").setMessage(t("invalid_dns")).setPositiveButton(t("close"), null)) }
     fun showForCapture(target: String, language: String) { check(qa); require(target in qaPages); data.put("lang", language); words = Words(this, language); page = target; render() }
 }

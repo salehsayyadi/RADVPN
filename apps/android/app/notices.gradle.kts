@@ -12,12 +12,24 @@ tasks.register("collectAndroidNotices") {
         factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
         configurations.getByName("debugRuntimeClasspath").resolvedConfiguration.resolvedArtifacts.sortedBy { it.moduleVersion.id.toString() }.forEach { a ->
             val id = a.moduleVersion.id
-            val pomDependency = dependencies.create(mapOf("group" to id.group, "name" to id.name, "version" to id.version, "ext" to "pom"))
-            val cfg = configurations.detachedConfiguration(pomDependency).apply { isTransitive = false }
-            val pom = cfg.singleFile
-            val doc = factory.newDocumentBuilder().parse(pom)
-            val licenses = doc.getElementsByTagName("license")
-            check(licenses.length > 0) { "No declared runtime license in POM: $id" }
+            fun pom(group: String, name: String, version: String): java.io.File {
+                val dep = dependencies.create(mapOf("group" to group, "name" to name, "version" to version, "ext" to "pom"))
+                val file = configurations.detachedConfiguration(dep).apply { isTransitive = false }.singleFile
+                file.copyTo(out.resolve("$group.$name-$version.pom.txt"), overwrite = true)
+                return file
+            }
+            var doc = factory.newDocumentBuilder().parse(pom(id.group, id.name, id.version))
+            var licenses = doc.getElementsByTagName("license")
+            var depth = 0
+            while (licenses.length == 0 && depth++ < 8) {
+                val parents = doc.getElementsByTagName("parent")
+                check(parents.length > 0) { "No declared or inherited runtime license in POM: $id" }
+                val parent = parents.item(0) as org.w3c.dom.Element
+                fun field(key: String) = parent.getElementsByTagName(key).item(0).textContent.trim()
+                doc = factory.newDocumentBuilder().parse(pom(field("groupId"), field("artifactId"), field("version")))
+                licenses = doc.getElementsByTagName("license")
+            }
+            check(licenses.length > 0) { "No declared/inherited runtime license in POM: $id" }
             records.append("$id\n")
             for (i in 0 until licenses.length) records.append(licenses.item(i).textContent.trim().replace(Regex("\\s+"), " ")).append('\n')
             val scm = doc.getElementsByTagName("scm")
@@ -25,7 +37,6 @@ tasks.register("collectAndroidNotices") {
             // All current Maven runtime modules declare Apache 2.0; fail rather than silently substituting a license.
             for (i in 0 until licenses.length) check(licenses.item(i).textContent.contains("apache", ignoreCase = true)) { "Review new runtime license before distributing $id" }
             records.append("License text: ../ZXing-LICENSE.txt (Apache License 2.0)\n\n")
-            pom.copyTo(out.resolve("${id.group}.${id.name}-${id.version}.pom.txt"), overwrite = true)
             ZipFile(a.file).use { zip ->
                 zip.entries().asSequence().filter { !it.isDirectory && it.name.startsWith("META-INF/") && (it.name.contains("LICENSE",true) || it.name.contains("NOTICE",true)) }.forEach { entry ->
                     zip.getInputStream(entry).use { input -> out.resolve("${id.group}.${id.name}-${id.version}-${entry.name.replace('/', '_')}").outputStream().use { input.copyTo(it) } }

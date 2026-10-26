@@ -22,7 +22,7 @@ class NativeUiTest {
         MainActivity.instrumentedCapture = true
         val activity = inst.startActivitySync(Intent(inst.targetContext, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)) as MainActivity
         val checks = mutableListOf<String>()
-        val out = File(inst.context.getExternalFilesDir(null), "native-evidence").apply { mkdirs() }
+        val out = File(inst.targetContext.getExternalFilesDir(null), "native-evidence").apply { mkdirs() }
         try {
             assertEquals("2.0.0", Api.call(JSONObject().put("method", "version")).getString("app"))
             val settings = Api.call(JSONObject().put("method", "defaults"))
@@ -77,7 +77,17 @@ class NativeUiTest {
                 captures.put(JSONObject().put("page", page).put("language", language).put("file", name))
                 bitmap.recycle()
             }
-            checks.add("22 actual native page captures; English/Persian RTL and horizontal control bounds")
+            for (language in listOf("en", "fa")) {
+                lateinit var dialog: android.app.AlertDialog
+                inst.runOnMainSync { activity.showForCapture("connection", language); dialog = activity.showErrorForCapture() }
+                inst.waitForIdleSync(); SystemClock.sleep(250)
+                val bitmap = inst.uiAutomation.takeScreenshot()
+                val name = "dialog-$language-${bitmap.width}x${bitmap.height}.png"
+                File(out, name).outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                captures.put(JSONObject().put("page", "dialog").put("language", language).put("file", name)); bitmap.recycle()
+                inst.runOnMainSync { dialog.dismiss() }
+            }
+            checks.add("22 actual native page captures plus 2 native dialogs; English/Persian RTL and horizontal control bounds")
             File(out, "report-${activity.resources.displayMetrics.widthPixels}.json").writeText(JSONObject().put("passed", true).put("checks", JSONArray(checks)).put("captures", captures).put("scope", "Actual installed debug APK on Android API35 emulator; not physical-device VPN, remote server, leak or battery acceptance.").toString(2))
         } finally {
             Api.call(JSONObject().put("method", "stop"))

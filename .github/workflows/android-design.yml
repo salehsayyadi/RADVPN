@@ -39,8 +39,9 @@ jobs:
           export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/28.0.13004108"
           python3 scripts/check.py
           bash scripts/build-android.sh 2>&1 | tee dist/android/build.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose apps/android/app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose apps/android/app/build/outputs/apk/debug/app-debug.apk | tee dist/android/signature.txt
           cp apps/android/app/build/outputs/apk/debug/app-debug.apk dist/android/RADVPN-2.0.0-android-design1-debug.apk
+          cp apps/android/app/build/outputs/apk/debug/output-metadata.json dist/android/metadata.json
           (cd dist/android && sha256sum *.apk > SHA256SUMS.txt)
       - name: Enable emulator acceleration
         run: |
