@@ -3,6 +3,7 @@ import pathlib,json,hashlib,shutil,zipfile
 root=pathlib.Path('release/android-input');out=pathlib.Path('release/android-assets');out.mkdir(parents=True,exist_ok=True)
 def one(name):
  found=list(root.rglob(name));assert len(found)==1,(name,len(found));return found[0]
+build=one('build.txt').read_text();assert 'BUILD SUCCESSFUL' in build and 'BUILD FAILED' not in build
 apk=one('RADVPN-2.0.0-android-design1-debug.apk')
 expected=one('SHA256SUMS.txt').read_text().split()[0]
 assert hashlib.sha256(apk.read_bytes()).hexdigest()==expected

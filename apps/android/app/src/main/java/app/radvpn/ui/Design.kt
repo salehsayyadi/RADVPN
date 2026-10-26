@@ -49,6 +49,7 @@ class Symbol(context: Context, private val kind: String, var tint: Int = Design.
         super.onDraw(canvas)
         canvas.save(); val scale = minOf(width, height) / 24f
         canvas.translate((width - 24 * scale) / 2, (height - 24 * scale) / 2); canvas.scale(scale, scale)
+        if (kind in listOf("back", "next") && layoutDirection == View.LAYOUT_DIRECTION_RTL) canvas.scale(-1f, 1f, 12f, 12f)
         val p = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = tint; style = Paint.Style.STROKE; strokeWidth = 1.65f; strokeCap = Paint.Cap.ROUND; strokeJoin = Paint.Join.ROUND }
         fun line(a: Float, b: Float, c: Float, d: Float) = canvas.drawLine(a, b, c, d, p)
         fun path(vararg points: Float) { val v = Path(); v.moveTo(points[0], points[1]); for (i in 2 until points.size step 2) v.lineTo(points[i], points[i + 1]); canvas.drawPath(v, p) }

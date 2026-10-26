@@ -107,7 +107,15 @@ class MainActivity : Activity() {
     private fun event(key: String) { events.add(0, clock() to key); while (events.size > 100) events.removeAt(events.lastIndex) }
     private fun showDialog(builder: AlertDialog.Builder): AlertDialog {
         val dialog = builder.create(); dialog.show()
-        dialog.window?.decorView?.layoutDirection = if (::data.isInitialized && data.optString("lang") == "fa") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
+        val rtl = ::data.isInitialized && data.optString("lang") == "fa"
+        dialog.window?.decorView?.let { decor ->
+            decor.layoutDirection = if (rtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
+            fun align(v: View) {
+                if (v is TextView && v !is EditText && v !is Button) { v.textDirection = if (rtl) View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR; v.textAlignment = View.TEXT_ALIGNMENT_VIEW_START }
+                if (v is ViewGroup) for (i in 0 until v.childCount) align(v.getChildAt(i))
+            }
+            align(decor); decor.requestLayout()
+        }
         return dialog
     }
     private fun report(key: String) { if (destroyed) return; event(key); showDialog(AlertDialog.Builder(this).setTitle("RADVPN").setMessage(t(key)).setPositiveButton(t("close"), null)) }
@@ -164,7 +172,7 @@ class MainActivity : Activity() {
 
     private fun vertical() = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
     private fun label(value: String, size: Float = 14f, color: Int = Design.text, bold: Boolean = false): TextView {
-        val v = TextView(this).apply { text = value; textSize = size; setTextColor(color); setPadding(0, dp(3), 0, dp(5)); if (bold) setTypeface(typeface, Typeface.BOLD); breakStrategy = android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY }
+        val v = TextView(this).apply { text = value; textSize = size; setTextColor(color); setPadding(0, dp(3), 0, dp(5)); if (bold) setTypeface(typeface, Typeface.BOLD); if (Build.VERSION.SDK_INT >= 29) breakStrategy = android.graphics.text.LineBreaker.BREAK_STRATEGY_HIGH_QUALITY }
         body.addView(v, LinearLayout.LayoutParams(-1, -2)); return v
     }
     private fun help(key: String) = label(t(key), 12f, Design.muted)
@@ -185,6 +193,7 @@ class MainActivity : Activity() {
         val v = EditText(this).apply {
             setText(value); textSize = 14f; setTextColor(Design.text); setHintTextColor(Design.subtle); minHeight = dp(if (multiline) 112 else 48); background = Design.surface(this@MainActivity, Design.input, radius = 9); setPadding(dp(12), dp(10), dp(12), dp(10)); setSingleLine(!multiline); gravity = Gravity.TOP or Gravity.START; textDirection = View.TEXT_DIRECTION_LTR; layoutDirection = View.LAYOUT_DIRECTION_LTR
             inputType = if (numeric) android.text.InputType.TYPE_CLASS_NUMBER else android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or if (multiline) android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE else android.text.InputType.TYPE_TEXT_VARIATION_URI
+            if (key in listOf("search", "name", "subscription_name")) { textDirection = View.TEXT_DIRECTION_FIRST_STRONG; layoutDirection = root.layoutDirection; inputType = android.text.InputType.TYPE_CLASS_TEXT }
             if (multiline) typeface = Typeface.MONOSPACE
             importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
         }
@@ -394,13 +403,14 @@ class MainActivity : Activity() {
         if (source.isEmpty()) return
         probing = true; probeCancel = AtomicBoolean(false); val cancelled = probeCancel; render()
         job {
-            val futures = source.map { item -> probes.submit<Pair<String, Long?>> {
+            val futures = source.map { item -> probes.submit<Triple<String, Long?, Boolean>> {
                 var ms: Long? = null
-                if (!cancelled.get()) try { val e = endpoint(item); if (e != null) { val begin = SystemClock.elapsedRealtime(); Socket().use { it.connect(InetSocketAddress(e.first, e.second), 3000) }; ms = SystemClock.elapsedRealtime() - begin } } catch (_: Exception) {}
-                item.optString("id") to ms
+                val attempted = !cancelled.get()
+                if (attempted) try { val e = endpoint(item); if (e != null) { val begin = SystemClock.elapsedRealtime(); Socket().use { it.connect(InetSocketAddress(e.first, e.second), 3000) }; ms = SystemClock.elapsedRealtime() - begin } } catch (_: Exception) {}
+                Triple(item.optString("id"), ms, attempted)
             } }
             val results = futures.map { it.get() }
-            handler.post { for ((id, ms) in results) measured[id] = ms; probing = false; if (page in listOf("servers", "profiles")) render() }
+            handler.post { for ((id, ms, attempted) in results) if (attempted) measured[id] = ms; probing = false; if (page in listOf("servers", "profiles")) render() }
         }
     }
 

@@ -7,6 +7,7 @@
   <item name="android:navigationBarColor">#070B0F</item>
   <item name="android:windowActionModeOverlay">true</item>
   <item name="android:windowBackground">#070B0F</item>
+  <item name="android:colorBackgroundFloating">#0B1118</item>
   <item name="android:colorBackground">#0B1118</item>
   <item name="android:textColorPrimary">#F3F6FA</item>
   <item name="android:textColorSecondary">#9BAEC2</item>
