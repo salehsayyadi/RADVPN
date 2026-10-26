@@ -47,13 +47,38 @@ internal sealed class TrafficGraph : FrameworkElement
 {
     public List<(double Up, double Down)> Samples { get; } = new();
     public Brush UpBrush { get; set; } = Brushes.Orange; public Brush DownBrush { get; set; } = Brushes.DodgerBlue; public Brush GridBrush { get; set; } = Brushes.DimGray;
-    public void Add(double up, double down) { Samples.Add((up, down)); if (Samples.Count > 90) Samples.RemoveAt(0); InvalidateVisual(); }
+    public void Add(double up, double down)
+    {
+        Samples.Add((up, down));
+        if (Samples.Count > 90)
+            Samples.RemoveAt(0);
+        InvalidateVisual();
+    }
     protected override void OnRender(DrawingContext dc)
     {
-        base.OnRender(dc); var w = ActualWidth; var h = ActualHeight; if (w < 2 || h < 2) return;
-        for (int i = 1; i < 4; i++) dc.DrawLine(new Pen(GridBrush, .6), new Point(0, h * i / 4), new Point(w, h * i / 4));
-        if (Samples.Count < 2) return; var max = Math.Max(1, Samples.Max(x => Math.Max(x.Up, x.Down))) * 1.15;
-        Draw(dc, Samples.Select(x => x.Down).ToArray(), DownBrush, w, h, max); Draw(dc, Samples.Select(x => x.Up).ToArray(), UpBrush, w, h, max);
+        base.OnRender(dc);
+        var w = ActualWidth;
+        var h = ActualHeight;
+        if (w < 2 || h < 2)
+            return;
+        for (int i = 1; i < 4; i++)
+            dc.DrawLine(new Pen(GridBrush, .6), new Point(0, h * i / 4), new Point(w, h * i / 4));
+        if (Samples.Count < 2)
+            return;
+        var max = Math.Max(1, Samples.Max(x => Math.Max(x.Up, x.Down))) * 1.15;
+        Draw(dc, Samples.Select(x => x.Down).ToArray(), DownBrush, w, h, max);
+        Draw(dc, Samples.Select(x => x.Up).ToArray(), UpBrush, w, h, max);
     }
-    static void Draw(DrawingContext dc, double[] values, Brush brush, double w, double h, double max) { var g = new StreamGeometry(); using (var c = g.Open()) { c.BeginFigure(new Point(0, h - values[0] / max * h), false, false); for (int i = 1; i < values.Length; i++) c.LineTo(new Point(i * w / (values.Length - 1), h - values[i] / max * h), true, false); } g.Freeze(); dc.DrawGeometry(null, new Pen(brush, 1.8), g); }
+    static void Draw(DrawingContext dc, double[] values, Brush brush, double w, double h, double max)
+    {
+        var g = new StreamGeometry();
+        using (var c = g.Open())
+        {
+            c.BeginFigure(new Point(0, h - values[0] / max * h), false, false);
+            for (int i = 1; i < values.Length; i++)
+                c.LineTo(new Point(i * w / (values.Length - 1), h - values[i] / max * h), true, false);
+        }
+        g.Freeze();
+        dc.DrawGeometry(null, new Pen(brush, 1.8), g);
+    }
 }

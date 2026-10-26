@@ -1,0 +1,38 @@
+name: Publish reviewed experimental installer
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/release-approval.json']
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: radvpn-publication-v2.0.0
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Validate explicit approval and successful immutable source run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/verify-release.py
+      - name: Retrieve the actual tested artifacts from that run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RUN=$(python3 -c 'import json; print(json.load(open(".github/release-approval.json"))["run_id"])')
+          gh run download "$RUN" --repo "$GITHUB_REPOSITORY" -n RADVPN-2.0.0-windows-x64-installer -D release/windows
+          gh run download "$RUN" --repo "$GITHUB_REPOSITORY" -n RADVPN-native-evidence -D release/evidence
+          gh run download "$RUN" --repo "$GITHUB_REPOSITORY" -n RADVPN-2.0.0-android-debug-testing -D release/android
+          python3 scripts/prepare-release.py
+      - name: Create a new immutable tag and experimental prerelease, never move an existing tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SHA=$(python3 -c 'import json; print(json.load(open(".github/release-approval.json"))["source_sha"])')
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref=refs/tags/v2.0.0 -f sha="$SHA"
+          gh release create v2.0.0 release/assets/* --repo "$GITHUB_REPOSITORY" --verify-tag --title 'RADVPN 2.0.0' --notes-file docs/RELEASE_NOTES_2.0.0.md --prerelease
+          gh release view v2.0.0 --repo "$GITHUB_REPOSITORY" --json url,assets,isPrerelease
