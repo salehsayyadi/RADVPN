@@ -1,0 +1,27 @@
+name: Diagnose and retry Android emulator infrastructure
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/android-retry.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+jobs:
+  diagnose-retry:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Read masked failed emulator log and retry unchanged source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run view 40390344459 --repo "$GITHUB_REPOSITORY" --log-failed > "$RUNNER_TEMP/emulator-failure.txt"
+          git switch --orphan android-emulator-diagnostic-40390344459
+          git rm -rf --ignore-unmatch . >/dev/null
+          cp "$RUNNER_TEMP/emulator-failure.txt" emulator-failure.txt
+          git add emulator-failure.txt
+          git -c user.name='RADVPN CI' -c user.email='radvpn-ci@users.noreply.github.com' commit -m 'Masked Android emulator failure diagnosis'
+          git push origin HEAD
+          gh run rerun 40390344459 --repo "$GITHUB_REPOSITORY" --failed
