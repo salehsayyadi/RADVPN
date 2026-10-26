@@ -53,7 +53,23 @@ internal sealed partial class MainWindow : Window
                 events.Add((DateTime.Now, "storage_recovered"));
         }
         catch { storageLocked = true; events.Add((DateTime.Now, "storage_failed")); }
-        SourceInitialized += (_, _) => System.Windows.Interop.HwndSource.FromHwnd(new System.Windows.Interop.WindowInteropHelper(this).Handle)?.AddHook((IntPtr hwnd, int message, IntPtr w, IntPtr l, ref bool handled) => { if (message == WindowSignals.QuitMessage) { handled = true; exitRequested = true; Close(); } return IntPtr.Zero; });
+        SourceInitialized += (_, _) => System.Windows.Interop.HwndSource.FromHwnd(new System.Windows.Interop.WindowInteropHelper(this).Handle)?.AddHook((IntPtr hwnd, int message, IntPtr w, IntPtr l, ref bool handled) =>
+        {
+            if (smoke && message == 0x0024)
+            {
+                System.Runtime.InteropServices.Marshal.WriteInt32(l, 32, 4096);
+                System.Runtime.InteropServices.Marshal.WriteInt32(l, 36, 4096);
+                handled = true;
+                return IntPtr.Zero;
+            }
+            if (message == WindowSignals.QuitMessage)
+            {
+                handled = true;
+                exitRequested = true;
+                Close();
+            }
+            return IntPtr.Zero;
+        });
         LoadWords();
         Render();
         Loaded += async (_, _) => await Initialize();
@@ -381,6 +397,7 @@ internal sealed partial class MainWindow : Window
             var target = key;
             var b = Action(key, () => { Navigate(target); return Task.CompletedTask; }, key);
             b.Style = (Style)FindResource("Nav");
+            b.Margin = new Thickness(0, 0, 0, 4);
             b.Content = ButtonContent(key, key, false);
             if (page == key || (page == "advanced" && key == "settings"))
             {
@@ -399,7 +416,7 @@ internal sealed partial class MainWindow : Window
         content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         var title = new DockPanel { Margin = new Thickness(0, 0, 0, 20) };
-        var languages = new StackPanel { Orientation = Orientation.Horizontal, FlowDirection = FlowDirection.LeftToRight, HorizontalAlignment = HorizontalAlignment.Right };
+        var languages = new StackPanel { Orientation = Orientation.Horizontal, FlowDirection = FlowDirection.LeftToRight, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top };
         foreach (var lang in new[] { "en", "fa" })
         {
             var l = lang;
@@ -476,7 +493,7 @@ internal sealed partial class MainWindow : Window
     FrameworkElement ButtonContent(string key, string? icon = null, bool primary = false, bool selected = false)
     {
         if (icon == null)
-            return Label(T(key), 14, primary ? "App" : "Subtext");
+            return new TextBlock { Text = T(key), FontSize = 14, Foreground = B(primary ? "App" : "Subtext"), VerticalAlignment = VerticalAlignment.Center };
         var row = new StackPanel { Orientation = Orientation.Horizontal };
         row.Children.Add(Glyphs.Icon(icon, B(primary ? "App" : selected ? "Highlight" : "Subtext"), 17));
         row.Children.Add(new TextBlock { Text = T(key), Margin = FlowDirection == FlowDirection.RightToLeft ? new Thickness(0, 0, 9, 0) : new Thickness(9, 0, 0, 0), Foreground = B(primary ? "App" : selected ? "Highlight" : "Subtext"), VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.NoWrap });

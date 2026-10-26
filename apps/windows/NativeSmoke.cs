@@ -120,8 +120,11 @@ internal static class NativeSmoke
             throw new InvalidOperationException("render_size");
         var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
         bitmap.Render(element);
+        // Rendering a subtree omits the inherited RTL root transform applied by its Window.
+        BitmapSource frame = element.FlowDirection == FlowDirection.RightToLeft
+            ? new TransformedBitmap(bitmap, new ScaleTransform(-1, 1)) : bitmap;
         var encoder = new PngBitmapEncoder();
-        encoder.Frames.Add(BitmapFrame.Create(bitmap));
+        encoder.Frames.Add(BitmapFrame.Create(frame));
         using var file = File.Create(path);
         encoder.Save(file);
     }
@@ -175,6 +178,8 @@ internal sealed partial class MainWindow
                         var filename = $"{target}-{language}-{size.Width}x{size.Height}.png";
                         NativeSmoke.Bitmap(root, Path.Combine(directory, filename));
                         var overflow = Audit(root);
+                        if (Math.Abs(ActualWidth - size.Width) > 1 || Math.Abs(ActualHeight - size.Height) > 1)
+                            overflow.Add("Requested native window size was constrained by the runner display");
                         results.Add(new
                         {
                             page = target,
@@ -209,7 +214,7 @@ internal sealed partial class MainWindow
                 passed = failures.Count == 0,
                 captures = results,
                 failures,
-                scope = "Actual compiled WPF client rendered with RenderTargetBitmap; not a physical display or VPN leak test"
+                scope = "Actual compiled WPF client subtree rendered offscreen with inherited RTL root transform restored; not a physical display or VPN leak test"
             }, new JsonSerializerOptions { WriteIndented = true }));
             Environment.ExitCode = failures.Count == 0 ? 0 : 2;
         }
