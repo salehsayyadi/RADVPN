@@ -1,0 +1,112 @@
+go: downloading golang.org/x/mobile v0.0.0-20261011034528-197770444867
+go: downloading golang.org/x/mod v0.42.0
+go: downloading golang.org/x/tools v0.52.0
+Bundled Android selected-module licenses: 46
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :app:collectAndroidNotices
+> Task :app:preBuild
+> Task :app:preDebugBuild
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugBuildConfig
+> Task :app:generateDebugResValues
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:mergeDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:javaPreCompileDebug
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets
+> Task :app:processDebugResources
+> Task :app:desugarDebugFileDependencies
+> Task :app:checkDebugDuplicateClasses
+> Task :app:mergeExtDexDebug
+> Task :app:mergeLibDexDebug
+> Task :app:mergeDebugJniLibFolders
+> Task :app:mergeDebugNativeLibs
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libgojni.so.
+
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:processDebugAndroidTestManifest
+> Task :app:generateDebugAndroidTestBuildConfig
+> Task :app:checkDebugAndroidTestAarMetadata
+> Task :app:generateDebugAndroidTestResValues
+> Task :app:mapDebugAndroidTestSourceSetPaths
+> Task :app:generateDebugAndroidTestResources
+> Task :app:mergeDebugAndroidTestResources
+> Task :app:processDebugAndroidTestResources
+> Task :app:javaPreCompileDebugAndroidTest
+> Task :app:mergeDebugAndroidTestShaders
+> Task :app:compileDebugAndroidTestShaders NO-SOURCE
+> Task :app:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :app:mergeDebugAndroidTestAssets
+> Task :app:compressDebugAndroidTestAssets
+> Task :app:desugarDebugAndroidTestFileDependencies
+> Task :app:checkDebugAndroidTestDuplicateClasses
+
+> Task :app:compileDebugKotlin
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:241:26 Unresolved reference 'traffic'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:243:23 Unresolved reference 'diagnostics'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:244:24 Unresolved reference 'about'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:332:35 Unresolved reference 'prompt'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:332:68 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:378:31 Unresolved reference 'prompt'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:378:72 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:381:40 Unresolved reference 'prompt'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:381:111 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:381:276 Unresolved reference 'put'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:381:352 Unresolved reference 'getJSONObject'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:382:38 Unresolved reference 'confirm'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:416:93 Unresolved reference 'prompt'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:416:146 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:417:43 Unresolved reference 'confirm'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:444:13 'return' is prohibited here.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:468:34 Unresolved reference 'confirm'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:470:5 Modifier 'private' is not applicable to 'local function'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:475:5 Modifier 'private' is not applicable to 'local function'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:476:5 Modifier 'private' is not applicable to 'local function'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:482:36 Unresolved reference 'confirm'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:486:5 Modifier 'private' is not applicable to 'local function'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:493:138 Unresolved reference 'prompt'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:496:5 Modifier 'private' is not applicable to 'local function'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:497:5 Modifier 'private' is not applicable to 'local function'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:503:5 Modifier 'private' is not applicable to 'local function'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:505:5 Modifier 'override' is not applicable to 'local function'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:519:43 Modifier 'override' is not applicable to 'local function'.
+e: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:522:2 Syntax error: Missing '}.
+
+> Task :app:compileDebugKotlin FAILED
+> Task :app:mergeExtDexDebugAndroidTest
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1793042998221.json
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 27s
+45 actionable tasks: 45 executed
