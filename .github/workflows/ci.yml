@@ -55,6 +55,18 @@ jobs:
       - name: Build self-contained installer and verify vendor driver signature
         shell: pwsh
         run: ./scripts/build-windows.ps1 *>&1 | Tee-Object -FilePath dist/windows-build.txt
+      - name: Upload installer and checksum
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: RADVPN-2.0.0-windows-x64-installer
+          path: |
+            dist/RADVPN-Setup-2.0.0-x64.exe
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+      - name: Install, launch, capture actual WPF UI, repair and uninstall
+        shell: pwsh
+        timeout-minutes: 8
+        run: ./scripts/test-windows-installer.ps1 *>&1 | Tee-Object -FilePath dist/windows-acceptance.txt
       - name: Capture compiled native UI for diagnosis if packaging fails
         if: failure()
         shell: pwsh
@@ -64,18 +76,6 @@ jobs:
             $p = Start-Process dist/windows/RADVPN.exe -ArgumentList "--ui-smoke --capture-dir `"$PWD/dist/ui-evidence`"" -PassThru -Wait
             "Native diagnostic UI exit: $($p.ExitCode)" | Set-Content dist/windows-ui-diagnostic.txt
           }
-      - name: Install, launch, capture actual WPF UI, repair and uninstall
-        shell: pwsh
-        timeout-minutes: 8
-        run: ./scripts/test-windows-installer.ps1 *>&1 | Tee-Object -FilePath dist/windows-acceptance.txt
-      - name: Upload installer and checksum
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: RADVPN-2.0.0-windows-x64-installer
-          path: |
-            dist/RADVPN-Setup-2.0.0-x64.exe
-            dist/SHA256SUMS.txt
-          if-no-files-found: error
       - name: Upload native test evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

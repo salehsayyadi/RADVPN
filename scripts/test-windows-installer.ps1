@@ -1,10 +1,17 @@
 $ErrorActionPreference = 'Stop'
+trap {
+  $detail = ($_ | Out-String) + [Environment]::NewLine + $_.ScriptStackTrace
+  $detail | Set-Content "$PSScriptRoot/../dist/windows-acceptance-error.txt"
+  Write-Host $detail
+  exit 1
+}
 Set-Location "$PSScriptRoot/.."
 $setup = (Resolve-Path dist/RADVPN-Setup-2.0.0-x64.exe).Path
 $install = Join-Path $env:TEMP 'RADVPN-Install-Smoke'
 $report = [System.Collections.Generic.List[string]]::new()
-function Run-Wait($file,$arguments) { $p = Start-Process -FilePath $file -ArgumentList $arguments -PassThru -Wait; if ($p.ExitCode -ne 0) { throw "$file failed with $($p.ExitCode)" } }
+function Run-Wait($file,$arguments) { Write-Host "Executing $([IO.Path]::GetFileName($file)) $arguments"; $p = Start-Process -FilePath $file -ArgumentList $arguments -PassThru -Wait; if ($p.ExitCode -ne 0) { throw "$file failed with $($p.ExitCode)" } }
 if (Test-Path $install) { throw 'Installer test path already exists; refusing to delete unknown content' }
+Write-Host "Installer target: $install"
 Run-Wait $setup "/S /D=$install"
 if (-not (Test-Path "$install/RADVPN.exe") -or -not (Test-Path "$install/radcore.exe") -or -not (Test-Path "$install/wintun.dll")) { throw 'Installed payload missing' }
 $report.Add('PASS silent per-user installation and bundled app/core/driver files')
