@@ -182,6 +182,18 @@ internal sealed partial class MainWindow
                         Content = null;
                         UpdateLayout();
                         await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+                        // Reconnect the removed subtree to a dedicated native presentation source.
+                        // WPF suspends layout for removed visuals until a PresentationSource resumes it.
+                        using var surface = new System.Windows.Interop.HwndSource(new System.Windows.Interop.HwndSourceParameters("RADVPN offscreen QA")
+                        {
+                            Width = size.Width,
+                            Height = size.Height,
+                            PositionX = -10000,
+                            PositionY = -10000,
+                            WindowStyle = unchecked((int)0x90000000)
+                        });
+                        surface.RootVisual = root;
+                        await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
                         root.Width = size.Width;
                         root.Height = size.Height;
                         root.InvalidateMeasure();
@@ -205,6 +217,7 @@ internal sealed partial class MainWindow
                             overflow
                         });
                         failures.AddRange(overflow.Select(x => filename + ": " + x));
+                        surface.RootVisual = null;
                         Content = root;
                         Settings["mode"] = priorMode;
                     }

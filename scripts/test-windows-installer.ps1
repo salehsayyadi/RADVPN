@@ -22,8 +22,15 @@ if ($target -ne "$install\RADVPN.exe") { throw 'Shortcut target mismatch' }
 $report.Add('PASS Start Menu shortcut and installed path')
 Run-Wait "$install/RADVPN.exe" "--self-test `"$PWD/dist/native-tests.json`""
 $report.Add('PASS native IPC, DPAPI persistence/recovery and real TCP measurement self-tests')
-Run-Wait "$install/RADVPN.exe" "--ui-smoke --capture-dir `"$PWD/dist/ui-evidence`""
-$report.Add('PASS actual compiled native application pages rendered OFFSCREEN at 1280x720 and 1440x900 CLIENT viewports in English/Persian; see screenshots and layout report')
+$uiPassed = $false
+try {
+ Run-Wait "$install/RADVPN.exe" "--ui-smoke --capture-dir `"$PWD/dist/ui-evidence`""
+ $uiPassed = $true
+ $report.Add('PASS actual compiled native pages rendered OFFSCREEN at 1280x720 and 1440x900 CLIENT viewports; see screenshots/report')
+} catch {
+ $report.Add('FAIL offscreen UI viewport acceptance; installer tests below continue independently')
+ Write-Host $_.Exception.Message
+}
 $app = Start-Process -FilePath $link -PassThru
 Start-Sleep -Seconds 4
 if ($app.HasExited) { throw 'Start Menu application launch exited early' }
@@ -47,3 +54,4 @@ $report.Add('PASS uninstall removes app/shortcut and preserves encrypted user da
 $report.Add('NOT RUN: physical desktop display/window resizing, physical-device TUN/DNS/IPv6 leak, forced-route recovery, real remote Xray credentials, interactive wizard and SmartScreen')
 $report | Set-Content dist/installer-test-report.txt
 $report
+if (-not $uiPassed) { throw 'Offscreen viewport acceptance failed; independent installer results are recorded' }
