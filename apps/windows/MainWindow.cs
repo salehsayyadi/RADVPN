@@ -114,6 +114,8 @@ internal sealed partial class MainWindow : Window
     }
     void Save()
     {
+        if (smoke)
+            return;
         if (storageLocked)
         {
             Notice("storage_failed");

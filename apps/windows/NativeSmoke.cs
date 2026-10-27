@@ -172,18 +172,39 @@ internal sealed partial class MainWindow
             {
                 foreach (var size in new[] { (Width: 1440, Height: 900), (Width: 1280, Height: 720) })
                 {
-                    foreach (var target in new[] { "home", "servers", "subscriptions", "configs", "profiles", "traffic", "settings", "settings-connection", "settings-security", "settings-advanced", "advanced", "logs", "about", "home-proxy" })
+                    foreach (var target in new[] { "home", "servers", "subscriptions", "configs", "profiles", "traffic", "settings", "settings-connection", "settings-security", "settings-advanced", "advanced", "logs", "about", "home-proxy", "home-populated", "servers-populated" })
                     {
                         Width = size.Width;
                         Height = size.Height;
                         data["lang"] = language;
                         LoadWords();
                         var priorMode = Settings["mode"]!.DeepClone();
+                        Profiles.Clear();
+                        Subs.Clear();
+                        data["selected"] = "";
+                        if (target.EndsWith("-populated", StringComparison.Ordinal))
+                        {
+                            Subs.Add(new JsonObject { ["id"] = "qa-personal", ["name"] = "Personal" });
+                            Subs.Add(new JsonObject { ["id"] = "qa-backup", ["name"] = "Backup" });
+                            var fixtures = new[] { "Netherlands 🇳🇱", "Germany 🇩🇪", "France 🇫🇷", "Japan 🇯🇵", "United Kingdom 🇬🇧", "United States 🇺🇸" };
+                            for (int i = 0; i < 72; i++)
+                            {
+                                var imported = await core!.Call(new
+                                {
+                                    method = "import",
+                                    text = "socks://example.invalid:" + (19000 + i) + "#" + Uri.EscapeDataString(fixtures[i % fixtures.Length] + " · " + (i + 1))
+                                });
+                                MergeItems((JsonArray)imported["profiles"]!, i % 2 == 0 ? "qa-personal" : "qa-backup");
+                            }
+                            data["selected"] = Profiles[0]!["id"]!.ToString();
+                        }
                         if (target.StartsWith("settings-", StringComparison.Ordinal))
                         {
                             settingsTab = target[9..];
                             Navigate("settings");
                         }
+                        else if (target.EndsWith("-populated", StringComparison.Ordinal))
+                            Navigate(target[..^10]);
                         else if (target == "home-proxy")
                         {
                             Settings["mode"] = "proxy";

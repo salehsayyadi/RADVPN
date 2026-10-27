@@ -34,7 +34,7 @@ with zipfile.ZipFile(apk) as z:
  with zipfile.ZipFile(out/'RADVPN-Android-notices.zip','w',zipfile.ZIP_DEFLATED) as dest:
   for n in names:
    if n.startswith('assets/licenses/') and not n.endswith('/'):dest.writestr(n,z.read(n))
-ui=json.loads(one(e,'ui-report.json').read_text());assert ui['passed'] and len(ui['captures'])==56 and not ui['failures']
+ui=json.loads(one(e,'ui-report.json').read_text());assert ui['passed'] and len(ui['captures'])==64 and not ui['failures']
 assert json.loads(one(e,'native-tests.json').read_text())['passed']
 assert one(e,'installer-test-report.txt').read_text(encoding='utf-8-sig').count('PASS ')>=7
 shutil.copy2(apk,out/'RADVPN-Android.apk');shutil.copy2(installer,out/'RADVPN-Windows-Setup.exe');shutil.copy2(portable,out/'RADVPN-Windows-Portable.zip')
@@ -47,4 +47,4 @@ approval=json.loads(pathlib.Path('.github/unified-release-approval.json').read_t
 (out/'build-provenance.json').write_text(json.dumps(approval,indent=2)+'\n')
 assert len(list(out.glob('*.apk')))==1 and len(list(out.glob('*.exe')))==1
 (out/'SHA256SUMS.txt').write_text(''.join(f'{digest(p)}  {p.name}\n' for p in sorted(out.iterdir()) if p.name!='SHA256SUMS.txt'))
-print('Verified one actual APK + one installed Windows installer, matching checksums, 64 Android and 56 Windows captures, native tests, license inventory and exact background hash.')
+print('Verified one actual APK + one installed Windows installer, matching checksums, 64 Android and 64 Windows captures, native tests, license inventory and exact background hash.')
