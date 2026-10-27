@@ -1,0 +1,36 @@
+Requirement already satisfied: Pillow==11.3.0 in C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages (11.3.0)
+RADVPN icon generated: 706e56cc38f7105e850b0ea5c271bff83b57883477cdb34e84451bdb83f84b7e
+  Determining projects to restore...
+  Restored D:\a\RADVPN\RADVPN\apps\windows\RADVPN.csproj (in 5.43 sec).
+  RADVPN -> D:\a\RADVPN\RADVPN\apps\windows\bin\Release\net8.0-windows\win-x64\RADVPN.dll
+  RADVPN -> D:\a\RADVPN\RADVPN\dist\windows\
+Collected notices for 49 of 120 modules; review missing entries before release
+
+Name                                                          Length
+----                                                          ------
+localization                                                  
+THIRD_PARTY_LICENSES                                          
+D3DCompiler_47_cor3.dll                                       4741488
+flags-atlas.json                                              55942
+INSTALL.md                                                    6410
+KNOWN_LIMITATIONS.md                                          4334
+lightning-glass.jpg                                           193715
+lightning.jpg                                                 454409
+microsoft.netcore.app.runtime.win-x64-LICENSE.TXT             1139
+microsoft.netcore.app.runtime.win-x64-THIRD-PARTY-NOTICES.TXT 68910
+NotoEmoji-OFL.txt                                             4330
+PenImc_cor3.dll                                               158032
+PresentationNative_cor3.dll                                   1234768
+PRIVACY.md                                                    3436
+radcore.exe                                                   31507456
+RADVPN-LICENSE.txt                                            1204
+RADVPN.exe                                                    154218994
+RADVPN.ico                                                    22559
+THIRD_PARTY_NOTICES.md                                        2609
+vcruntime140_cor3.dll                                         124544
+Wintun-LICENSE.txt                                            5347
+wintun.dll                                                    427552
+wpfgfx_cor3.dll                                               1956136
+Xray-LICENSE                                                  16725
+ZXingNet-LICENSE.txt                                          11358
+
