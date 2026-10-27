@@ -409,15 +409,56 @@ class MainActivity : Activity() {
             entry("rename") { prompt("name", item.optString("name")) { name -> if (name.isNotBlank()) { item.put("name", name.take(200)).put("userNamed",true); save(); render() } } }
             entry("toggle") { idle { item.put("enabled", !item.optBoolean("enabled", true)); repairSelection(); save(); render() } }
             entry("duplicate") { val copy = JSONObject(item.toString()).put("id", java.util.UUID.randomUUID().toString()).put("group", ""); profiles().put(copy); save(); render() }
-            entry("advanced") { idle { prompt("advanced", item.getJSONObject("outbound").toString(2), true) { raw -> job { val candidate = JSONObject(item.toString()).put("outbound", JSONObject(raw)); Api.call(JSONObject().put("method", "validate").put("profile", candidate).put("settings", settings())); handler.post { item.put("outbound", candidate.getJSONObject("outbound")); save(); render() } } } } }
+            entry("edit_server") { idle { editServer(item) } }
             entry("delete") { idle { confirm("confirm_delete") { for (i in profiles().length() - 1 downTo 0) if (profiles().getJSONObject(i).optString("id") == item.optString("id")) profiles().remove(i); repairSelection(); save(); render() } } }
         }.show()
     }
 
 
+    private fun editServer(original: JSONObject) {
+        val candidate=JSONObject(original.toString())
+        val outbound=candidate.getJSONObject("outbound")
+        val protocol=outbound.getString("protocol")
+        val endpoints=outbound.getJSONObject("settings")
+        val endpoint=(endpoints.optJSONArray("vnext") ?: endpoints.getJSONArray("servers")).getJSONObject(0)
+        val form=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setPadding(dp(20),dp(12),dp(20),dp(12))}
+        val setters=mutableListOf<()->Unit>()
+        fun bind(node:JSONObject,key:String,label:String,number:Boolean=false){
+            form.addView(TextView(this).apply{text=t(label);setTextColor(Design.muted)})
+            val field=EditText(this).apply{setText(node.optString(key));setTextColor(Design.text);setSingleLine(true);background=Design.surface(this@MainActivity,Design.input);setPadding(dp(12),dp(8),dp(12),dp(8));inputType=if(number)android.text.InputType.TYPE_CLASS_NUMBER else android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS}
+            form.addView(field,LinearLayout.LayoutParams(-1,dp(48)).apply{bottomMargin=dp(14)})
+            setters.add{if(number){val n=field.text.toString().toIntOrNull() ?: throw IllegalStateException("invalid_profile");check(n in 1..65535){"invalid_profile"};node.put(key,n)}else node.put(key,field.text.toString().trim())}
+        }
+        bind(candidate,"name","name");bind(endpoint,"address","address");bind(endpoint,"port","server_port",true)
+        if(protocol in listOf("vless","vmess")){
+            val user=endpoint.getJSONArray("users").getJSONObject(0);bind(user,"id","client_id");if(protocol=="vless")bind(user,"flow","flow")
+        }else{bind(endpoint,"password","password");if(protocol=="shadowsocks")bind(endpoint,"method","method")}
+        outbound.optJSONObject("streamSettings")?.let{stream->
+            val security=stream.optString("security")
+            stream.optJSONObject(if(security=="reality")"realitySettings" else "tlsSettings")?.let{tls->
+                bind(tls,"serverName","sni");bind(tls,"fingerprint","fingerprint")
+                if(security=="reality"){bind(tls,"publicKey","public_key");bind(tls,"shortId","short_id");bind(tls,"spiderX","spider_path")}
+            }
+            stream.optJSONObject("wsSettings")?.let{ws->bind(ws,"path","path");ws.optJSONObject("headers")?.let{bind(it,"Host","host")}}
+            stream.optJSONObject("grpcSettings")?.let{bind(it,"serviceName","service_name")}
+            stream.optJSONObject("xhttpSettings")?.let{bind(it,"path","path");bind(it,"host","host")}
+        }
+        val scroll=ScrollView(this).apply{addView(form)}
+        val dialog=AlertDialog.Builder(this).setTitle(t("edit_server")).setView(scroll).setPositiveButton(t("save"),null).setNegativeButton(t("cancel"),null).create()
+        dialog.setOnShowListener{dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener{
+            try{
+                setters.forEach{it()};check(candidate.optString("name").isNotBlank() && candidate.optString("name").length<=200){"invalid_profile"}
+                val validation=JSONObject(settings().toString()).put("mode","proxy")
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled=false
+                worker.execute{try{Api.call(JSONObject().put("method","validate").put("profile",candidate).put("settings",validation));handler.post{original.put("name",candidate.getString("name")).put("outbound",outbound).put("userNamed",true);measured.remove(original.optString("id"));save();dialog.dismiss();render()}}catch(e:Exception){handler.post{dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled=true;report(e.message ?: "invalid_profile")}}}
+            }catch(e:Exception){report(e.message ?: "invalid_profile")}
+        }}
+        dialog.show()
+    }
+
     private fun testAll(){
         if(probing || !isIdle){report("already_running");return}
-        val source=items().filter{it.optBoolean("enabled",true) && (groupFilter.isEmpty() || it.optString("group")==groupFilter)}.take(256).map{JSONObject(it.toString())}
+        val source=items().filter{it.optBoolean("enabled",true) && (groupFilter.isEmpty() || it.optString("group")==groupFilter)}.map{JSONObject(it.toString())}
         if(source.isEmpty())return
         probing=true;completedTests=0;probeCancel=AtomicBoolean(false);val cancelled=probeCancel;val candidateSettings=JSONObject(settings().toString());render()
         job{
@@ -522,7 +563,7 @@ class MainActivity : Activity() {
                 help("rules_help"); val rules = field("rules", draft.optJSONArray("rules")?.toString(2) ?: "[]", true)
                 button("save", true) { idle { job { val candidate = JSONObject(draft.toString()).put("rules", JSONArray(rules.text.toString())); Api.call(JSONObject().put("method", "settings").put("settings", candidate)); handler.post { data.put("settings", candidate); save(); Toast.makeText(this, t("applied"), Toast.LENGTH_SHORT).show() } } } }
                 help("advanced_help"); button("profiles") { go("profiles") }; help("backup_help")
-                button("export") { startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/octet-stream").putExtra(Intent.EXTRA_TITLE, "RADVPN-2.0.1.radvpn"), 51) }
+                button("export") { startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/octet-stream").putExtra(Intent.EXTRA_TITLE, "RADVPN-2.0.2.radvpn"), 51) }
                 button("restore") { idle { startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/octet-stream"), 52) } }
             }
         }
@@ -534,7 +575,7 @@ class MainActivity : Activity() {
         card { title("live_traffic"); plot = TrafficPlot(this, samples); body.addView(plot, LinearLayout.LayoutParams(-1, dp(180))); if (samples.isEmpty()) help("awaiting_traffic") }
         help("measured_only")
     }
-    private fun safeDiagnostics() = JSONObject().put("app", "2.0.1").put("core", "26.10.21").put("state", active).put("mode", settings().optString("mode")).put("profileCount", profiles().length()).put("tunnelDeviceVerified", false).put("events", JSONArray(events.map { it.first + " " + it.second }))
+    private fun safeDiagnostics() = JSONObject().put("app", "2.0.2").put("core", "26.10.21").put("state", active).put("mode", settings().optString("mode")).put("profileCount", profiles().length()).put("tunnelDeviceVerified", false).put("events", JSONArray(events.map { it.first + " " + it.second }))
     private fun diagnostics() {
         card {
             title("diagnostics"); help("safe_name"); help("logging_fixed")
@@ -548,7 +589,7 @@ class MainActivity : Activity() {
     private fun about() {
         card {
             body.addView(Symbol(this, "brand", Design.orange), LinearLayout.LayoutParams(dp(66), dp(72)).apply { gravity = Gravity.CENTER_HORIZONTAL; bottomMargin = dp(16) })
-            label("RADVPN 2.0.1", 26f, Design.text, true).apply { gravity = Gravity.CENTER; layoutDirection = View.LAYOUT_DIRECTION_LTR }
+            label("RADVPN 2.0.2", 26f, Design.text, true).apply { gravity = Gravity.CENTER; layoutDirection = View.LAYOUT_DIRECTION_LTR }
             label("Xray 26.10.21", 16f, Design.orange).apply { gravity = Gravity.CENTER; textDirection = View.TEXT_DIRECTION_LTR }
             help("android_testing_channel"); help("privacy"); help("not_full_protection")
             button("check_updates") { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/salehsayyadi/RADVPN/releases"))) }
@@ -586,6 +627,8 @@ class MainActivity : Activity() {
         val fixture=Api.call(JSONObject().put("method","import").put("text","socks://127.0.0.1:19876#Fixture")).getJSONArray("profiles")
         merge(fixture,"one");merge(fixture,"two")
         check(profiles().length()==2)
+        val withMetadata=JSONObject(profiles().getJSONObject(0).toString()).put("userNamed",true).put("probeLatency",21)
+        Api.call(JSONObject().put("method","validate").put("profile",withMetadata).put("settings",JSONObject(settings().toString()).put("mode","proxy")))
         check(items().map{it.optString("id")}.distinct().size==2)
         check(items().count{it.optString("group")=="one"}==1 && items().count{it.optString("group")=="two"}==1)
         profiles().getJSONObject(0).put("favorite",true).put("name","Custom").put("userNamed",true)
