@@ -1,0 +1,177 @@
+{
+  "passed": true,
+  "checks": [
+    "exact approved lightning asset; screenshots enabled by default; measured notification rate formatting",
+    "REALITY none-header, pasted Markdown SNI and percent-encoded Shadowsocks metadata through actual native core",
+    "actual packaged native core\/version and Tunnel\/10808 defaults",
+    "invalid input rejected; valid local-only fixture parsed, never displayed as a real server",
+    "invalid DNS rejected by actual core boundary",
+    "real occupied loopback port refuses startup; native stop is clean",
+    "actual Android Keystore AES-GCM roundtrip and tamper rejection; no user vault overwritten",
+    "English\/Persian locale key parity",
+    "30 actual native page captures plus 2 native dialogs; English\/Persian RTL and horizontal control bounds"
+  ],
+  "captures": [
+    {
+      "page": "home",
+      "language": "en",
+      "file": "home-en-1080x2160.png"
+    },
+    {
+      "page": "servers",
+      "language": "en",
+      "file": "servers-en-1080x2160.png"
+    },
+    {
+      "page": "configs",
+      "language": "en",
+      "file": "configs-en-1080x2160.png"
+    },
+    {
+      "page": "subscriptions",
+      "language": "en",
+      "file": "subscriptions-en-1080x2160.png"
+    },
+    {
+      "page": "profiles",
+      "language": "en",
+      "file": "profiles-en-1080x2160.png"
+    },
+    {
+      "page": "traffic",
+      "language": "en",
+      "file": "traffic-en-1080x2160.png"
+    },
+    {
+      "page": "settings",
+      "language": "en",
+      "file": "settings-en-1080x2160.png"
+    },
+    {
+      "page": "connection",
+      "language": "en",
+      "file": "connection-en-1080x2160.png"
+    },
+    {
+      "page": "advanced",
+      "language": "en",
+      "file": "advanced-en-1080x2160.png"
+    },
+    {
+      "page": "logs",
+      "language": "en",
+      "file": "logs-en-1080x2160.png"
+    },
+    {
+      "page": "about",
+      "language": "en",
+      "file": "about-en-1080x2160.png"
+    },
+    {
+      "page": "favorites",
+      "language": "en",
+      "file": "favorites-en-1080x2160.png"
+    },
+    {
+      "page": "home-populated",
+      "language": "en",
+      "file": "home-populated-en-1080x2160.png"
+    },
+    {
+      "page": "servers-populated",
+      "language": "en",
+      "file": "servers-populated-en-1080x2160.png"
+    },
+    {
+      "page": "server-menu",
+      "language": "en",
+      "file": "server-menu-en-1080x2160.png"
+    },
+    {
+      "page": "home",
+      "language": "fa",
+      "file": "home-fa-1080x2160.png"
+    },
+    {
+      "page": "servers",
+      "language": "fa",
+      "file": "servers-fa-1080x2160.png"
+    },
+    {
+      "page": "configs",
+      "language": "fa",
+      "file": "configs-fa-1080x2160.png"
+    },
+    {
+      "page": "subscriptions",
+      "language": "fa",
+      "file": "subscriptions-fa-1080x2160.png"
+    },
+    {
+      "page": "profiles",
+      "language": "fa",
+      "file": "profiles-fa-1080x2160.png"
+    },
+    {
+      "page": "traffic",
+      "language": "fa",
+      "file": "traffic-fa-1080x2160.png"
+    },
+    {
+      "page": "settings",
+      "language": "fa",
+      "file": "settings-fa-1080x2160.png"
+    },
+    {
+      "page": "connection",
+      "language": "fa",
+      "file": "connection-fa-1080x2160.png"
+    },
+    {
+      "page": "advanced",
+      "language": "fa",
+      "file": "advanced-fa-1080x2160.png"
+    },
+    {
+      "page": "logs",
+      "language": "fa",
+      "file": "logs-fa-1080x2160.png"
+    },
+    {
+      "page": "about",
+      "language": "fa",
+      "file": "about-fa-1080x2160.png"
+    },
+    {
+      "page": "favorites",
+      "language": "fa",
+      "file": "favorites-fa-1080x2160.png"
+    },
+    {
+      "page": "home-populated",
+      "language": "fa",
+      "file": "home-populated-fa-1080x2160.png"
+    },
+    {
+      "page": "servers-populated",
+      "language": "fa",
+      "file": "servers-populated-fa-1080x2160.png"
+    },
+    {
+      "page": "server-menu",
+      "language": "fa",
+      "file": "server-menu-fa-1080x2160.png"
+    },
+    {
+      "page": "dialog",
+      "language": "en",
+      "file": "dialog-en-1080x2160.png"
+    },
+    {
+      "page": "dialog",
+      "language": "fa",
+      "file": "dialog-fa-1080x2160.png"
+    }
+  ],
+  "scope": "Actual installed debug APK on Android API35 emulator; not physical-device VPN, remote server, leak or battery acceptance."
+}
