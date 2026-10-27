@@ -1,0 +1,58 @@
+Requirement already satisfied: Pillow==11.3.0 in C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages (11.3.0)
+RADVPN icon generated: 706e56cc38f7105e850b0ea5c271bff83b57883477cdb34e84451bdb83f84b7e
+  Determining projects to restore...
+  Restored D:\a\RADVPN\RADVPN\apps\windows\RADVPN.csproj (in 13.21 sec).
+  RADVPN -> D:\a\RADVPN\RADVPN\apps\windows\bin\Release\net8.0-windows\win-x64\RADVPN.dll
+  RADVPN -> D:\a\RADVPN\RADVPN\dist\windows\
+Collected notices for 49 of 120 modules; review missing entries before release
+
+Name                                                          Length
+----                                                          ------
+localization                                                  
+THIRD_PARTY_LICENSES                                          
+D3DCompiler_47_cor3.dll                                       4741488
+flags-atlas.json                                              55942
+INSTALL.md                                                    6410
+KNOWN_LIMITATIONS.md                                          4334
+lightning-glass.jpg                                           193715
+lightning.jpg                                                 454409
+microsoft.netcore.app.runtime.win-x64-LICENSE.TXT             1139
+microsoft.netcore.app.runtime.win-x64-THIRD-PARTY-NOTICES.TXT 68910
+NotoEmoji-OFL.txt                                             4330
+PenImc_cor3.dll                                               158032
+PresentationNative_cor3.dll                                   1234768
+PRIVACY.md                                                    3436
+radcore.exe                                                   31507456
+RADVPN-LICENSE.txt                                            1204
+RADVPN.exe                                                    154218994
+RADVPN.ico                                                    22559
+THIRD_PARTY_NOTICES.md                                        2609
+vcruntime140_cor3.dll                                         124544
+Wintun-LICENSE.txt                                            5347
+wintun.dll                                                    427552
+wpfgfx_cor3.dll                                               1956136
+Xray-LICENSE                                                  16725
+ZXingNet-LICENSE.txt                                          11358
+
+Generated exact uninstall manifest: 89 entries
+MakeNSIS v3.12 - Copyright 1999-2026 Contributors
+See the file COPYING for license details.
+Credits can be found in the Users Manual.
+
+Command line defined: "REPO_ROOT=D:\a\RADVPN\RADVPN"
+Processing config: C:\Program Files (x86)\NSIS\nsisconf.nsh
+Processing script file: "installer/RADVPN.nsi" (UTF8)
+
+Processed 1 file, writing output (x86-unicode):
+
+Output: "D:\a\RADVPN\RADVPN\dist\RADVPN-Setup-2.0.3-x64.exe"
+Install: 6 pages (384 bytes), 2 sections (1 required) (4144 bytes), 683 instructions (19124 bytes), 435 strings (23538 bytes), 2 language tables (716 bytes).
+Uninstall: 3 pages (256 bytes), 1 section (2072 bytes), 387 instructions (10836 bytes), 313 strings (18344 bytes), 2 language tables (572 bytes).
+Datablock optimizer saved 100829 bytes (~0.0%).
+
+Using lzma (compress whole) compression.
+
+EXE header size:               65536 / 38912 bytes
+Install code:                          (48370 bytes)
+Install data:                          (195482227 bytes)
+Uninstall code+data:                   (103623 bytes)
