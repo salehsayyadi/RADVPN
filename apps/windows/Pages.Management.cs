@@ -178,7 +178,7 @@ internal sealed partial class MainWindow
     }
     Task ExportBackup()
     {
-        var file = new SaveFileDialog { Filter = "RADVPN (*.radvpn)|*.radvpn", FileName = "RADVPN-2.0.0.radvpn" };
+        var file = new SaveFileDialog { Filter = "RADVPN (*.radvpn)|*.radvpn", FileName = "RADVPN-2.0.1.radvpn" };
         if (file.ShowDialog() == true)
             File.WriteAllBytes(file.FileName, Storage.Encrypt(data));
         return Task.CompletedTask;
@@ -226,7 +226,7 @@ internal sealed partial class MainWindow
             p.Children.Add(Empty("empty", () => { Navigate("configs"); return Task.CompletedTask; }));
         body.Children.Add(Card(p));
     }
-    JsonObject Diagnostics() => new() { ["appVersion"] = "2.0.0", ["coreVersion"] = data["coreVersion"]?.ToString(), ["channel"] = "experimental-unsigned", ["state"] = active, ["mode"] = Settings["mode"]?.ToString(), ["socksPort"] = Settings["port"]?.DeepClone(), ["httpPort"] = (Settings["port"]?.GetValue<int>() ?? 10808) + 1, ["driverFilePresent"] = File.Exists(Path.Combine(AppContext.BaseDirectory, "wintun.dll")), ["administrator"] = IsAdministrator(), ["deviceTunnelVerified"] = false, ["events"] = new JsonArray(events.Select(e => (JsonNode?)new JsonObject { ["time"] = e.Time.ToString("O"), ["code"] = e.Code }).ToArray()) };
+    JsonObject Diagnostics() => new() { ["appVersion"] = "2.0.1", ["coreVersion"] = data["coreVersion"]?.ToString(), ["channel"] = "experimental-unsigned", ["state"] = active, ["mode"] = Settings["mode"]?.ToString(), ["socksPort"] = Settings["port"]?.DeepClone(), ["httpPort"] = (Settings["port"]?.GetValue<int>() ?? 10808) + 1, ["driverFilePresent"] = File.Exists(Path.Combine(AppContext.BaseDirectory, "wintun.dll")), ["administrator"] = IsAdministrator(), ["deviceTunnelVerified"] = false, ["events"] = new JsonArray(events.Select(e => (JsonNode?)new JsonObject { ["time"] = e.Time.ToString("O"), ["code"] = e.Code }).ToArray()) };
     void Logs()
     {
         var p = Panel("logs");
@@ -277,7 +277,7 @@ internal sealed partial class MainWindow
     {
         var p = Panel("about");
         p.Children.Add(Glyphs.Icon("shield", B("Orange"), 66));
-        p.Children.Add(Label("RADVPN 2.0.0", 30, "Text", true));
+        p.Children.Add(Label("RADVPN 2.0.1", 30, "Text", true));
         p.Children.Add(Label(T("testing_channel"), 14, "Warning"));
         p.Children.Add(Label("Xray " + (data["coreVersion"]?.ToString() ?? "—"), 18, "Orange", true));
         p.Children.Add(Label(T("privacy"), 14, "Subtext"));

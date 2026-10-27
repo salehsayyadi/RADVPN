@@ -98,7 +98,7 @@ func stopLocked() error {
 func start(p Profile, s Settings, fd int) error {
 	mu.Lock()
 	defer mu.Unlock()
-	if instance != nil {
+	if instance != nil || len(probeCancels) != 0 {
 		return errors.New("already_running")
 	}
 	state = Snapshot{State: "connecting", Mode: s.Mode}
@@ -287,6 +287,12 @@ func Invoke(request string) string {
 	case "stop":
 		e := Stop()
 		return result(snapshot(), e)
+	case "probe":
+		v, e := testProfile(r.Profile, r.Settings)
+		return result(v, e)
+	case "cancel_tests":
+		cancelProfileTests()
+		return result(nil, nil)
 	case "status":
 		return result(snapshot(), nil)
 	case "validate":

@@ -145,7 +145,7 @@ func Build(p Profile, s Settings, platform string) ([]byte, error) {
 	return json.Marshal(config)
 }
 func validateOutbound(o map[string]any) error {
-	if o == nil {
+	if o == nil || placeholderOutbound(o) {
 		return fail()
 	}
 	for k := range o {
