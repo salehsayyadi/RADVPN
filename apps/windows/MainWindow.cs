@@ -35,7 +35,7 @@ internal sealed partial class MainWindow : Window
     {
         args = arguments;
         smoke = args.Contains("--ui-smoke");
-        Title = "RADVPN 2.0.2";
+        Title = "RADVPN 2.0.3";
         Width = 1440;
         Height = 900;
         MinWidth = 1120;
@@ -151,7 +151,7 @@ internal sealed partial class MainWindow : Window
     }
     void SetupTray()
     {
-        tray = new Forms.NotifyIcon { Icon = new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory, "RADVPN.ico")), Text = "RADVPN 2.0.2", Visible = true };
+        tray = new Forms.NotifyIcon { Icon = new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory, "RADVPN.ico")), Text = "RADVPN 2.0.3", Visible = true };
         tray.DoubleClick += (_, _) => { Show(); WindowState = WindowState.Normal; Activate(); };
         UpdateTray();
     }
@@ -193,6 +193,8 @@ internal sealed partial class MainWindow : Window
             var p = Selected() ?? throw new InvalidOperationException("select_profile");
             if (Settings["mode"]?.ToString() == "tunnel" && !IsAdministrator())
             {
+                if (!ConfirmElevation())
+                    return;
                 Save();
                 var restart = new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = true, Verb = "runas", WorkingDirectory = AppContext.BaseDirectory };
                 restart.ArgumentList.Add("--elevated-connect");
@@ -203,6 +205,15 @@ internal sealed partial class MainWindow : Window
                 Close();
                 return;
             }
+            if (Settings["mode"]?.ToString() == "tunnel" && !File.Exists(Path.Combine(AppContext.BaseDirectory, "wintun.dll")))
+                throw new InvalidOperationException("driver_missing");
+            if (Settings["mode"]?.ToString() == "tunnel")
+            {
+                if (!System.Runtime.InteropServices.NativeLibrary.TryLoad(Path.Combine(AppContext.BaseDirectory, "wintun.dll"), out var driver))
+                    throw new InvalidOperationException("driver_load_failed");
+                System.Runtime.InteropServices.NativeLibrary.Free(driver);
+            }
+            EnsureListenerPorts();
             ledger.Reset();
             active = "starting";
             UpdateConnection();
@@ -217,8 +228,32 @@ internal sealed partial class MainWindow : Window
             active = "connecting";
             UpdateConnection();
         }
+        catch (System.ComponentModel.Win32Exception e) when (e.NativeErrorCode == 1223) { active = "disconnected"; Notice("elevation_cancelled"); UpdateConnection(); }
         catch (Exception e) { active = "error"; Notice(Code(e)); UpdateConnection(); }
         finally { busy = false; }
+    }
+    bool ConfirmElevation()
+    {
+        var dialog = Dialog(T("administrator_access_required"));
+        dialog.Width = 520;
+        var p = (StackPanel)dialog.Content;
+        p.Children.Add(Label(T("elevation_explanation"), 14, "Subtext"));
+        p.Children.Add(Actions(Action("continue_uac", () => { dialog.DialogResult = true; return Task.CompletedTask; }, "shield", true), Action("not_now", () => { dialog.DialogResult = false; return Task.CompletedTask; })));
+        return dialog.ShowDialog() == true;
+    }
+    void EnsureListenerPorts()
+    {
+        var address = System.Net.IPAddress.Parse(Settings["bind"]!.ToString());
+        var port = Settings["port"]!.GetValue<int>();
+        var first = new System.Net.Sockets.TcpListener(address, port);
+        var second = new System.Net.Sockets.TcpListener(address, port + 1);
+        try
+        {
+            first.Start();
+            second.Start();
+        }
+        catch (System.Net.Sockets.SocketException) { throw new InvalidOperationException("ports_busy"); }
+        finally { first.Stop(); second.Stop(); }
     }
     static bool IsAdministrator() => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
     async Task StopConnection()
@@ -304,7 +339,10 @@ internal sealed partial class MainWindow : Window
             }
             if (s["error"]?.ToString() is string error && error != "" && status != null)
             {
-                status.Text = T(error);
+                status.Text = T("error");
+                status.ToolTip = T(error) + " [" + error + "]";
+                if (events.Count == 0 || events[0].Code != error)
+                    Notice(error);
                 status.Foreground = B("Error");
             }
             else
@@ -380,7 +418,7 @@ internal sealed partial class MainWindow : Window
         upText = downText = latencyText = null;
         connect = power = null;
         graph = null;
-        var shell = new Grid { Background = new ImageBrush(new System.Windows.Media.Imaging.BitmapImage(new Uri(Path.Combine(AppContext.BaseDirectory, "lightning.jpg")))) { Stretch = Stretch.UniformToFill } };
+        var shell = new Grid { Background = new ImageBrush(new System.Windows.Media.Imaging.BitmapImage(new Uri(Path.Combine(AppContext.BaseDirectory, "lightning-glass.jpg")))) { Stretch = Stretch.UniformToFill } };
         shell.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(204) });
         shell.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         var sidebar = new DockPanel { Background = B("Sidebar"), Margin = new Thickness(0) };
@@ -390,7 +428,7 @@ internal sealed partial class MainWindow : Window
         wordmark.Children.Add(new TextBlock { Text = "RAD", FontSize = 24, FontWeight = FontWeights.Bold, Foreground = B("Orange"), Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
         wordmark.Children.Add(new TextBlock { Text = "VPN", FontSize = 24, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center });
         brand.Children.Add(wordmark);
-        brand.Children.Add(Label("2.0.2  ·  " + T("testing_channel"), 11, "Muted"));
+        brand.Children.Add(Label(T("designed_simple"), 11, "Muted"));
         DockPanel.SetDock(brand, Dock.Top);
         sidebar.Children.Add(brand);
         var bottom = new StackPanel { Margin = new Thickness(18) };
@@ -399,7 +437,7 @@ internal sealed partial class MainWindow : Window
         DockPanel.SetDock(bottom, Dock.Bottom);
         sidebar.Children.Add(bottom);
         var navigation = new StackPanel { Margin = new Thickness(12, 0, 12, 0) };
-        foreach (var key in new[] { "home", "servers", "subscriptions", "configs", "traffic", "settings", "logs", "about" })
+        foreach (var key in new[] { "home", "servers", "subscriptions", "configs", "settings", "logs" })
         {
             var target = key;
             var b = Action(key, () => { Navigate(target); return Task.CompletedTask; }, key);
@@ -440,7 +478,15 @@ internal sealed partial class MainWindow : Window
         title.Children.Add(languages);
         var heading = new StackPanel();
         heading.Children.Add(Label(T(page), 26, "Text", true));
-        heading.Children.Add(Label(T("development"), 12, "Muted"));
+        heading.Children.Add(Label(T(page switch
+        {
+            "home" => "home_subtitle",
+            "servers" => "servers_subtitle",
+            "configs" => "direct_links_description",
+            "subscriptions" => "subscriptions_subtitle",
+            "logs" => "diagnostics_subtitle",
+            _ => "private_local"
+        }), 12, "Subtext"));
         title.Children.Add(heading);
         content.Children.Add(title);
         toast = Label("", 13, "Warning");
@@ -501,9 +547,9 @@ internal sealed partial class MainWindow : Window
     {
         if (icon == null)
             return new TextBlock { Text = T(key), FontSize = 14, Foreground = B(primary ? "App" : "Subtext"), VerticalAlignment = VerticalAlignment.Center };
-        var row = new StackPanel { Orientation = Orientation.Horizontal };
+        var row = new StackPanel { Orientation = Orientation.Horizontal, FlowDirection = FlowDirection.LeftToRight };
         row.Children.Add(Glyphs.Icon(icon, B(primary ? "App" : selected ? "Highlight" : "Subtext"), 17));
-        row.Children.Add(new TextBlock { Text = T(key), Margin = FlowDirection == FlowDirection.RightToLeft ? new Thickness(0, 0, 9, 0) : new Thickness(9, 0, 0, 0), Foreground = B(primary ? "App" : selected ? "Highlight" : "Subtext"), VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.NoWrap });
+        row.Children.Add(new TextBlock { Text = T(key), Margin = new Thickness(9, 0, 0, 0), Foreground = B(primary ? "App" : selected ? "Highlight" : "Subtext"), VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.NoWrap });
         return row;
     }
     Button Action(string key, Func<Task> action, string? icon = null, bool primary = false)
@@ -545,10 +591,10 @@ internal sealed partial class MainWindow : Window
     }
     Window Dialog(string message)
     {
-        var dialog = new Window { Owner = this, Title = "RADVPN", Width = 560, SizeToContent = SizeToContent.Height, MaxHeight = 600, ResizeMode = ResizeMode.NoResize, WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = B("App"), Foreground = B("Text"), FlowDirection = FlowDirection, FontFamily = FontFamily };
+        var dialog = new Window { Owner = this, Title = "RADVPN", Width = 560, SizeToContent = SizeToContent.Height, MaxHeight = 600, ResizeMode = ResizeMode.NoResize, WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = B("Secondary"), Foreground = B("Text"), FlowDirection = FlowDirection, FontFamily = FontFamily };
         dialog.Resources.MergedDictionaries.Add(Resources.MergedDictionaries[0]);
-        var p = new StackPanel { Margin = new Thickness(24), Background = B("App") };
-        p.Children.Add(Label(message, 16));
+        var p = new StackPanel { Margin = new Thickness(24), Background = B("Secondary") };
+        p.Children.Add(Label(message, 20, "Text", true));
         dialog.Content = p;
         return dialog;
     }
