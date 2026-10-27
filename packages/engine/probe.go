@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"io"
 	"net"
-	"net/http"
 	"strconv"
 	"sync"
 	"time"
@@ -69,21 +67,8 @@ func testProfile(p Profile, s Settings) (ProbeResult, error) {
 		return result, nil
 	}
 	defer client.CloseIdleConnections()
-	request, e := http.NewRequestWithContext(ctx, http.MethodGet, probeURL, nil)
+	latency, e := verifyHTTPS(ctx, client, connectionProbeTargets())
 	if e != nil {
-		result.Error = "probe_failed"
-		return result, nil
-	}
-	begin := time.Now()
-	response, e := client.Do(request)
-	if response != nil {
-		_, readErr := io.Copy(io.Discard, io.LimitReader(response.Body, 4096))
-		_ = response.Body.Close()
-		if e == nil && (response.StatusCode != http.StatusNoContent || readErr != nil) {
-			e = errors.New("probe_failed")
-		}
-	}
-	if e != nil || response == nil {
 		result.Error = "probe_failed"
 		return result, nil
 	}
@@ -99,7 +84,6 @@ func testProfile(p Profile, s Settings) (ProbeResult, error) {
 		result.Error = "probe_failed"
 		return result, nil
 	}
-	latency := time.Since(begin).Milliseconds()
 	result.Latency = &latency
 	result.Connected = true
 	return result, nil

@@ -73,7 +73,10 @@ var instance *core.Instance
 var state = Snapshot{State: "disconnected"}
 var started time.Time
 var cancel context.CancelFunc
-var probeURL = "https://cp.cloudflare.com/generate_204"
+
+const defaultProbeURL = "https://cp.cloudflare.com/generate_204"
+
+var probeURL = defaultProbeURL
 
 func Stop() error { mu.Lock(); defer mu.Unlock(); return stopLocked() }
 func stopLocked() error {
@@ -123,6 +126,15 @@ func start(p Profile, s Settings, fd int) error {
 			return failed("core_start_failed")
 		}
 	}
+	if platformName() == "windows" && s.Mode == "tunnel" {
+		// Resolve only the selected upstream before TUN changes routes and DNS.
+		// Never persist the temporary IP or weaken the transport's TLS/REALITY identity.
+		var err error
+		p, err = prepareTunnelEndpoint(p, s, net.DefaultResolver.LookupIPAddr)
+		if err != nil {
+			return failed(err.Error())
+		}
+	}
 	config, e := Build(p, s, platformName())
 	if e != nil {
 		return failed(e.Error())
@@ -165,17 +177,8 @@ func verifyConnection(ctx context.Context, x *core.Instance, s Settings) {
 	c, e := proxyClient(s)
 	var latency int64
 	if e == nil {
-		req, _ := http.NewRequestWithContext(ctx, "GET", probeURL, nil)
-		t := time.Now()
-		var resp *http.Response
-		resp, e = c.Do(req)
-		latency = time.Since(t).Milliseconds()
-		if resp != nil {
-			_ = resp.Body.Close()
-			if resp.StatusCode != 204 {
-				e = errors.New("probe_failed")
-			}
-		}
+		defer c.CloseIdleConnections()
+		latency, e = verifyHTTPS(ctx, c, connectionProbeTargets())
 	}
 	mu.Lock()
 	defer mu.Unlock()

@@ -126,7 +126,7 @@ func Build(p Profile, s Settings, platform string) ([]byte, error) {
 		}
 		inbounds = append(inbounds, map[string]any{"tag": "tun", "protocol": "tun", "port": 0, "settings": tun})
 	}
-	rules := []any{map[string]any{"type": "field", "domain": []string{"full:cp.cloudflare.com"}, "outboundTag": "proxy"}}
+	rules := []any{map[string]any{"type": "field", "domain": []string{"full:cp.cloudflare.com", "full:www.gstatic.com"}, "outboundTag": "proxy"}}
 	for _, r := range s.Rules {
 		rule := map[string]any{"type": "field", "outboundTag": r.Action}
 		if len(r.Domains) > 0 {
@@ -185,7 +185,7 @@ func validateOutbound(o map[string]any) error {
 				}
 				for key := range m {
 					switch key {
-					case "serverName", "fingerprint", "publicKey", "shortId", "spiderX":
+					case "serverName", "fingerprint", "publicKey", "shortId", "spiderX", "mldsa65Verify":
 					default:
 						return errors.New("unsafe_config")
 					}

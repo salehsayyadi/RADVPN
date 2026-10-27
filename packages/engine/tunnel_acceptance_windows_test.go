@@ -44,7 +44,7 @@ func TestWindowsTunnelAcceptance(t *testing.T) {
 	probeURL = target.URL
 	defer func() { probeURL = old }()
 	defer Stop()
-	p, e := ParseLink("http://" + strings.TrimPrefix(upstream.URL, "http://"))
+	p, e := ParseLink("http://" + strings.Replace(strings.TrimPrefix(upstream.URL, "http://"), "127.0.0.1", "localhost", 1))
 	if e != nil {
 		t.Fatal(e)
 	}

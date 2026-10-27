@@ -125,7 +125,7 @@ func ParseLink(raw string) (Profile, error) {
 	}
 	q := u.Query()
 	allowed := map[string]bool{}
-	for _, k := range []string{"type", "security", "encryption", "flow", "sni", "fp", "alpn", "pbk", "sid", "spx", "path", "host", "serviceName", "mode", "headerType"} {
+	for _, k := range []string{"type", "security", "encryption", "flow", "sni", "fp", "alpn", "pbk", "sid", "spx", "path", "host", "serviceName", "mode", "headerType", "pqv"} {
 		allowed[k] = true
 	}
 	for k, vs := range q {
@@ -174,7 +174,7 @@ func ParseLink(raw string) (Profile, error) {
 	if security == "none" && (q.Get("sni") != "" || q.Get("alpn") != "" || q.Get("fp") != "") {
 		return Profile{}, fail()
 	}
-	if security != "reality" && (q.Get("pbk") != "" || q.Get("sid") != "" || q.Get("spx") != "") {
+	if security != "reality" && (q.Get("pbk") != "" || q.Get("sid") != "" || q.Get("spx") != "" || q.Get("pqv") != "") {
 		return Profile{}, fail()
 	}
 	user, password := "", ""
@@ -283,6 +283,13 @@ func ParseLink(raw string) (Profile, error) {
 	}
 	if security == "reality" {
 		stream["realitySettings"] = map[string]any{"serverName": q.Get("sni"), "fingerprint": defaultString(q.Get("fp"), "chrome"), "publicKey": q.Get("pbk"), "shortId": q.Get("sid"), "spiderX": q.Get("spx")}
+		if value := q.Get("pqv"); value != "" {
+			key, err := base64.RawURLEncoding.DecodeString(value)
+			if err != nil || len(key) != 1952 {
+				return Profile{}, fail()
+			}
+			stream["realitySettings"].(map[string]any)["mldsa65Verify"] = value
+		}
 	}
 	switch transport {
 	case "ws":
