@@ -33,6 +33,21 @@ jobs:
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null
           set -o pipefail
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.0.13004108'
+      - name: Restore private persistent Android signing identity when configured
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RADVPN_ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.RADVPN_ANDROID_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.RADVPN_ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.RADVPN_ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            umask 077
+            printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/radvpn-signing.jks"
+            echo "RADVPN_ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/radvpn-signing.jks" >> "$GITHUB_ENV"
+            echo "RADVPN_ANDROID_STORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
+            echo "RADVPN_ANDROID_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
+            echo "RADVPN_ANDROID_KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
+          fi
       - name: Build real native APK, test APK, notices and lint
         run: |
           set -euo pipefail
@@ -40,7 +55,8 @@ jobs:
           export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/28.0.13004108"
           python3 scripts/check.py
           bash scripts/build-android.sh 2>&1 | tee dist/android/build.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose apps/android/app/build/outputs/apk/debug/app-debug.apk | tee dist/android/signature.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs apps/android/app/build/outputs/apk/debug/app-debug.apk | tee dist/android/signature.txt
+          python3 -c 'import json,os;json.dump({"persistent_key": bool(os.environ.get("RADVPN_ANDROID_KEYSTORE_PATH"))},open("dist/android/signing-policy.json","w"))'
           cp apps/android/app/build/outputs/apk/debug/app-debug.apk dist/android/RADVPN-Android.apk
           cp apps/android/app/build/outputs/apk/debug/output-metadata.json dist/android/metadata.json
           (cd dist/android && sha256sum *.apk > SHA256SUMS.txt)

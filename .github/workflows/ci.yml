@@ -61,9 +61,10 @@ jobs:
       - name: Upload installer and checksum
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: RADVPN-2.0.1-windows-x64-installer
+          name: RADVPN-2.0.2-windows-x64-installer
           path: |
-            dist/RADVPN-Setup-2.0.1-x64.exe
+            dist/RADVPN-Setup-2.0.2-x64.exe
+            dist/RADVPN-Windows-Portable-2.0.2-x64.zip
             dist/SHA256SUMS.txt
           if-no-files-found: error
       - name: Install, launch, capture actual WPF UI, repair and uninstall
@@ -118,6 +119,21 @@ jobs:
           yes | "$SDKMANAGER" --licenses >/dev/null
           set -o pipefail
           "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.0.13004108'
+      - name: Restore private persistent Android signing identity when configured
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RADVPN_ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.RADVPN_ANDROID_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.RADVPN_ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.RADVPN_ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            umask 077
+            printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/radvpn-signing.jks"
+            echo "RADVPN_ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/radvpn-signing.jks" >> "$GITHUB_ENV"
+            echo "RADVPN_ANDROID_STORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
+            echo "RADVPN_ANDROID_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
+            echo "RADVPN_ANDROID_KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
+          fi
       - name: Build native engine, debug APK and Android lint
         run: |
           export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/28.0.13004108"
@@ -126,7 +142,7 @@ jobs:
         run: "$ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose apps/android/app/build/outputs/apk/debug/app-debug.apk"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: RADVPN-2.0.1-android-debug-testing
+          name: RADVPN-2.0.2-android-debug-testing
           path: |
             apps/android/app/build/outputs/apk/debug/app-debug.apk
             apps/android/app/build/reports/lint-results-debug.html
