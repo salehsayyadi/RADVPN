@@ -15,6 +15,14 @@ Write-Host "Installer target: $install"
 Run-Wait $setup "/S /D=$install"
 if (-not (Test-Path "$install/RADVPN.exe") -or -not (Test-Path "$install/radcore.exe") -or -not (Test-Path "$install/wintun.dll")) { throw 'Installed payload missing' }
 $report.Add('PASS silent per-user installation and bundled app/core/driver files')
+$portable = Join-Path $env:RUNNER_TEMP ('RADVPN-Portable-' + [guid]::NewGuid().ToString('N'))
+Expand-Archive -Path dist/RADVPN-Windows-Portable-2.0.2-x64.zip -DestinationPath $portable
+try {
+ if (-not (Test-Path "$portable/radcore.exe") -or -not (Test-Path "$portable/wintun.dll") -or -not (Test-Path "$portable/flags-atlas.json") -or -not (Test-Path "$portable/lightning.jpg")) { throw 'Portable runtime assets missing' }
+ Run-Wait "$portable/RADVPN.exe" "--self-test `"$PWD/dist/portable-native-tests.json`""
+ $report.Add('PASS portable ZIP extraction, complete runtime assets and independent native self-tests without installation')
+} finally { Remove-Item $portable -Recurse -Force }
+
 $link = Join-Path ([Environment]::GetFolderPath('Programs')) 'RADVPN/RADVPN.lnk'
 if (-not (Test-Path $link)) { throw 'Start Menu shortcut missing' }
 $target = (New-Object -ComObject WScript.Shell).CreateShortcut($link).TargetPath

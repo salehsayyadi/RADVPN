@@ -320,6 +320,7 @@ internal sealed partial class MainWindow
             text
         });
         MergeItems((JsonArray)result["profiles"]!, null);
+        data["importInfo"] = result["info"]?.DeepClone() ?? new JsonArray();
         Save();
         Navigate("servers");
         if (toast != null)

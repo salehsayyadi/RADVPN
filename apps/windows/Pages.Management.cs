@@ -38,6 +38,9 @@ internal sealed partial class MainWindow
             card.Children.Add(Label(sub["name"]?.ToString() ?? T("subscriptions"), 17, "Text", true));
             var host = Uri.TryCreate(sub["url"]?.ToString(), UriKind.Absolute, out var uri) ? uri.Host : "—";
             card.Children.Add(Label(host, 13, "Muted"));
+            if (sub["info"] is JsonArray info)
+                foreach (var line in info)
+                    card.Children.Add(Label(line?.ToString() ?? "", 12, "Subtext"));
             card.Children.Add(Label(T("last_refresh") + ": " + (sub["last"]?.ToString() ?? "—"), 12, "Subtext"));
             var count = Profiles.Count(p => p?["group"]?.ToString() == sub["id"]?.ToString());
             card.Children.Add(Label($"{count} · {T(sub["paused"]?.GetValue<bool>() == true ? "paused" : "active_sub")} · {sub["hours"] ?? 0} h", 12, "Subtext"));
@@ -60,6 +63,7 @@ internal sealed partial class MainWindow
             text = sub["url"]!.ToString()
         });
         var items = (JsonArray)result["profiles"]!;
+        sub["info"] = result["info"]?.DeepClone() ?? new JsonArray();
         var ids = items.Select(p => sub["id"]!.ToString() + ":" + p!["id"]!.ToString()).ToHashSet();
         var group = sub["id"]!.ToString();
         var removed = Profiles.Where(p => p?["group"]?.ToString() == group && !ids.Contains(p["id"]!.ToString())).ToArray();
