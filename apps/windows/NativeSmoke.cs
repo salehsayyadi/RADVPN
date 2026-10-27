@@ -28,7 +28,7 @@ internal static class NativeSmoke
             {
                 method = "version"
             });
-            if (version["app"]?.ToString() != "2.0.2")
+            if (version["app"]?.ToString() != "2.0.3")
                 throw new Exception("version");
             checks.Add("native child IPC/version");
             var defaults = await core.Call(new
@@ -80,6 +80,14 @@ internal static class NativeSmoke
             if (CountryFlags.Code("Netherlands 🇳🇱") != "NL")
                 throw new Exception("flag");
             checks.Add("UTF8 names and offline country flag lookup");
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            var proper = "NETHERLANDS-5 🇳🇱";
+            var broken = System.Text.Encoding.GetEncoding(1252).GetString(System.Text.Encoding.UTF8.GetBytes(proper));
+            if (DisplayNames.Repair(broken) != proper || CountryFlags.WithoutEmoji(broken) != "NETHERLANDS-5")
+                throw new Exception("persisted mojibake repair");
+            if (DisplayNames.Repair("ایران") != "ایران" || DisplayNames.Repair("François") != "François")
+                throw new Exception("valid name changed");
+            checks.Add("legacy persisted name repair and preservation of valid Unicode");
             var dir = Path.Combine(Path.GetTempPath(), "RADVPN-native-tests-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(dir);
             var path = Path.Combine(dir, "vault.bin");
@@ -87,9 +95,12 @@ internal static class NativeSmoke
             {
                 var state = Storage.Fresh();
                 state["selected"] = "fixture-not-user-credential-392135";
+                state["profiles"]!.AsArray().Add(new JsonObject { ["id"] = "name-migration-fixture", ["name"] = broken });
                 Storage.Save(state, path);
                 if (Storage.Load(path)["selected"]?.ToString() != state["selected"]?.ToString())
                     throw new Exception("DPAPI restart roundtrip");
+                if (Storage.Load(path)["profiles"]![0]!["name"]!.ToString() != proper)
+                    throw new Exception("legacy vault name migration");
                 state["selected"] = "second";
                 Storage.Save(state, path);
                 File.WriteAllBytes(path, new byte[] { 1, 2, 3 });
@@ -172,7 +183,7 @@ internal sealed partial class MainWindow
             {
                 foreach (var size in new[] { (Width: 1440, Height: 900), (Width: 1280, Height: 720) })
                 {
-                    foreach (var target in new[] { "home", "servers", "subscriptions", "configs", "profiles", "traffic", "settings", "settings-connection", "settings-security", "settings-advanced", "advanced", "logs", "about", "home-proxy", "home-populated", "servers-populated" })
+                    foreach (var target in new[] { "home", "servers", "subscriptions", "configs", "profiles", "traffic", "settings", "settings-connection", "settings-security", "settings-advanced", "advanced", "logs", "about", "home-proxy", "home-populated", "servers-populated", "subscriptions-populated" })
                     {
                         Width = size.Width;
                         Height = size.Height;
@@ -184,17 +195,30 @@ internal sealed partial class MainWindow
                         data["selected"] = "";
                         if (target.EndsWith("-populated", StringComparison.Ordinal))
                         {
-                            Subs.Add(new JsonObject { ["id"] = "qa-personal", ["name"] = "Personal" });
-                            Subs.Add(new JsonObject { ["id"] = "qa-backup", ["name"] = "Backup" });
+                            Subs.Add(new JsonObject { ["id"] = "qa-personal", ["name"] = "Personal", ["url"] = "https://personal.example.invalid/subscription" });
+                            Subs.Add(new JsonObject { ["id"] = "qa-backup", ["name"] = "Backup", ["url"] = "https://backup.example.invalid/subscription" });
                             var fixtures = new[] { "Netherlands 🇳🇱", "Germany 🇩🇪", "France 🇫🇷", "Japan 🇯🇵", "United Kingdom 🇬🇧", "United States 🇺🇸" };
                             for (int i = 0; i < 72; i++)
                             {
                                 var imported = await core!.Call(new
                                 {
                                     method = "import",
-                                    text = "socks://example.invalid:" + (19000 + i) + "#" + Uri.EscapeDataString(fixtures[i % fixtures.Length] + " · " + (i + 1))
+                                    text = ((i % 4) switch
+                                    {
+                                        0 => "vless://11111111-1111-4111-8111-111111111111@example.invalid:" + (19000 + i) + "?security=reality&sni=example.invalid&pbk=MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1ub3BxcnN0dXY&sid=1122334455667788&type=tcp&flow=xtls-rprx-vision",
+                                        1 => "trojan://qa-fixture-only@example.invalid:" + (19000 + i) + "?security=tls&sni=example.invalid",
+                                        2 => "vmess://11111111-1111-4111-8111-111111111111@example.invalid:" + (19000 + i) + "?security=tls&type=ws&sni=example.invalid&path=%2Ffixture",
+                                        _ => "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpxYS1maXh0dXJlLW9ubHk@example.invalid:" + (19000 + i)
+                                    }) + "#" + Uri.EscapeDataString(fixtures[i % fixtures.Length] + " · " + (i + 1))
                                 });
                                 MergeItems((JsonArray)imported["profiles"]!, i % 2 == 0 ? "qa-personal" : "qa-backup");
+                                if (i < 6)
+                                {
+                                    var profile = Profiles.Last()!;
+                                    System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+                                    profile["name"] = System.Text.Encoding.GetEncoding(1252).GetString(System.Text.Encoding.UTF8.GetBytes(fixtures[i] + " · " + (i + 1)));
+                                }
+
                             }
                             data["selected"] = Profiles[0]!["id"]!.ToString();
                         }
@@ -218,6 +242,14 @@ internal sealed partial class MainWindow
                         }
                         await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
                         await Task.Delay(160);
+                        if (target == "servers-populated" && size.Width == 1440)
+                        {
+                            var editTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+                            editTimer.Tick += (_, _) => { var editor = OwnedWindows.Cast<Window>().FirstOrDefault(); if (editor == null) return; editTimer.Stop(); NativeSmoke.Bitmap(editor, Path.Combine(directory, "editor-" + language + ".png")); editor.Close(); };
+                            editTimer.Start();
+                            await EditServer(Profiles[0]!);
+                            editTimer.Stop();
+                        }
                         var root = (FrameworkElement)Content;
                         // A hosted service-session display constrains native window size. Render the
                         // real compiled page offscreen at the requested CLIENT viewport instead;

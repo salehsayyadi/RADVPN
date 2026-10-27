@@ -16,43 +16,50 @@ internal sealed partial class MainWindow
 {
     void Subscriptions()
     {
-        var columns = new Grid();
-        columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(22) });
-        columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1.2, GridUnitType.Star) });
-        var form = Panel("add");
-        var name = Field(form, "subscription_name");
-        var url = Field(form, "sub_url");
-        var interval = new TextBox { Text = "0" };
-        form.Children.Add(Actions(Action("paste", () => { url.Text = System.Windows.Clipboard.GetText(); return Task.CompletedTask; }, "copy"), Action("add", async () => { if (!int.TryParse(interval.Text, out var hours) || hours < 0 || hours > 720) throw new InvalidOperationException("invalid_settings"); var sub = new JsonObject { ["id"] = Guid.NewGuid().ToString("N"), ["url"] = url.Text.Trim(), ["name"] = string.IsNullOrWhiteSpace(name.Text) ? T("subscriptions") : name.Text[..Math.Min(200, name.Text.Length)], ["hours"] = hours, ["paused"] = false }; await Refresh(sub); Subs.Add(sub); Save(); Render(); }, "plus", true)));
-        form.Children.Add(Label(T("privacy"), 12, "Muted"));
-        columns.Children.Add(Card(form));
-        var existing = Panel("subscriptions");
+        var p = new StackPanel();
+        var heading = new DockPanel();
+        var add = Action("add_subscription", () => { Navigate("configs"); return Task.CompletedTask; }, "plus");
+        DockPanel.SetDock(add, Dock.Right);
+        heading.Children.Add(add);
+        heading.Children.Add(Label(T("your_subscriptions"), 17, "Text", true));
+        p.Children.Add(heading);
         if (Subs.Count == 0)
-            existing.Children.Add(Empty("no_subs", () => { url.Focus(); return Task.CompletedTask; }));
-        foreach (var sub in Subs.ToArray())
+            p.Children.Add(Empty("no_subs", () => { Navigate("configs"); return Task.CompletedTask; }));
+        foreach (var sub in Subs.Where(x => x != null).ToArray())
         {
-            if (sub == null)
-                continue;
-            var card = new StackPanel();
-            card.Children.Add(Label(sub["name"]?.ToString() ?? T("subscriptions"), 17, "Text", true));
-            var host = Uri.TryCreate(sub["url"]?.ToString(), UriKind.Absolute, out var uri) ? uri.Host : "—";
-            card.Children.Add(Label(host, 13, "Muted"));
-            if (sub["info"] is JsonArray info)
-                foreach (var line in info)
-                    card.Children.Add(Label(line?.ToString() ?? "", 12, "Subtext"));
-            card.Children.Add(Label(T("last_refresh") + ": " + (sub["last"]?.ToString() ?? "—"), 12, "Subtext"));
-            var count = Profiles.Count(p => p?["group"]?.ToString() == sub["id"]?.ToString());
-            card.Children.Add(Label($"{count} · {T(sub["paused"]?.GetValue<bool>() == true ? "paused" : "active_sub")} · {sub["hours"] ?? 0} h", 12, "Subtext"));
-            if (sub["status"]?.ToString() == "refresh_failed")
-                card.Children.Add(Label(T("refresh_failed"), 13, "Error"));
-            card.Children.Add(Actions(Action("update", async () => { try { await Refresh(sub); } catch { sub["status"] = "refresh_failed"; Save(); throw; } Render(); }, "refresh"), Action("rename", () => { var value = Prompt("subscription_name", sub["name"]?.ToString() ?? ""); if (!string.IsNullOrWhiteSpace(value)) { sub["name"] = value[..Math.Min(200, value.Length)]; Save(); Render(); } return Task.CompletedTask; }), Action("delete", async () => { if (!Confirm("remove_sub")) return; var removed = Profiles.Where(p => p?["group"]?.ToString() == sub["id"]?.ToString()).ToArray(); if (ConnectionActive && removed.Contains(Selected())) await StopConnection(); foreach (var p in removed) Profiles.Remove(p); Subs.Remove(sub); RepairSelection(); Save(); Render(); }, "delete")));
-            existing.Children.Add(Card(card, false, 16));
+            var row = new DockPanel { Margin = new Thickness(0, 14, 0, 14) };
+            var tools = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            tools.Children.Add(Action("update", async () => { await Refresh(sub!); Render(); }, "refresh"));
+            var more = new Button { Content = "⋮", MinWidth = 38 };
+            var menu = new ContextMenu();
+            void Entry(string key, Func<Task> action)
+            {
+                var item = new MenuItem { Header = T(key) };
+                item.Click += async (_, _) => { try { await action(); } catch (Exception e) { Notice(Code(e)); } };
+                menu.Items.Add(item);
+            }
+            Entry("rename", () => { var value = Prompt("subscription_name", sub!["name"]?.ToString() ?? ""); if (!string.IsNullOrWhiteSpace(value)) { sub["name"] = value.Trim(); Save(); Render(); } return Task.CompletedTask; });
+            Entry("edit_url", async () => { var value = Prompt("sub_url", sub!["url"]?.ToString() ?? ""); if (string.IsNullOrWhiteSpace(value)) return; var candidate = sub.DeepClone(); candidate["url"] = value.Trim(); await Refresh(candidate); sub["url"] = candidate["url"]!.DeepClone(); sub["last"] = candidate["last"]?.DeepClone(); Save(); Render(); });
+            Entry("delete", async () => { if (!Confirm("remove_sub")) return; var removed = Profiles.Where(x => x?["group"]?.ToString() == sub!["id"]!.ToString()).ToArray(); if (ConnectionActive && removed.Contains(Selected())) await StopConnection(); foreach (var item in removed) Profiles.Remove(item); Subs.Remove(sub); RepairSelection(); Save(); Render(); });
+            more.Click += (_, _) => { menu.PlacementTarget = more; menu.IsOpen = true; };
+            tools.Children.Add(more);
+            DockPanel.SetDock(tools, Dock.Right);
+            row.Children.Add(tools);
+            var details = new StackPanel();
+            details.Children.Add(Label(sub!["name"]?.ToString() ?? "", 15, "Text", true));
+            details.Children.Add(Label(Uri.TryCreate(sub["url"]?.ToString(), UriKind.Absolute, out var uri) ? uri.Host : "—", 12, "Subtext"));
+            details.Children.Add(Label(Profiles.Count(x => x?["group"]?.ToString() == sub["id"]?.ToString()) + " · " + T("servers") + "    " + T("last_refresh") + ": " + (sub["last"]?.ToString() ?? "—") + "    " + T("manual_update"), 11, "Subtext"));
+            row.Children.Add(details);
+            p.Children.Add(new Border { Child = row, BorderBrush = B("Line"), BorderThickness = new Thickness(0, 0, 0, 1) });
         }
-        var right = Card(existing);
-        Grid.SetColumn(right, 2);
-        columns.Children.Add(right);
-        body.Children.Add(columns);
+        body.Children.Add(Card(p, false, 20));
+        var info = Panel("subscription_details");
+        info.Children.Add(Label(T("subscription_details_help"), 12, "Subtext"));
+        foreach (var sub in Subs)
+            if (sub?["info"] is JsonArray lines)
+                foreach (var line in lines)
+                    info.Children.Add(Label(line?.ToString() ?? "", 12, "Subtext"));
+        body.Children.Add(Card(info, false, 20));
     }
     async Task Refresh(JsonNode sub)
     {
@@ -182,7 +189,7 @@ internal sealed partial class MainWindow
     }
     Task ExportBackup()
     {
-        var file = new SaveFileDialog { Filter = "RADVPN (*.radvpn)|*.radvpn", FileName = "RADVPN-2.0.2.radvpn" };
+        var file = new SaveFileDialog { Filter = "RADVPN (*.radvpn)|*.radvpn", FileName = "RADVPN-2.0.3.radvpn" };
         if (file.ShowDialog() == true)
             File.WriteAllBytes(file.FileName, Storage.Encrypt(data));
         return Task.CompletedTask;
@@ -230,12 +237,12 @@ internal sealed partial class MainWindow
             p.Children.Add(Empty("empty", () => { Navigate("configs"); return Task.CompletedTask; }));
         body.Children.Add(Card(p));
     }
-    JsonObject Diagnostics() => new() { ["appVersion"] = "2.0.2", ["coreVersion"] = data["coreVersion"]?.ToString(), ["channel"] = "experimental-unsigned", ["state"] = active, ["mode"] = Settings["mode"]?.ToString(), ["socksPort"] = Settings["port"]?.DeepClone(), ["httpPort"] = (Settings["port"]?.GetValue<int>() ?? 10808) + 1, ["driverFilePresent"] = File.Exists(Path.Combine(AppContext.BaseDirectory, "wintun.dll")), ["administrator"] = IsAdministrator(), ["deviceTunnelVerified"] = false, ["events"] = new JsonArray(events.Select(e => (JsonNode?)new JsonObject { ["time"] = e.Time.ToString("O"), ["code"] = e.Code }).ToArray()) };
+    JsonObject Diagnostics() => new() { ["appVersion"] = "2.0.3", ["coreVersion"] = data["coreVersion"]?.ToString(), ["channel"] = "experimental-unsigned", ["state"] = active, ["mode"] = Settings["mode"]?.ToString(), ["socksPort"] = Settings["port"]?.DeepClone(), ["httpPort"] = (Settings["port"]?.GetValue<int>() ?? 10808) + 1, ["driverFilePresent"] = File.Exists(Path.Combine(AppContext.BaseDirectory, "wintun.dll")), ["administrator"] = IsAdministrator(), ["deviceTunnelVerified"] = false, ["events"] = new JsonArray(events.Select(e => (JsonNode?)new JsonObject { ["time"] = e.Time.ToString("O"), ["code"] = e.Code }).ToArray()) };
     void Logs()
     {
-        var p = Panel("logs");
+        var p = Panel("connection_events");
         p.Children.Add(Label(T("safe_name"), 13, "Muted"));
-        p.Children.Add(Actions(Action("copy_diagnostics", () => { System.Windows.Clipboard.SetText(Diagnostics().ToJsonString(new JsonSerializerOptions { WriteIndented = true })); Notice("copied"); return Task.CompletedTask; }, "copy"), Action("clear_logs", () => { if (Confirm("confirm_clear")) { events.Clear(); Render(); } return Task.CompletedTask; }, "delete")));
+        p.Children.Add(Actions(Action("copy", () => { System.Windows.Clipboard.SetText(Diagnostics().ToJsonString(new JsonSerializerOptions { WriteIndented = true })); Notice("copied"); return Task.CompletedTask; }, "copy"), Action("clear", () => { if (Confirm("confirm_clear")) { events.Clear(); Render(); } return Task.CompletedTask; }, "delete")));
         p.Children.Add(Label(T("logging_fixed"), 13, "Subtext"));
         var box = new StackPanel { Margin = new Thickness(0, 12, 0, 0) };
         foreach (var item in events.Take(200))
@@ -244,7 +251,7 @@ internal sealed partial class MainWindow
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(96) });
             row.ColumnDefinitions.Add(new ColumnDefinition());
             row.Children.Add(Label(item.Time.ToString("HH:mm:ss"), 13, "Muted"));
-            var message = Label(T(item.Code), 14, item.Code.Contains("failed") || item.Code == "error" ? "Error" : "Subtext");
+            var message = Label(T(item.Code) + "  [" + item.Code + "]", 13, item.Code.Contains("failed") || item.Code == "error" ? "Error" : "Subtext");
             Grid.SetColumn(message, 1);
             row.Children.Add(message);
             box.Children.Add(row);
@@ -281,7 +288,7 @@ internal sealed partial class MainWindow
     {
         var p = Panel("about");
         p.Children.Add(Glyphs.Icon("shield", B("Orange"), 66));
-        p.Children.Add(Label("RADVPN 2.0.2", 30, "Text", true));
+        p.Children.Add(Label("RADVPN 2.0.3", 30, "Text", true));
         p.Children.Add(Label(T("testing_channel"), 14, "Warning"));
         p.Children.Add(Label("Xray " + (data["coreVersion"]?.ToString() ?? "—"), 18, "Orange", true));
         p.Children.Add(Label(T("privacy"), 14, "Subtext"));
