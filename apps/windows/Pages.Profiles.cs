@@ -34,12 +34,12 @@ internal sealed partial class MainWindow
         center.Children.Add(status);
         var selection = new StackPanel();
         selection.Children.Add(Label(T("selected"), 12, "Muted"));
-        var name = Label(Selected()?["name"]?.ToString() ?? T("select_profile"), 16, "Text", true);
+        var name = Label(CountryFlags.WithoutEmoji(Selected()?["name"]?.ToString() ?? T("select_profile")), 16, "Text", true);
         name.TextTrimming = TextTrimming.CharacterEllipsis;
         name.TextWrapping = TextWrapping.NoWrap;
         selection.Children.Add(name);
         var select = new Button { Content = selection, HorizontalContentAlignment = HorizontalAlignment.Stretch, Margin = new Thickness(0, 4, 0, 12) };
-        select.Click += (_, _) => Navigate("profiles");
+        select.Click += (_, _) => Navigate("servers");
         center.Children.Add(select);
         connect = Action(ConnectionActive ? "disconnect" : "connect", Toggle, "power", true);
         connect.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -89,13 +89,13 @@ internal sealed partial class MainWindow
         var right = Panel("recent");
         right.Children.Add(Label(T("measured_only"), 12, "Muted"));
         var list = new StackPanel();
-        foreach (var p in Profiles.Where(p => p != null).Take(6))
+        foreach (var p in Profiles.Where(p => p != null))
             list.Children.Add(ServerRow(p!, true));
         if (Profiles.Count == 0)
             list.Children.Add(Empty("empty", () => { Navigate("configs"); return Task.CompletedTask; }));
-        right.Children.Add(list);
+        right.Children.Add(new ScrollViewer { Content = list, MaxHeight = 490 });
         right.Children.Add(Actions(Action("servers", () => { Navigate("servers"); return Task.CompletedTask; }, "servers"), Action("import", () => { Navigate("configs"); return Task.CompletedTask; }, "plus", true)));
-        right.Children.Add(Label(T("tcp_help"), 12, "Muted"));
+        right.Children.Add(Label(T("test_real_help"), 12, "Muted"));
         var card = Card(right);
         card.VerticalAlignment = VerticalAlignment.Top;
         Grid.SetColumn(card, 2);
@@ -140,11 +140,11 @@ internal sealed partial class MainWindow
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(76) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var globe = Glyphs.Icon("globe", B(p["enabled"]?.GetValue<bool>() == true ? "Orange" : "Muted"), 24);
+        var globe = CountryFlags.Icon(p["name"]?.ToString() ?? "");
         globe.VerticalAlignment = VerticalAlignment.Center;
         row.Children.Add(globe);
         var text = new StackPanel { Margin = new Thickness(6, 0, 10, 0) };
-        var title = Label(p["name"]?.ToString() ?? "", 14, "Text", true);
+        var title = Label(CountryFlags.WithoutEmoji(p["name"]?.ToString() ?? ""), 14, "Text", true);
         title.TextWrapping = TextWrapping.NoWrap;
         title.TextTrimming = TextTrimming.CharacterEllipsis;
         title.ToolTip = p["name"]?.ToString();
@@ -156,7 +156,7 @@ internal sealed partial class MainWindow
         row.Children.Add(choose);
         var latency = Label(p["probeLatency"]?.ToString() is string ms ? ms + " ms" : "—", 13, p["reachable"]?.GetValue<bool>() == false ? "Error" : "Latency");
         latency.VerticalAlignment = VerticalAlignment.Center;
-        latency.ToolTip = T("tcp_latency") + " · " + (p["probeAt"]?.ToString() ?? T("not_tested"));
+        latency.ToolTip = T("connection_latency") + " · " + (p["probeAt"]?.ToString() ?? T("not_tested"));
         Grid.SetColumn(latency, 2);
         row.Children.Add(latency);
         var actions = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
@@ -190,10 +190,10 @@ internal sealed partial class MainWindow
         }
         Add("select", () => SelectProfile(p));
         Add("test", () => RunProbes(new[] { p }));
-        Add("rename", () => { var name = Prompt("name", p["name"]!.ToString()); if (!string.IsNullOrWhiteSpace(name)) { p["name"] = name[..Math.Min(200, name.Length)]; Save(); Render(); } return Task.CompletedTask; });
+        Add("rename", () => { var name = Prompt("name", p["name"]!.ToString()); if (!string.IsNullOrWhiteSpace(name)) { p["name"] = name[..Math.Min(200, name.Length)]; p["userNamed"] = true; Save(); Render(); } return Task.CompletedTask; });
         Add("duplicate", () => { var copy = p.DeepClone(); copy["id"] = Guid.NewGuid().ToString("N"); Profiles.Add(copy); Save(); Render(); return Task.CompletedTask; });
         Add("toggle", async () => { if (ConnectionActive && data["selected"]?.ToString() == p["id"]?.ToString()) await StopConnection(); p["enabled"] = !(p["enabled"]?.GetValue<bool>() ?? true); Save(); Render(); });
-        Add("advanced", async () => { if (ConnectionActive) throw new InvalidOperationException("already_running"); var raw = Prompt("advanced", p["outbound"]!.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }), true); if (raw == null) return; var candidate = p.DeepClone(); candidate["outbound"] = JsonNode.Parse(raw); await core!.Call(new { method = "validate", profile = candidate, settings = Settings }); p["outbound"] = candidate["outbound"]!.DeepClone(); Save(); Render(); });
+        Add("edit_server", () => EditServer(p));
         Add("delete", async () => { if (!Confirm("confirm_delete")) return; if (ConnectionActive && data["selected"]?.ToString() == p["id"]?.ToString()) await StopConnection(); Profiles.Remove(p); RepairSelection(); Save(); Render(); });
         b.ContextMenu = menu;
         b.Click += (_, _) => { menu.PlacementTarget = b; menu.IsOpen = true; };
@@ -204,26 +204,53 @@ internal sealed partial class MainWindow
         if (Selected() == null)
             data["selected"] = Profiles.FirstOrDefault(p => p?["enabled"]?.GetValue<bool>() == true)?["id"]?.ToString() ?? "";
     }
-    string serverSort = "name"; bool favoritesOnly;
+    string serverSort = "name", groupFilter = ""; bool favoritesOnly;
     void Servers()
     {
         var p = Panel("servers");
         var search = Field(p, "search");
         var list = new StackPanel();
-        var filter = new CheckBox { Content = T("favorites_only"), IsChecked = favoritesOnly };
-        filter.Checked += (_, _) => { favoritesOnly = true; Fill(); };
-        filter.Unchecked += (_, _) => { favoritesOnly = false; Fill(); };
-        p.Children.Add(filter);
-        p.Children.Add(Actions(Action("sort", () => { serverSort = "name"; Fill(); return Task.CompletedTask; }, "servers"), Action("tcp_latency", () => { serverSort = "latency"; Fill(); return Task.CompletedTask; }, "clock"), Action("test_all", () => RunProbes(Profiles.Where(x => x?["enabled"]?.GetValue<bool>() == true).Select(x => x!)), "refresh", true), Action("cancel", () => { probes?.Cancel(); return Task.CompletedTask; }, "stop"), Action("best", SelectBest, "check")));
-        p.Children.Add(Label(T("tcp_help"), 12, "Muted"));
+        var tabs = new WrapPanel();
+        void Tab(string title, string id)
+        {
+            var button = new Button { Content = title, Margin = new Thickness(0, 0, 8, 8), Background = B(groupFilter == id ? "Orange" : "Input") };
+            button.Click += (_, _) => { groupFilter = id; Render(); };
+            tabs.Children.Add(button);
+        }
+        Tab(T("all"), "");
+        foreach (var sub in Subs.Where(x => x != null))
+            Tab(sub!["name"]?.ToString() ?? "", sub["id"]!.ToString());
+        p.Children.Add(tabs);
+        var sort = new ComboBox { MinWidth = 180, Margin = new Thickness(0, 0, 12, 8), Foreground = B("Text"), Background = B("Secondary") };
+        sort.Items.Add(T("sort"));
+        sort.Items.Add(T("connection_latency"));
+        sort.SelectedIndex = serverSort == "latency" ? 1 : 0;
+        sort.SelectionChanged += (_, _) => { serverSort = sort.SelectedIndex == 1 ? "latency" : "name"; Fill(); };
+        var tools = new Button { Content = "⋮", MinWidth = 44, Margin = new Thickness(0, 0, 0, 8) };
+        var menu = new ContextMenu { Background = B("Secondary"), Foreground = B("Text") };
+        void Tool(string title, Func<Task> action)
+        {
+            var item = new MenuItem { Header = title };
+            item.Click += async (_, _) => { try { await action(); } catch (Exception e) { Notice(Code(e)); } };
+            menu.Items.Add(item);
+        }
+        Tool(T("test_configs"), () => RunProbes(Profiles.Where(x => x != null && x["enabled"]?.GetValue<bool>() != false && (groupFilter == "" || x["group"]?.ToString() == groupFilter)).Select(x => x!)));
+        Tool(T("favorites"), () => { favoritesOnly = !favoritesOnly; Render(); return Task.CompletedTask; });
+        Tool(T("best"), SelectBest);
+        tools.Click += (_, _) => { menu.PlacementTarget = tools; menu.IsOpen = true; };
+        var toolbar = new WrapPanel();
+        toolbar.Children.Add(sort);
+        toolbar.Children.Add(tools);
+        p.Children.Add(toolbar);
+        p.Children.Add(Label(T("test_real_help"), 12, "Muted"));
         p.Children.Add(list);
         body.Children.Add(Card(p));
         void Fill()
         {
             list.Children.Clear();
-            IEnumerable<JsonNode> items = Profiles.Where(x => x != null).Select(x => x!).Where(x => !favoritesOnly || x["favorite"]?.GetValue<bool>() == true).Where(x => (x["name"]?.ToString() ?? "").Contains(search.Text, StringComparison.CurrentCultureIgnoreCase));
+            IEnumerable<JsonNode> items = Profiles.Where(x => x != null).Select(x => x!).Where(x => groupFilter == "" || x["group"]?.ToString() == groupFilter).Where(x => !favoritesOnly || x["favorite"]?.GetValue<bool>() == true).Where(x => (x["name"]?.ToString() ?? "").Contains(search.Text, StringComparison.CurrentCultureIgnoreCase));
             items = serverSort == "latency" ? items.OrderBy(x => x["probeLatency"] == null).ThenBy(x => x["probeLatency"]?.GetValue<long>() ?? long.MaxValue) : items.OrderBy(x => x["name"]?.ToString());
-            foreach (var item in items.Take(256))
+            foreach (var item in items)
                 list.Children.Add(ServerRow(item));
             if (list.Children.Count == 0)
                 list.Children.Add(Empty(Profiles.Count == 0 ? "empty" : "no_matches", () => { Navigate("configs"); return Task.CompletedTask; }));
@@ -240,7 +267,9 @@ internal sealed partial class MainWindow
         Notice("testing_in_progress");
         try
         {
-            var result = await EndpointProbe.All(selected.Select(p => p.DeepClone()).ToArray(), token);
+            if (ConnectionActive)
+                throw new InvalidOperationException("already_running");
+            var result = await ConfigurationProbe.All(selected.Select(p => p.DeepClone()).ToArray(), Settings.DeepClone(), token);
             foreach (var r in result)
             {
                 var p = Profiles.FirstOrDefault(p => p?["id"]?.ToString() == r.Id);
@@ -249,6 +278,7 @@ internal sealed partial class MainWindow
                 p["probeLatency"] = r.Milliseconds;
                 p["reachable"] = r.Reachable;
                 p["probeAt"] = DateTime.UtcNow.ToString("O");
+                p["probeKind"] = "configuration";
             }
             Save();
             Render();
@@ -291,7 +321,7 @@ internal sealed partial class MainWindow
         });
         MergeItems((JsonArray)result["profiles"]!, null);
         Save();
-        Navigate("profiles");
+        Navigate("servers");
         if (toast != null)
         {
             toast.Text = $"{T("imported")}: {((JsonArray)result["profiles"]!).Count} / {result["rejected"]}";
@@ -300,16 +330,25 @@ internal sealed partial class MainWindow
     }
     void MergeItems(JsonArray items, string? group)
     {
-        foreach (var item in items)
+        foreach (var item in items.Where(x => x != null))
         {
-            if (item == null)
-                continue;
-            if (Profiles.Any(p => p?["id"]?.ToString() == item["id"]?.ToString()))
-                continue;
-            var copy = item.DeepClone();
+            var copy = item!.DeepClone();
             if (group != null)
+            {
                 copy["group"] = group;
-            Profiles.Add(copy);
+                copy["id"] = group + ":" + item["id"]!.ToString();
+            }
+            var existing = Profiles.FirstOrDefault(p => p?["id"]?.ToString() == copy["id"]!.ToString());
+            if (existing == null)
+                Profiles.Add(copy);
+            else
+            {
+                existing["outbound"] = copy["outbound"]!.DeepClone();
+                if (existing["userNamed"]?.GetValue<bool>() != true)
+                    existing["name"] = copy["name"]!.DeepClone();
+                existing.AsObject().Remove("probeLatency");
+                existing.AsObject().Remove("reachable");
+            }
         }
         RepairSelection();
     }
@@ -317,9 +356,9 @@ internal sealed partial class MainWindow
     {
         var p = Panel("import");
         p.Children.Add(Label(T("import_hint"), 14, "Subtext"));
-        p.Children.Add(Label(T("import_json_help"), 13, "Muted"));
+
         var input = Field(p, "import", "", true);
-        p.Children.Add(Actions(Action("import", () => ImportText(input.Text), "plus", true), Action("paste", () => ImportText(System.Windows.Clipboard.GetText()), "copy"), Action("file", async () => { var f = new OpenFileDialog { Filter = "Configuration (*.txt;*.json;*.conf)|*.txt;*.json;*.conf|All files (*.*)|*.*" }; if (f.ShowDialog() != true) return; if (new FileInfo(f.FileName).Length > 2 * 1024 * 1024) throw new InvalidOperationException("import_too_large"); await ImportText(await File.ReadAllTextAsync(f.FileName)); }, "configs")));
+        p.Children.Add(Actions(Action("import", () => ImportText(input.Text), "plus", true), Action("paste", () => { input.Text = System.Windows.Clipboard.GetText(); return Task.CompletedTask; }, "copy")));
         body.Children.Add(Card(p));
         var sub = Panel("subscriptions");
         sub.Children.Add(Label(T("sub_url"), 14, "Subtext"));

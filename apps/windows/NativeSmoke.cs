@@ -28,7 +28,7 @@ internal static class NativeSmoke
             {
                 method = "version"
             });
-            if (version["app"]?.ToString() != "2.0.1")
+            if (version["app"]?.ToString() != "2.0.2")
                 throw new Exception("version");
             checks.Add("native child IPC/version");
             var defaults = await core.Call(new
@@ -56,6 +56,30 @@ internal static class NativeSmoke
             if (((JsonArray)valid["profiles"]!).Count != 1)
                 throw new Exception("valid import");
             checks.Add("valid profile import (no remote connection claim)");
+            var metadataProfile = valid["profiles"]![0]!.DeepClone();
+            metadataProfile["probeLatency"] = 42L;
+            metadataProfile["probeAt"] = "test";
+            metadataProfile["reachable"] = true;
+            metadataProfile["userNamed"] = true;
+            var proxySettings = defaults.DeepClone();
+            proxySettings["mode"] = "proxy";
+            await core.Call(new
+            {
+                method = "validate",
+                profile = metadataProfile,
+                settings = proxySettings
+            });
+            checks.Add("UI metadata excluded from strict native profile request");
+            var unicode = await core.Call(new
+            {
+                method = "import",
+                text = "socks://127.0.0.1:19876#" + Uri.EscapeDataString("هلند 🇳🇱")
+            });
+            if (unicode["profiles"]![0]!["name"]!.ToString() != "هلند 🇳🇱")
+                throw new Exception("UTF8 IPC");
+            if (CountryFlags.Code("Netherlands 🇳🇱") != "NL")
+                throw new Exception("flag");
+            checks.Add("UTF8 names and offline country flag lookup");
             var dir = Path.Combine(Path.GetTempPath(), "RADVPN-native-tests-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(dir);
             var path = Path.Combine(dir, "vault.bin");
