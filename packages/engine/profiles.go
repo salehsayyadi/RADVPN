@@ -15,17 +15,18 @@ import (
 	"strings"
 )
 
-const Version = "2.0.2"
+const Version = "2.0.3"
 const CoreVersion = "26.10.21"
 const MaxImport = 2 * 1024 * 1024
 
 type Profile struct {
-	ID       string         `json:"id"`
-	Name     string         `json:"name"`
-	Outbound map[string]any `json:"outbound"`
-	Favorite bool           `json:"favorite"`
-	Enabled  bool           `json:"enabled"`
-	Group    string         `json:"group"`
+	SourceLink string         `json:"sourceLink,omitempty"`
+	ID         string         `json:"id"`
+	Name       string         `json:"name"`
+	Outbound   map[string]any `json:"outbound"`
+	Favorite   bool           `json:"favorite"`
+	Enabled    bool           `json:"enabled"`
+	Group      string         `json:"group"`
 }
 type ImportResult struct {
 	Profiles []Profile `json:"profiles"`
@@ -308,7 +309,7 @@ func ParseLink(raw string) (Profile, error) {
 	if len(name) > 200 {
 		return Profile{}, fail()
 	}
-	return Profile{ID: identity(o), Name: name, Outbound: o, Enabled: true}, nil
+	return Profile{ID: identity(o), Name: name, Outbound: o, Enabled: true, SourceLink: raw}, nil
 }
 func defaultString(s, d string) string {
 	if s == "" {
