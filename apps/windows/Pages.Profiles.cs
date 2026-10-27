@@ -60,7 +60,7 @@ internal sealed partial class MainWindow
             details.Children.Add(Label(ProtocolLabel(Selected()!), 10, "Subtext"));
         Grid.SetColumn(details, 1);
         selection.Children.Add(details);
-        var arrow = Glyphs.Icon("next", B("Orange"), 16);
+        var arrow = Glyphs.Icon("arrow", B("Orange"), 16);
         Grid.SetColumn(arrow, 2);
         selection.Children.Add(arrow);
         var select = new Button { Content = selection, HorizontalContentAlignment = HorizontalAlignment.Stretch, Margin = new Thickness(0, 14, 0, 14), Padding = new Thickness(12) };
@@ -506,7 +506,7 @@ internal sealed partial class MainWindow
         form.Children.Add(Label(T("paste_server_links"), 12, "Subtext"));
         var input = new TextBox { AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, MinHeight = 225, MaxHeight = 300, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Margin = new Thickness(0, 14, 0, 14), FlowDirection = FlowDirection.LeftToRight };
         System.Windows.Automation.AutomationProperties.SetName(input, T("server_links"));
-        var placeholder = new TextBlock { Text = "vless://…\n\nvmess://…\n\ntrojan://…\n\nss://…", Foreground = B("Subtext"), Margin = new Thickness(16, 30, 16, 16), IsHitTestVisible = false, FontFamily = new FontFamily("Consolas"), FontSize = 13 };
+        var placeholder = new TextBlock { FlowDirection = FlowDirection.LeftToRight, Text = "vless://…\n\nvmess://…\n\ntrojan://…\n\nss://…", Foreground = B("Subtext"), Margin = new Thickness(16, 30, 16, 16), IsHitTestVisible = false, FontFamily = new FontFamily("Consolas"), FontSize = 13 };
         var entry = new Grid();
         entry.Children.Add(input);
         entry.Children.Add(placeholder);
@@ -514,9 +514,10 @@ internal sealed partial class MainWindow
         form.Children.Add(entry);
         var toolbar = new DockPanel();
         var add = Action("add_servers", () => AddDirectLinks(input.Text), "plus", true);
+        add.VerticalAlignment = VerticalAlignment.Top;
         DockPanel.SetDock(add, Dock.Right);
         toolbar.Children.Add(add);
-        toolbar.Children.Add(Actions(Action("paste", () => { input.Text = System.Windows.Clipboard.GetText(); return Task.CompletedTask; }, "copy"), Action("file", async () => { var file = new OpenFileDialog { Filter = "Server links (*.txt;*.conf)|*.txt;*.conf|All files (*.*)|*.*" }; if (file.ShowDialog() != true) return; if (new FileInfo(file.FileName).Length > 2 * 1024 * 1024) throw new InvalidOperationException("import_too_large"); input.Text = await File.ReadAllTextAsync(file.FileName); }, "configs"), Action("scan_qr", async () => { var value = await ReadQrImage(); if (value != null) input.Text = value; }, "configs")));
+        toolbar.Children.Add(Actions(Action("paste", () => { input.Text = System.Windows.Clipboard.GetText(); return Task.CompletedTask; }, "copy"), Action("file", async () => { var file = new OpenFileDialog { Filter = "Server links (*.txt;*.conf)|*.txt;*.conf|All files (*.*)|*.*" }; if (file.ShowDialog() != true) return; if (new FileInfo(file.FileName).Length > 2 * 1024 * 1024) throw new InvalidOperationException("import_too_large"); input.Text = await File.ReadAllTextAsync(file.FileName); }, "configs"), Action("qr", async () => { var value = await ReadQrImage(); if (value != null) input.Text = value; }, "configs")));
         form.Children.Add(toolbar);
         form.Children.Add(Label(T("direct_protocols"), 12, "Subtext"));
         var left = Card(form, false, 20);

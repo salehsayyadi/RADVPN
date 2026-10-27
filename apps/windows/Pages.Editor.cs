@@ -70,6 +70,7 @@ internal sealed partial class MainWindow
             var cell = new StackPanel();
             cell.Children.Add(Label(T(label), 13, "Subtext"));
             var input = new ComboBox { ItemsSource = options, SelectedItem = stream[property]?.ToString() ?? options[0], Margin = new Thickness(0, 0, 0, 16) };
+            cell.Children.Add(input);
             Cell(cell);
             input.SelectionChanged += (_, _) => { if (input.SelectedItem is not string choice) return; try { Commit(); update(choice); Draw(); } catch (Exception e) { error.Text = T(Code(e)); Draw(); } };
         }
