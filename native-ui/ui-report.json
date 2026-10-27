@@ -1,0 +1,687 @@
+{
+  "passed": true,
+  "captures": [
+    {
+      "page": "home",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "home-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "servers",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "servers-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "subscriptions",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "subscriptions-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "configs",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "configs-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "profiles",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "profiles-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "traffic",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "traffic-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "settings",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "settings-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "settings-connection",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "settings-connection-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "settings-security",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "settings-security-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "settings-advanced",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "settings-advanced-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "advanced",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "advanced-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "logs",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "logs-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "about",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "about-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "home-proxy",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "home-proxy-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "home-populated",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "home-populated-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "servers-populated",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "servers-populated-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "subscriptions-populated",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "subscriptions-populated-en-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "home",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "home-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "servers",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "servers-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "subscriptions",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "subscriptions-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "configs",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "configs-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "profiles",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "profiles-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "traffic",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "traffic-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "settings",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "settings-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "settings-connection",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "settings-connection-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "settings-security",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "settings-security-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "settings-advanced",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "settings-advanced-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "advanced",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "advanced-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "logs",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "logs-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "about",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "about-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "home-proxy",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "home-proxy-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "home-populated",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "home-populated-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "servers-populated",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "servers-populated-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "subscriptions-populated",
+      "language": "en",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "subscriptions-populated-en-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "home",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "home-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "servers",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "servers-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "subscriptions",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "subscriptions-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "configs",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "configs-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "profiles",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "profiles-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "traffic",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "traffic-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "settings",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "settings-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "settings-connection",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "settings-connection-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "settings-security",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "settings-security-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "settings-advanced",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "settings-advanced-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "advanced",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "advanced-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "logs",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "logs-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "about",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "about-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "home-proxy",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "home-proxy-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "home-populated",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "home-populated-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "servers-populated",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "servers-populated-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "subscriptions-populated",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 788,
+      "clientWidth": 1440,
+      "clientHeight": 900,
+      "filename": "subscriptions-populated-fa-1440x900.png",
+      "overflow": []
+    },
+    {
+      "page": "home",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "home-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "servers",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "servers-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "subscriptions",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "subscriptions-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "configs",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "configs-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "profiles",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "profiles-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "traffic",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "traffic-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "settings",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "settings-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "settings-connection",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "settings-connection-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "settings-security",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "settings-security-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "settings-advanced",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "settings-advanced-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "advanced",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "advanced-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "logs",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "logs-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "about",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "about-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "home-proxy",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "home-proxy-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "home-populated",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "home-populated-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "servers-populated",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "servers-populated-fa-1280x720.png",
+      "overflow": []
+    },
+    {
+      "page": "subscriptions-populated",
+      "language": "fa",
+      "windowWidth": 1120,
+      "windowHeight": 720,
+      "clientWidth": 1280,
+      "clientHeight": 720,
+      "filename": "subscriptions-populated-fa-1280x720.png",
+      "overflow": []
+    }
+  ],
+  "failures": [],
+  "scope": "Actual compiled WPF pages rendered offscreen at requested CLIENT viewport sizes with RTL root transform restored. Native host window dimensions are recorded separately. Physical window-resize/desktop-display QA and VPN leak tests are NOT RUN."
+}
