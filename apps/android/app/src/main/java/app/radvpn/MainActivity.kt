@@ -331,6 +331,8 @@ class MainActivity : Activity() {
 
     private fun importText(value: String) = idle {
         job {
+            val links=value.trim().split(Regex("\\s+"))
+            check(links.isNotEmpty() && links.all { link->listOf("vless://","vmess://","trojan://","ss://").any{link.startsWith(it,true)} }){"direct_links_only"}
             val r = Api.call(JSONObject().put("method", "import").put("text", value))
             handler.post { merge(r.getJSONArray("profiles")); data.put("importInfo",r.optJSONArray("info") ?: JSONArray()); save(); go("servers"); Toast.makeText(this, "${t("imported")}: ${r.getJSONArray("profiles").length()} / ${r.optInt("rejected")}", Toast.LENGTH_LONG).show() }
         }
@@ -563,7 +565,7 @@ class MainActivity : Activity() {
                 help("rules_help"); val rules = field("rules", draft.optJSONArray("rules")?.toString(2) ?: "[]", true)
                 button("save", true) { idle { job { val candidate = JSONObject(draft.toString()).put("rules", JSONArray(rules.text.toString())); Api.call(JSONObject().put("method", "settings").put("settings", candidate)); handler.post { data.put("settings", candidate); save(); Toast.makeText(this, t("applied"), Toast.LENGTH_SHORT).show() } } } }
                 help("advanced_help"); button("profiles") { go("profiles") }; help("backup_help")
-                button("export") { startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/octet-stream").putExtra(Intent.EXTRA_TITLE, "RADVPN-2.0.2.radvpn"), 51) }
+                button("export") { startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/octet-stream").putExtra(Intent.EXTRA_TITLE, "RADVPN-2.0.3.radvpn"), 51) }
                 button("restore") { idle { startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/octet-stream"), 52) } }
             }
         }
@@ -575,7 +577,7 @@ class MainActivity : Activity() {
         card { title("live_traffic"); plot = TrafficPlot(this, samples); body.addView(plot, LinearLayout.LayoutParams(-1, dp(180))); if (samples.isEmpty()) help("awaiting_traffic") }
         help("measured_only")
     }
-    private fun safeDiagnostics() = JSONObject().put("app", "2.0.2").put("core", "26.10.21").put("state", active).put("mode", settings().optString("mode")).put("profileCount", profiles().length()).put("tunnelDeviceVerified", false).put("events", JSONArray(events.map { it.first + " " + it.second }))
+    private fun safeDiagnostics() = JSONObject().put("app", "2.0.3").put("core", "26.10.21").put("state", active).put("mode", settings().optString("mode")).put("profileCount", profiles().length()).put("tunnelDeviceVerified", false).put("events", JSONArray(events.map { it.first + " " + it.second }))
     private fun diagnostics() {
         card {
             title("diagnostics"); help("safe_name"); help("logging_fixed")
@@ -589,7 +591,7 @@ class MainActivity : Activity() {
     private fun about() {
         card {
             body.addView(Symbol(this, "brand", Design.orange), LinearLayout.LayoutParams(dp(66), dp(72)).apply { gravity = Gravity.CENTER_HORIZONTAL; bottomMargin = dp(16) })
-            label("RADVPN 2.0.2", 26f, Design.text, true).apply { gravity = Gravity.CENTER; layoutDirection = View.LAYOUT_DIRECTION_LTR }
+            label("RADVPN 2.0.3", 26f, Design.text, true).apply { gravity = Gravity.CENTER; layoutDirection = View.LAYOUT_DIRECTION_LTR }
             label("Xray 26.10.21", 16f, Design.orange).apply { gravity = Gravity.CENTER; textDirection = View.TEXT_DIRECTION_LTR }
             help("android_testing_channel"); help("privacy"); help("not_full_protection")
             button("check_updates") { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/salehsayyadi/RADVPN/releases"))) }
