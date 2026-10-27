@@ -26,7 +26,10 @@ object Vault {
  @Synchronized fun load(context: Context): JSONObject {
   val file = File(context.filesDir,"vault.bin")
   if (!file.exists()) return JSONObject().put("lang","en").put("profiles",JSONArray()).put("subscriptions",JSONArray()).put("selected","").put("settings",Api.call(JSONObject().put("method","defaults")))
-  return decrypt(AtomicFile(file).readFully())
+  val data=decrypt(AtomicFile(file).readFully())
+  val profiles=data.getJSONArray("profiles")
+  for(i in 0 until profiles.length()){val p=profiles.getJSONObject(i);val old=p.optString("name");val repaired=DisplayNames.repair(old);if(repaired!=old){if(!p.has("nameBeforeEncodingRepair"))p.put("nameBeforeEncodingRepair",old);p.put("name",repaired)}}
+  return data
  }
  @Synchronized fun save(context: Context,data: JSONObject) {
   val bytes=encrypt(data);val file=AtomicFile(File(context.filesDir,"vault.bin")); val out=file.startWrite()

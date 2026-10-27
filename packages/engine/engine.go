@@ -138,7 +138,7 @@ func start(p Profile, s Settings, fd int) error {
 	}
 	instance = x
 	if e = x.Start(); e != nil {
-		return failed("core_start_failed")
+		return failed(startupCode(e, s.Mode))
 	}
 	started = time.Now()
 	state.Listener = net.JoinHostPort(s.Bind, strconv.Itoa(s.Port))

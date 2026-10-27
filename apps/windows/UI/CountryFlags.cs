@@ -13,6 +13,7 @@ internal static class CountryFlags
     static readonly Dictionary<string, string> names = new() { ["NETHERLANDS"] = "NL", ["GERMANY"] = "DE", ["FRANCE"] = "FR", ["UNITED KINGDOM"] = "GB", ["UNITED STATES"] = "US", ["SWEDEN"] = "SE", ["JAPAN"] = "JP", ["CANADA"] = "CA", ["FINLAND"] = "FI", ["TURKEY"] = "TR", ["TÜRKIYE"] = "TR", ["SINGAPORE"] = "SG", ["IRAN"] = "IR", ["RUSSIA"] = "RU" };
     internal static string Code(string name)
     {
+        name = DisplayNames.Repair(name);
         var runes = name.EnumerateRunes().ToArray();
         for (int i = 0; i + 1 < runes.Length; i++)
             if (runes[i].Value is >= 0x1F1E6 and <= 0x1F1FF && runes[i + 1].Value is >= 0x1F1E6 and <= 0x1F1FF)
@@ -22,7 +23,7 @@ internal static class CountryFlags
                 return entry.Value;
         return "";
     }
-    internal static string WithoutEmoji(string name) => string.Concat(name.EnumerateRunes().Where(x => x.Value is < 0x1F1E6 or > 0x1F1FF).Select(x => x.ToString())).Trim();
+    internal static string WithoutEmoji(string name) => string.Concat(DisplayNames.Repair(name).EnumerateRunes().Where(x => x.Value is < 0x1F1E6 or > 0x1F1FF).Select(x => x.ToString())).Trim();
     internal static FrameworkElement Icon(string name)
     {
         if (images.Count == 0)

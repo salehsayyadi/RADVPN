@@ -27,3 +27,6 @@ No production artifact release is approved until the full transitive license/not
 
 ## Country flag images
 Country flag PNGs in `assets/flags-atlas.json` are rasterized from Google Noto Emoji. Noto Emoji is licensed under the SIL Open Font License 1.1; see `third_party/NotoEmoji-OFL.txt`. No country is inferred from IP addresses.
+
+## Windows local QR decoding
+ZXing.Net 0.16.10 is used to decode local QR images without uploading them. License: Apache-2.0; see third_party/ZXingNet-LICENSE.txt.

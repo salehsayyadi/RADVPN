@@ -88,12 +88,21 @@ internal static class Storage
         var value = (JsonObject)JsonNode.Parse(Encoding.UTF8.GetString(ProtectedData.Unprotect(data, null, DataProtectionScope.CurrentUser)))!;
         Validate(value);
         foreach (var profile in ((JsonArray)value["profiles"]!).OfType<JsonObject>())
+        {
+            var oldName = profile["name"]?.ToString() ?? "";
+            var repaired = DisplayNames.Repair(oldName);
+            if (oldName != repaired)
+            {
+                profile["nameBeforeEncodingRepair"] ??= oldName;
+                profile["name"] = repaired;
+            }
             if (profile["probeKind"]?.ToString() != "configuration")
             {
                 profile.Remove("probeLatency");
                 profile.Remove("reachable");
                 profile.Remove("probeAt");
             }
+        }
         return value;
     }
     public static void Validate(JsonObject value)
