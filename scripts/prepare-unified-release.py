@@ -5,7 +5,7 @@ a=root/'android';w=root/'windows';e=root/'evidence'
 def one(folder,name):
  files=list(folder.rglob(name));assert len(files)==1,(name,len(files));return files[0]
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
-apk=one(a,'RADVPN-Android.apk');installer=one(w,'RADVPN-Setup-2.0.2-x64.exe');portable=one(w,'RADVPN-Windows-Portable-2.0.2-x64.zip')
+apk=one(a,'RADVPN-Android.apk');installer=one(w,'RADVPN-Setup-2.0.3-x64.exe');portable=one(w,'RADVPN-Windows-Portable-2.0.3-x64.zip')
 approval=json.loads(pathlib.Path('.github/unified-release-approval.json').read_text())
 policy=json.loads(one(a,'signing-policy.json').read_text())
 if not policy['persistent_key']:
@@ -17,7 +17,7 @@ for folder,file in [(a,apk),(w,installer),(w,portable)]:
  assert file.stat().st_size>10000000
 build=one(a,'build.txt').read_text();assert 'BUILD SUCCESSFUL' in build and 'BUILD FAILED' not in build
 meta=json.loads(one(a,'metadata.json').read_text());assert meta['applicationId']=='app.radvpn'
-assert meta['elements'][0]['versionCode']==20003 and meta['elements'][0]['versionName']=='2.0.2'
+assert meta['elements'][0]['versionCode']==20004 and meta['elements'][0]['versionName']=='2.0.3'
 assert 'Verified using v2 scheme (APK Signature Scheme v2): true' in one(a,'signature.txt').read_text()
 reports=list(a.rglob('report-*.json'));assert len(reports)==2
 for p in reports:
@@ -38,8 +38,10 @@ with zipfile.ZipFile(apk) as z:
  with zipfile.ZipFile(out/'RADVPN-Android-notices.zip','w',zipfile.ZIP_DEFLATED) as dest:
   for n in names:
    if n.startswith('assets/licenses/') and not n.endswith('/'):dest.writestr(n,z.read(n))
-ui=json.loads(one(e,'ui-report.json').read_text());assert ui['passed'] and len(ui['captures'])==64 and not ui['failures']
+ui=json.loads(one(e,'ui-report.json').read_text());assert ui['passed'] and len(ui['captures'])==68 and not ui['failures']
 assert json.loads(one(e,'native-tests.json').read_text())['passed']
+assert json.loads(one(e,'portable-native-tests.json').read_text())['passed']
+assert 'PASS real Wintun startup' in one(e,'windows-tunnel-test.txt').read_text(encoding='utf-8-sig')
 assert one(e,'installer-test-report.txt').read_text(encoding='utf-8-sig').count('PASS ')>=7
 shutil.copy2(apk,out/'RADVPN-Android.apk');shutil.copy2(installer,out/'RADVPN-Windows-Setup.exe');shutil.copy2(portable,out/'RADVPN-Windows-Portable.zip')
 for name in ['metadata.json','signature.txt']:shutil.copy2(one(a,name),out/('Android-'+name))
@@ -51,4 +53,4 @@ approval=json.loads(pathlib.Path('.github/unified-release-approval.json').read_t
 (out/'build-provenance.json').write_text(json.dumps(approval,indent=2)+'\n')
 assert len(list(out.glob('*.apk')))==1 and len(list(out.glob('*.exe')))==1
 (out/'SHA256SUMS.txt').write_text(''.join(f'{digest(p)}  {p.name}\n' for p in sorted(out.iterdir()) if p.name!='SHA256SUMS.txt'))
-print('Verified one actual APK + one installed Windows installer, matching checksums, 64 Android and 64 Windows captures, native tests, license inventory and exact background hash.')
+print('Verified one actual APK + one installed Windows installer, matching checksums, 64 Android and 68 Windows captures, native tests, license inventory and exact background hash.')
