@@ -1,4 +1,4 @@
-# RADVPN 2.0.1
+# RADVPN 2.0.3
 
 Native Windows x64 and Android Xray client, with English/Persian UI and Tunnel selected by default.
 
@@ -8,9 +8,9 @@ Native Windows x64 and Android Xray client, with English/Persian UI and Tunnel s
 
 **[RADVPN 2.0.1 — Android and Windows together](https://github.com/salehsayyadi/RADVPN/releases/tag/v2.0.1)** — published non-prerelease GitHub release.
 
-- [Android APK](https://github.com/salehsayyadi/RADVPN/releases/download/v2.0.1/RADVPN-Android.apk) — the only APK in this release; Android 8+, ARM64/x86_64; exact approved lightning artwork and native English/Persian UI.
-- [Windows x64 installer](https://github.com/salehsayyadi/RADVPN/releases/download/v2.0.1/RADVPN-Windows-Setup.exe).
-- [Checksums](https://github.com/salehsayyadi/RADVPN/releases/download/v2.0.1/SHA256SUMS.txt) · [verified publication receipt](docs/UNIFIED_RELEASE_RECEIPT.md).
+- [Android APK](https://github.com/salehsayyadi/RADVPN/releases/download/v2.0.3/RADVPN-Android.apk) — the only APK in this release; Android 8+, ARM64/x86_64; exact approved lightning artwork and native English/Persian UI.
+- [Windows x64 installer](https://github.com/salehsayyadi/RADVPN/releases/download/v2.0.3/RADVPN-Windows-Setup.exe).
+- [Checksums](https://github.com/salehsayyadi/RADVPN/releases/download/v2.0.3/SHA256SUMS.txt) · [verified publication receipt](docs/UNIFIED_RELEASE_RECEIPT.md).
 
 Other release assets contain notices, provenance and native acceptance evidence, not alternative installers. Historical releases are retained. An older Android CI build may have a different signing certificate: do not uninstall blindly, because uninstall removes the Keystore keys for locally encrypted profiles/backups.
 
