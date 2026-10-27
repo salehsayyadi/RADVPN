@@ -11,9 +11,9 @@ import android.widget.LinearLayout
 object Design {
     val background = Color.rgb(5, 8, 11)
     val app = Color.rgb(7, 11, 15)
-    val panel = Color.argb(240, 11, 17, 24)
+    val panel = Color.argb(110, 12, 25, 38)
     val secondary = Color.rgb(14, 22, 32)
-    val input = Color.rgb(16, 26, 37)
+    val input = Color.argb(90, 15, 38, 61)
     val border = Color.rgb(30, 44, 59)
     val orange = Color.rgb(255, 106, 0)
     val highlight = Color.rgb(255, 133, 10)

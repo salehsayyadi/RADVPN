@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-const Version = "2.0.1"
+const Version = "2.0.2"
 const CoreVersion = "26.10.21"
 const MaxImport = 2 * 1024 * 1024
 
@@ -133,6 +133,9 @@ func ParseLink(raw string) (Profile, error) {
 		}
 	}
 	transport := q.Get("type")
+	if transport == "raw" {
+		transport = "tcp"
+	}
 	if transport == "" {
 		transport = "tcp"
 	}
@@ -152,7 +155,7 @@ func ParseLink(raw string) (Profile, error) {
 	if security != "none" && security != "tls" && security != "reality" {
 		return Profile{}, errors.New("unsupported_feature")
 	}
-	if security == "reality" && (u.Scheme != "vless" || transport != "tcp" || q.Get("pbk") == "" || q.Get("sni") == "") {
+	if security == "reality" && (u.Scheme != "vless" || q.Get("pbk") == "" || q.Get("sni") == "") {
 		return Profile{}, fail()
 	}
 	if q.Get("flow") != "" && u.Scheme != "vless" {
@@ -254,8 +257,12 @@ func ParseLink(raw string) (Profile, error) {
 		return Profile{}, errors.New("unsupported_feature")
 	}
 	if u.Scheme == "ss" || u.Scheme == "socks" || u.Scheme == "http" {
-		if len(q) > 0 {
-			return Profile{}, errors.New("unsupported_feature")
+		for _, values := range q {
+			for _, value := range values {
+				if value != "" {
+					return Profile{}, errors.New("unsupported_feature")
+				}
+			}
 		}
 	}
 	stream := map[string]any{"network": transport, "security": security}
