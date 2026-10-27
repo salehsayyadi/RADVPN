@@ -57,7 +57,7 @@ internal static class ConfigurationProbe
             try
             {
                 using var worker = new Core();
-                using var registration = token.Register(() => { try { worker.Dispose(); } catch { } });
+                using var registration = token.Register(worker.Abort);
                 try
                 {
                     var value = await worker.Call(new

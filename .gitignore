@@ -26,3 +26,6 @@ vault.bin*
 /apps/android/app/src/main/assets/licenses/go/
 /apps/android/app/src/main/assets/licenses/maven/
 /apps/android/app/src/main/assets/licenses/ANDROID-NOTICES.txt
+
+/assets/lightning.jpg
+/assets/flags-preview.png

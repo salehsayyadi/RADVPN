@@ -52,6 +52,15 @@ internal sealed class Core : IDisposable
         ["favorite"] = p["favorite"]?.DeepClone(),
         ["group"] = p["group"]?.DeepClone()
     };
+    internal void Abort()
+    {
+        try
+        {
+            if (!process.HasExited)
+                process.Kill(true);
+        }
+        catch { }
+    }
     public void Dispose()
     {
         try
