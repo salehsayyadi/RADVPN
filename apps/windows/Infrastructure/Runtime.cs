@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -15,7 +16,7 @@ internal sealed class Core : IDisposable
     readonly SemaphoreSlim gate = new(1, 1);
     public Core()
     {
-        process = Process.Start(new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "radcore.exe")) { UseShellExecute = false, RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true, WorkingDirectory = AppContext.BaseDirectory }) ?? throw new InvalidOperationException("core_start_failed");
+        process = Process.Start(new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "radcore.exe")) { UseShellExecute = false, RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true, StandardInputEncoding = new UTF8Encoding(false), StandardOutputEncoding = new UTF8Encoding(false), StandardErrorEncoding = new UTF8Encoding(false), WorkingDirectory = AppContext.BaseDirectory }) ?? throw new InvalidOperationException("core_start_failed");
         process.ErrorDataReceived += (_, _) => { };
         process.BeginErrorReadLine();
     }
@@ -26,7 +27,10 @@ internal sealed class Core : IDisposable
         {
             if (process.HasExited)
                 throw new InvalidOperationException("core_start_failed");
-            await process.StandardInput.WriteLineAsync(JsonSerializer.Serialize(request));
+            var payload = JsonSerializer.SerializeToNode(request)!.AsObject();
+            if (payload["profile"] is JsonObject profile)
+                payload["profile"] = WireProfile(profile);
+            await process.StandardInput.WriteLineAsync(payload.ToJsonString());
             await process.StandardInput.FlushAsync();
             var line = await process.StandardOutput.ReadLineAsync().WaitAsync(TimeSpan.FromSeconds(35));
             if (line == null || line.Length > 8 * 1024 * 1024)
@@ -39,6 +43,15 @@ internal sealed class Core : IDisposable
         catch (TimeoutException) { try { process.Kill(true); } catch { } throw new InvalidOperationException("core_start_failed"); }
         finally { gate.Release(); }
     }
+    internal static JsonObject WireProfile(JsonNode p) => new()
+    {
+        ["id"] = p["id"]?.DeepClone(),
+        ["name"] = p["name"]?.DeepClone(),
+        ["outbound"] = p["outbound"]?.DeepClone(),
+        ["enabled"] = p["enabled"]?.DeepClone(),
+        ["favorite"] = p["favorite"]?.DeepClone(),
+        ["group"] = p["group"]?.DeepClone()
+    };
     public void Dispose()
     {
         try
@@ -65,6 +78,13 @@ internal static class Storage
             throw new InvalidOperationException("import_too_large");
         var value = (JsonObject)JsonNode.Parse(Encoding.UTF8.GetString(ProtectedData.Unprotect(data, null, DataProtectionScope.CurrentUser)))!;
         Validate(value);
+        foreach (var profile in ((JsonArray)value["profiles"]!).OfType<JsonObject>())
+            if (profile["probeKind"]?.ToString() != "configuration")
+            {
+                profile.Remove("probeLatency");
+                profile.Remove("reachable");
+                profile.Remove("probeAt");
+            }
         return value;
     }
     public static void Validate(JsonObject value)

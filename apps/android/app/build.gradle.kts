@@ -3,9 +3,20 @@ android {
  namespace = "app.radvpn"
  compileSdk = 35
  buildFeatures { buildConfig = true }
- defaultConfig { applicationId = "app.radvpn"; minSdk = 26; targetSdk = 35; versionCode = 20002; versionName = "2.0.1"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+ defaultConfig { applicationId = "app.radvpn"; minSdk = 26; targetSdk = 35; versionCode = 20003; versionName = "2.0.2"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
  compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
  kotlinOptions { jvmTarget = "17" }
+ signingConfigs {
+  getByName("debug") {
+   val keyPath = System.getenv("RADVPN_ANDROID_KEYSTORE_PATH")
+   if (!keyPath.isNullOrBlank()) {
+    storeFile = file(keyPath)
+    storePassword = System.getenv("RADVPN_ANDROID_STORE_PASSWORD")
+    keyAlias = System.getenv("RADVPN_ANDROID_KEY_ALIAS")
+    keyPassword = System.getenv("RADVPN_ANDROID_KEY_PASSWORD")
+   }
+  }
+ }
  buildTypes { getByName("release") { isMinifyEnabled = false } }
  sourceSets.getByName("main").assets.srcDir("../../../packages/localization")
  packaging { jniLibs { useLegacyPackaging = false } }

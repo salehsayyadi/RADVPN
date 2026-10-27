@@ -46,6 +46,35 @@ internal static class EndpointProbe
         return await Task.WhenAll(tasks);
     }
 }
+internal static class ConfigurationProbe
+{
+    public static async Task<ProbeResult[]> All(IEnumerable<JsonNode> profiles, JsonNode settings, CancellationToken token)
+    {
+        using var gate = new SemaphoreSlim(4);
+        var tasks = profiles.Select(async p =>
+        {
+            await gate.WaitAsync(token);
+            try
+            {
+                using var worker = new Core();
+                using var registration = token.Register(() => { try { worker.Dispose(); } catch { } });
+                try
+                {
+                    var value = await worker.Call(new
+                    {
+                        method = "probe",
+                        profile = p,
+                        settings
+                    });
+                    return new ProbeResult(p["id"]!.ToString(), value["latency"]?.GetValue<long>(), value["connected"]?.GetValue<bool>() == true);
+                }
+                catch (Exception) when (!token.IsCancellationRequested) { return new ProbeResult(p["id"]!.ToString(), null, false); }
+            }
+            finally { gate.Release(); }
+        });
+        return await Task.WhenAll(tasks);
+    }
+}
 internal sealed class TrafficLedger
 {
     long lastUp, lastDown; DateTime lastAt = DateTime.UtcNow;

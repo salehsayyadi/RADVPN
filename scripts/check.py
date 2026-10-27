@@ -5,7 +5,7 @@ root = pathlib.Path(__file__).resolve().parents[1]
 en, fa = [json.loads((root / f'packages/localization/{lang}.json').read_text()) for lang in ('en', 'fa')]
 assert en.keys() == fa.keys(), 'Locale key mismatch'
 assert all(str(x).strip() for locale in (en, fa) for x in locale.values())
-for path, marker in [('apps/windows/RADVPN.csproj', '<Version>2.0.1</Version>'), ('apps/android/app/build.gradle.kts', 'versionName = "2.0.1"'), ('packages/engine/profiles.go', 'Version = "2.0.1"')]:
+for path, marker in [('apps/windows/RADVPN.csproj', '<Version>2.0.2</Version>'), ('apps/android/app/build.gradle.kts', 'versionName = "2.0.2"'), ('packages/engine/profiles.go', 'Version = "2.0.2"')]:
     assert marker in (root / path).read_text(), f'Version drift: {path}'
 # Both clients may only request keys that exist in both locale dictionaries.
 for path in [*root.glob('apps/windows/**/*.cs'), *root.glob('apps/android/app/src/main/java/**/*.kt')]:

@@ -24,3 +24,6 @@ Redistribution terms: third_party/Wintun-LICENSE.txt (vendor's prebuilt-binary l
 - golang.org/x/mobile and x/*: BSD-style licenses; all module versions/checksums are recorded in go.mod/go.sum.
 
 No production artifact release is approved until the full transitive license/notice bundle is reviewed. Generated module-license copies are included in testing packages when available, but automated file collection is not a legal review. Do not assume a dependency falls under MIT just because this application's own source does.
+
+## Country flag images
+Country flag PNGs in `assets/flags-atlas.json` are rasterized from Google Noto Emoji. Noto Emoji is licensed under the SIL Open Font License 1.1; see `third_party/NotoEmoji-OFL.txt`. No country is inferred from IP addresses.

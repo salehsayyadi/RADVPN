@@ -35,7 +35,13 @@ object Vault {
 }
 object Api {
  fun call(request: JSONObject): JSONObject {
-  val result=JSONObject(engine.Engine.invoke(request.toString()))
+  val wire=JSONObject(request.toString())
+  wire.optJSONObject("profile")?.let { p ->
+   val clean=JSONObject()
+   for (key in listOf("id","name","outbound","enabled","favorite","group")) if(p.has(key))clean.put(key,p.get(key))
+   wire.put("profile",clean)
+  }
+  val result=JSONObject(engine.Engine.invoke(wire.toString()))
   if (!result.optBoolean("ok")) throw IllegalStateException(result.optString("error","operation_failed"))
   return result.optJSONObject("data") ?: JSONObject()
  }

@@ -31,6 +31,7 @@ foreach ($module in @('microsoft.netcore.app.runtime.win-x64','microsoft.windows
 }
 Get-ChildItem dist/windows -Filter *.pdb | Remove-Item
 Get-ChildItem dist/windows | Select-Object Name,Length | Format-Table
+Compress-Archive -Path dist/windows/* -DestinationPath dist/RADVPN-Windows-Portable-2.0.2-x64.zip -Force
 python scripts/installer-manifest.py
 if ($LASTEXITCODE -ne 0) { throw 'Uninstall manifest generation failed' }
 $compilerPath = (Get-Command makensis.exe -ErrorAction SilentlyContinue).Source
@@ -38,4 +39,4 @@ if (-not $compilerPath) { $candidate = "${env:ProgramFiles(x86)}\NSIS\makensis.e
 if (-not $compilerPath) { throw 'Install NSIS 3.12 (or compatible Unicode 3.x) and put makensis.exe on PATH.' }
 & $compilerPath /V3 /INPUTCHARSET UTF8 "/DREPO_ROOT=$((Get-Location).Path)" installer/RADVPN.nsi
 if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
-Get-FileHash dist/RADVPN-Setup-2.0.1-x64.exe -Algorithm SHA256 | ForEach-Object { "$($_.Hash.ToLower())  RADVPN-Setup-2.0.1-x64.exe" } | Set-Content dist/SHA256SUMS.txt
+Get-FileHash dist/RADVPN-Setup-2.0.2-x64.exe -Algorithm SHA256 | ForEach-Object { "$($_.Hash.ToLower())  RADVPN-Setup-2.0.2-x64.exe" } | Set-Content dist/SHA256SUMS.txt
