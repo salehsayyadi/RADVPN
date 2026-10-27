@@ -11,6 +11,7 @@ Owner-requested test release. Windows executables remain unsigned. Physical-devi
 - Explicit administrator-consent flow, Wintun-load and port checks, and credential-free startup error categories rather than one generic message.
 
 ## Verified build evidence
+- The release tag points to publication-only metadata changes; application binaries are unchanged from the reviewed source.
 - Same source: `68b35cfd4ae33dc62030718ad9f59a72af40da67`.
 - Windows/shared/Android build run: https://github.com/salehsayyadi/RADVPN/actions/runs/40533105960
 - Android native emulator run: https://github.com/salehsayyadi/RADVPN/actions/runs/40533106638

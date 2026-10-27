@@ -14,7 +14,12 @@ def run(stage,args):
   print('::error::Publication failed: '+stage+' / '+category,flush=True)
   sys.exit(1)
  print('Completed '+stage,flush=True)
-run('create_tag',['api','--method','POST',f'repos/{repo}/git/refs','-f','ref=refs/tags/'+tag,'-f','sha='+sha])
+# Tag the publication commit, while binaries remain from the approved immutable source.
+# GitHub Actions cannot tag an older commit with a different workflow tree using GITHUB_TOKEN.
+comparison=subprocess.run(['gh','api',f'repos/{repo}/compare/{sha}...'+os.environ['GITHUB_SHA']],text=True,capture_output=True,check=True)
+allowed={'.github/unified-release-approval.json','.github/workflows/unified-release.yml','scripts/verify-unified-release.py','scripts/prepare-unified-release.py','scripts/publish-reviewed-release.py','docs/RELEASE_NOTES_2.0.3.md'}
+assert all(f['filename'] in allowed for f in json.loads(comparison.stdout)['files']), 'Publication commit changed unreviewed application sources'
+run('create_tag',['api' ,'--method','POST',f'repos/{repo}/git/refs','-f','ref=refs/tags/'+tag,'-f','sha='+os.environ['GITHUB_SHA']])
 assets=[str(p) for p in sorted(pathlib.Path('release/assets').iterdir()) if p.is_file()]
 assert assets
 run('create_release',['release','create',tag,*assets,'--repo',repo,'--verify-tag','--latest','--title','RADVPN '+version+' — Lightning','--notes-file','docs/RELEASE_NOTES_'+version+'.md'])
