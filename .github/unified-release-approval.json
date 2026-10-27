@@ -15,5 +15,5 @@
   "approval_context": "Owner explicitly requested upload of this version to test personally after unresolved device-specific connection behavior was disclosed. Preserve Android signing and upgrade warnings.",
   "visual_review_scope": "Representative compiled Windows Home, Servers, Configs English/Persian, Subscriptions, Diagnostics and native editor captures reviewed, with fixes re-rendered. 68 Windows and 64 Android page captures have automated checks. No claim of full manual capture review, physical-device remote VPN, leak or interactive UAC acceptance.",
   "hosted_windows_tunnel_test_verified": true,
-  "publication_attempt": 2
+  "publication_attempt": 3
 }
