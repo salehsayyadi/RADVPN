@@ -175,7 +175,7 @@ class MainActivity : Activity() {
         screenStatus?.setTextColor(if (error.isNotEmpty()) Design.red else if (active == "connected") Design.green else Design.muted)
         power?.state = if (error.isNotEmpty()) "error" else shown
         power?.contentDescription = t(if (isIdle) "connect" else "disconnect")
-        connectButton?.text = t(if (isIdle) "connect" else "disconnect")
+        connectButton?.let{val icon=Design.icon(this,"power",Design.background).apply{setBounds(0,0,dp(18),dp(18))};it.text=SpannableString("  ${t(if(isIdle)"connect" else "disconnect")}").apply{setSpan(android.text.style.ImageSpan(icon,android.text.style.ImageSpan.ALIGN_BOTTOM),0,1,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)}}
         downRate?.text = bytes(rateDown) + "/s"; upRate?.text = bytes(rateUp) + "/s"
         ping?.text = if (snapshot.isNull("latency") || !snapshot.has("latency")) "—" else snapshot.optLong("latency").toString() + " ms"
         session?.text = "${t("down")}: ${bytes(snapshot.optLong("down"))}   ·   ${t("up")}: ${bytes(snapshot.optLong("up"))}\n${t("duration")}: ${snapshot.optLong("seconds")} s"
@@ -189,9 +189,10 @@ class MainActivity : Activity() {
     }
     private fun help(key: String) = label(t(key), 12f, Design.muted)
     private fun button(key: String, primary: Boolean = false, action: () -> Unit): Button {
-        val v = Button(this).apply { text = t(key); textSize = 14f; isAllCaps = false; setTextColor(if (primary) Design.background else Design.muted); minHeight = dp(48); minimumHeight = dp(48); minimumWidth = 0; setPadding(dp(12), dp(8), dp(12), dp(8)); background = Design.button(this@MainActivity, primary); if (key in listOf("connect", "import", "add_config", "paste", "file", "qr", "add_subscription", "add_server")) {
-                val symbol = when(key) { "connect" -> "power"; "paste" -> "copy"; "file" -> "configs"; "qr" -> "qr"; else -> "plus" }
-                setCompoundDrawablesRelativeWithIntrinsicBounds(Design.icon(this@MainActivity, symbol, if (primary) Design.background else Design.muted), null, null, null); compoundDrawablePadding = dp(8)
+        val v = Button(this).apply { text = t(key); textSize = 14f; isAllCaps = false; setTextColor(if (primary) Design.background else Design.muted); minHeight = dp(48); minimumHeight = dp(48); minimumWidth = 0; setPadding(dp(12), dp(8), dp(12), dp(8)); background = Design.button(this@MainActivity, primary); if (key in listOf("connect", "import", "add_config", "paste", "file", "qr", "add_subscription", "add_server", "tunnel", "proxy")) {
+                val symbol = when(key) { "connect" -> "power"; "paste" -> "copy"; "file" -> "configs"; "qr" -> "qr"; "tunnel" -> "tunnel"; "proxy" -> "proxy"; else -> "plus" }
+                val icon=Design.icon(this@MainActivity,symbol,if(primary)Design.background else Design.muted).apply{setBounds(0,0,dp(18),dp(18))}
+                text=SpannableString("  ${t(key)}").apply{setSpan(android.text.style.ImageSpan(icon,android.text.style.ImageSpan.ALIGN_BOTTOM),0,1,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)}
             }; setOnClickListener { try { action() } catch (_: Exception) { report("operation_failed") } } }
         body.addView(v, LinearLayout.LayoutParams(if (body.orientation == LinearLayout.HORIZONTAL) 0 else -1, -2, if (body.orientation == LinearLayout.HORIZONTAL) 1f else 0f).apply { setMargins(dp(3), dp(5), dp(3), dp(5)) }); return v
     }
@@ -203,8 +204,8 @@ class MainActivity : Activity() {
         val old = body; val p = vertical().apply { setPadding(dp(16), dp(14), dp(16), dp(14)); background = Design.surface(this@MainActivity) }
         old.addView(p, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(14) }); body = p; action(); body = old; return p
     }
-    private fun field(key: String, value: String = "", multiline: Boolean = false, numeric: Boolean = false): EditText {
-        help(key)
+    private fun field(key: String, value: String = "", multiline: Boolean = false, numeric: Boolean = false, showLabel: Boolean = true): EditText {
+        if(showLabel)help(key)
         val v = EditText(this).apply {
             setText(value); textSize = 14f; setTextColor(Design.text); setHintTextColor(Design.subtle); minHeight = dp(if (multiline) 112 else 48); background = Design.surface(this@MainActivity, Design.input, radius = 9); setPadding(dp(12), dp(10), dp(12), dp(10)); setSingleLine(!multiline); gravity = Gravity.TOP or Gravity.START; textDirection = View.TEXT_DIRECTION_LTR; layoutDirection = View.LAYOUT_DIRECTION_LTR
             inputType = if (numeric) android.text.InputType.TYPE_CLASS_NUMBER else android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or if (multiline) android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE else android.text.InputType.TYPE_TEXT_VARIATION_URI
@@ -337,18 +338,20 @@ class MainActivity : Activity() {
     private fun clipboard() = getSystemService(ClipboardManager::class.java).primaryClip?.getItemAt(0)?.coerceToText(this)?.toString() ?: ""
     private fun configs() {
         title("add_config");help("direct_link_help")
-        val raw=field("server_links",multiline=true);raw.hint="vless://…\nvmess://…\ntrojan://…\nss://…"
+        val raw=field("server_links",multiline=true,showLabel=false).apply{minHeight=dp(128)};raw.hint="vless://…\nvmess://…\ntrojan://…\nss://…"
         button("add_server",true){importText(raw.text.toString())}
         row{button("paste"){raw.setText(clipboard())};button("qr"){if(!qa)IntentIntegrator(this).setDesiredBarcodeFormats(IntentIntegrator.QR_CODE).setPrompt(t("qr")).setBeepEnabled(false).initiateScan()};button("file"){startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE),50)}}
         card {
-            title("add_subscription");val url=field("sub_url");url.hint="https://provider.example/…"
-            button("add",true){idle{prompt("subscription_name",""){name->refresh(JSONObject().put("name",name.take(200)).put("url",url.text.toString().trim()).put("id",java.util.UUID.randomUUID().toString()),true)}}}
+            title("add_subscription");val url=field("sub_url",showLabel=false);url.hint="https://provider.example/…"
+            row{label(t("sub_tab_name"),11f,Design.muted).layoutParams=LinearLayout.LayoutParams(0,-2,1f);iconAction(body,"plus","add_subscription"){idle{prompt("subscription_name",""){name->refresh(JSONObject().put("name",name.take(200)).put("url",url.text.toString().trim()).put("id",java.util.UUID.randomUUID().toString()),true)}}}}
         }
-        card {
-            title("subscription_details");val info=data.optJSONArray("importInfo") ?: JSONArray()
-            if(info.length()==0)help("subscription_details_help") else for(i in 0 until info.length())label(info.getString(i),13f,Design.muted)
-            button("subscriptions"){go("subscriptions")}
-        }
+        card { row {
+            body.addView(Symbol(this,"configs",Design.orange),LinearLayout.LayoutParams(dp(23),dp(27)))
+            val old=body;val info=vertical().apply{setPadding(dp(12),0,0,0)};old.addView(info,LinearLayout.LayoutParams(0,-2,1f));body=info
+            label(t("subscription_details"),14f);val details=data.optJSONArray("importInfo") ?: JSONArray()
+            if(details.length()==0)help("subscription_details_help")else for(i in 0 until details.length())label(details.getString(i),12f,Design.muted)
+            body=old
+        }}.setOnClickListener{go("subscriptions")}
     }
 
     private fun serverPage() {
@@ -356,7 +359,7 @@ class MainActivity : Activity() {
             val scroll=HorizontalScrollView(this).apply{isHorizontalScrollBarEnabled=false}
             val tabs=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL}
             body.addView(scroll,LinearLayout.LayoutParams(-1,dp(50)).apply{bottomMargin=dp(10)});scroll.addView(tabs)
-            fun tab(name:String,id:String){val on=groupFilter==id;val v=TextView(this).apply{text=name;textSize=14f;gravity=Gravity.CENTER;setPadding(dp(16),0,dp(16),0);setTextColor(if(on)Design.background else Design.muted);background=Design.button(this@MainActivity,on);isClickable=true;isFocusable=true;setOnClickListener{groupFilter=id;render()}};tabs.addView(v,LinearLayout.LayoutParams(-2,dp(44)).apply{marginEnd=dp(7)})}
+            fun tab(name:String,id:String){val on=groupFilter==id;val v=TextView(this).apply{minWidth=maxOf(dp(96),(resources.displayMetrics.widthPixels-dp(48))/3);text=name;textSize=14f;gravity=Gravity.CENTER;setPadding(dp(16),0,dp(16),0);setTextColor(if(on)Design.background else Design.muted);background=Design.button(this@MainActivity,on);isClickable=true;isFocusable=true;setOnClickListener{groupFilter=id;render()}};tabs.addView(v,LinearLayout.LayoutParams(-2,dp(44)).apply{marginEnd=dp(7)})}
             tab(t("all"),"");val subs=data.getJSONArray("subscriptions");for(i in 0 until subs.length()){val sub=subs.getJSONObject(i);tab(sub.optString("name").ifBlank{android.net.Uri.parse(sub.optString("url")).host ?: t("subscriptions")},sub.getString("id"))}
         }
         val source=items().filter{it.optString("name").contains(filter,true) && (page!="favorites" || it.optBoolean("favorite")) && (groupFilter.isEmpty() || it.optString("group")==groupFilter)}
@@ -474,17 +477,31 @@ class MainActivity : Activity() {
                 val control=Switch(this).apply{isChecked=data.optBoolean(key,true);thumbTintList=android.content.res.ColorStateList.valueOf(Design.text);trackTintList=android.content.res.ColorStateList.valueOf(if(isChecked)Design.orange else Design.border);minHeight=dp(44);contentDescription=t(titleKey);setOnCheckedChangeListener{_,on->data.put(key,on);save();changed();trackTintList=android.content.res.ColorStateList.valueOf(if(on)Design.orange else Design.border)}}
                 body.addView(control,LinearLayout.LayoutParams(-2,dp(44)))
             };help(helpKey)
+            if(key=="showSpeed")row{label("↓ ${bytes(rateDown)}/s",12f,Design.blue).layoutParams=LinearLayout.LayoutParams(0,-2,1f);label("↑ ${bytes(rateUp)}/s",12f,Design.orange).apply{gravity=Gravity.END;layoutParams=LinearLayout.LayoutParams(0,-2,1f)}}
         }
     }
     private fun settingsPage() {
         if(page!="settings") row { button("general", page == "settings") { go("settings") }; button("connection", page == "connection") { go("connection") }; button("advanced_short", page == "advanced") { go("advanced") } }
         if(page=="settings"){
             title("general");help("display_preferences")
-            card{title("language");button(if(data.optString("lang")=="fa")"persian" else "english"){showDialog(AlertDialog.Builder(this).setTitle(t("language")).setItems(arrayOf("English","فارسی")){_,which->changeLanguage(if(which==0)"en" else "fa")})}}
+            card{row{
+                body.addView(Symbol(this,"proxy",Design.muted),LinearLayout.LayoutParams(dp(23),dp(26)))
+                val old=body;val info=vertical().apply{setPadding(dp(12),0,dp(6),0)};old.addView(info,LinearLayout.LayoutParams(0,-2,1f));body=info
+                label(t("language"),14f);label(if(data.optString("lang")=="fa")"فارسی · راست‌به‌چپ" else "English · Left to right",11f,Design.muted);body=old
+                label(if(data.optString("lang")=="fa")"فارسی" else "English",12f,Design.orange).layoutParams=LinearLayout.LayoutParams(-2,-2)
+            }}.setOnClickListener{showDialog(AlertDialog.Builder(this).setTitle(t("language")).setItems(arrayOf("English","فارسی")){_,which->changeLanguage(if(which==0)"en" else "fa")})}
             preferenceCard("allowCapture","capture_allowed","capture_help","eye"){applyCapturePolicy()}
-            preferenceCard("showSpeed","notification_speed","notification_speed_help","clock"){}
-            card{button("connection"){go("connection")};help("connection_summary")}
-            card{button("about"){go("about")}}
+            preferenceCard("showSpeed","notification_speed","notification_speed_help","bell"){}
+            card{row{
+                body.addView(Symbol(this,"settings",Design.muted),LinearLayout.LayoutParams(dp(24),dp(26)))
+                val old=body;val info=vertical().apply{setPadding(dp(12),0,dp(6),0)};old.addView(info,LinearLayout.LayoutParams(0,-2,1f));body=info;label(t("connection"),14f);label(t("connection_summary"),11f,Design.muted);body=old
+                body.addView(Symbol(this,"next",Design.muted),LinearLayout.LayoutParams(dp(18),dp(20)))
+            }}.setOnClickListener{go("connection")}
+            card{row{
+                body.addView(Symbol(this,"brand",Design.muted),LinearLayout.LayoutParams(dp(24),dp(26)))
+                label(t("about"),14f).apply{setPadding(dp(12),0,0,0);layoutParams=LinearLayout.LayoutParams(0,-2,1f)}
+                label(BuildConfig.VERSION_NAME,12f,Design.orange).layoutParams=LinearLayout.LayoutParams(-2,-2)
+            }}.setOnClickListener{go("about")}
             return
         }
         val draft = JSONObject(settings().toString())
@@ -563,6 +580,19 @@ class MainActivity : Activity() {
     }
     @Deprecated("Native back navigation") override fun onBackPressed() { if (page != "home") go("home") else super.onBackPressed() }
     fun showErrorForCapture(): AlertDialog { check(qa); return showDialog(AlertDialog.Builder(this).setTitle("RADVPN").setMessage(t("invalid_dns")).setPositiveButton(t("close"), null)) }
+    fun verifyGroupsForCapture() {
+        check(qa)
+        data.put("profiles",JSONArray()).put("selected","")
+        val fixture=Api.call(JSONObject().put("method","import").put("text","socks://127.0.0.1:19876#Fixture")).getJSONArray("profiles")
+        merge(fixture,"one");merge(fixture,"two")
+        check(profiles().length()==2)
+        check(items().map{it.optString("id")}.distinct().size==2)
+        check(items().count{it.optString("group")=="one"}==1 && items().count{it.optString("group")=="two"}==1)
+        profiles().getJSONObject(0).put("favorite",true).put("name","Custom").put("userNamed",true)
+        merge(fixture,"one")
+        check(profiles().length()==2 && profiles().getJSONObject(0).optBoolean("favorite") && profiles().getJSONObject(0).optString("name")=="Custom")
+        check(selected()!=null)
+    }
     fun showForCapture(target:String,language:String){
         check(qa);require(target in qaPages)
         data.put("lang",language);words=Words(this,language);data.put("profiles",JSONArray()).put("subscriptions",JSONArray()).put("selected","");favoritesOnly=target=="favorites";groupFilter=""
