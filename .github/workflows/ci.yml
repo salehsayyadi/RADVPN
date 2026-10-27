@@ -50,6 +50,7 @@ jobs:
           New-Item dist -ItemType Directory -Force | Out-Null
           go test -count=1 -v ./... *> dist/windows-core-tests.txt
           if ($LASTEXITCODE -ne 0) { Get-Content dist/windows-core-tests.txt; throw 'Core tests failed' }
+          python -m pip install Pillow==11.3.0
           python scripts/materialize-assets.py
           dotnet restore apps/windows/RADVPN.csproj
           if ($LASTEXITCODE -ne 0) { throw 'Restore failed' }
@@ -58,13 +59,27 @@ jobs:
       - name: Build self-contained installer and verify vendor driver signature
         shell: pwsh
         run: ./scripts/build-windows.ps1 *>&1 | Tee-Object -FilePath dist/windows-build.txt
+      - name: Exercise real Wintun and routed local traffic on disposable hosted Windows
+        shell: pwsh
+        timeout-minutes: 3
+        run: |
+          go test -c -o dist/windows/tunnel-acceptance.test.exe ./packages/engine
+          if ($LASTEXITCODE -ne 0) { throw 'Tunnel test compilation failed' }
+          $env:RADVPN_NATIVE_TUN_TEST = '1'
+          try {
+            & ./dist/windows/tunnel-acceptance.test.exe -test.run '^TestWindowsTunnelAcceptance$' -test.v -test.timeout 90s *>&1 | Tee-Object -FilePath dist/windows-tunnel-test.txt
+            if ($LASTEXITCODE -ne 0) { throw 'Actual Windows TUN acceptance failed' }
+          } finally {
+            Remove-Item Env:RADVPN_NATIVE_TUN_TEST -ErrorAction SilentlyContinue
+            Remove-Item dist/windows/tunnel-acceptance.test.exe -Force -ErrorAction SilentlyContinue
+          }
       - name: Upload installer and checksum
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: RADVPN-2.0.2-windows-x64-installer
+          name: RADVPN-2.0.3-windows-x64-installer
           path: |
-            dist/RADVPN-Setup-2.0.2-x64.exe
-            dist/RADVPN-Windows-Portable-2.0.2-x64.zip
+            dist/RADVPN-Setup-2.0.3-x64.exe
+            dist/RADVPN-Windows-Portable-2.0.3-x64.zip
             dist/SHA256SUMS.txt
           if-no-files-found: error
       - name: Install, launch, capture actual WPF UI, repair and uninstall
@@ -142,7 +157,7 @@ jobs:
         run: "$ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose apps/android/app/build/outputs/apk/debug/app-debug.apk"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: RADVPN-2.0.2-android-debug-testing
+          name: RADVPN-2.0.3-android-debug-testing
           path: |
             apps/android/app/build/outputs/apk/debug/app-debug.apk
             apps/android/app/build/reports/lint-results-debug.html

@@ -3,7 +3,7 @@ android {
  namespace = "app.radvpn"
  compileSdk = 35
  buildFeatures { buildConfig = true }
- defaultConfig { applicationId = "app.radvpn"; minSdk = 26; targetSdk = 35; versionCode = 20003; versionName = "2.0.2"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+ defaultConfig { applicationId = "app.radvpn"; minSdk = 26; targetSdk = 35; versionCode = 20004; versionName = "2.0.3"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
  compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
  kotlinOptions { jvmTarget = "17" }
  signingConfigs {
