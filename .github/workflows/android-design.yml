@@ -2,7 +2,7 @@ name: Android 2.0.3 native glass UI and emulator acceptance
 on:
   push:
     branches: [main]
-    paths: ['apps/android/**', 'scripts/*android*', '.github/workflows/android-design.yml', 'packages/localization/**', 'packages/engine/**']
+    paths: ['apps/windows/**', '.github/workflows/ci.yml', 'apps/android/**', 'scripts/*android*', '.github/workflows/android-design.yml', 'packages/localization/**', 'packages/engine/**']
   workflow_dispatch:
 permissions:
   contents: read

@@ -13,6 +13,7 @@ internal sealed partial class MainWindow
         if (ConnectionActive)
             throw new InvalidOperationException("already_running");
         var candidate = original.DeepClone();
+        candidate["name"] = DisplayNames.Repair(candidate["name"]?.ToString() ?? "");
         var outbound = candidate["outbound"]!;
         var protocol = outbound["protocol"]!.ToString();
         var endpoint = ((JsonArray)(outbound["settings"]!["vnext"] ?? outbound["settings"]!["servers"])!)[0]!;

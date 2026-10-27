@@ -69,6 +69,7 @@ jobs:
           try {
             & ./dist/windows/tunnel-acceptance.test.exe -test.run '^TestWindowsTunnelAcceptance$' -test.v -test.timeout 90s *>&1 | Tee-Object -FilePath dist/windows-tunnel-test.txt
             if ($LASTEXITCODE -ne 0) { throw 'Actual Windows TUN acceptance failed' }
+            if (-not (Select-String -Path dist/windows-tunnel-test.txt -Pattern 'PASS real Wintun startup' -Quiet)) { throw 'Actual Windows TUN test was skipped, not accepted' }
           } finally {
             Remove-Item Env:RADVPN_NATIVE_TUN_TEST -ErrorAction SilentlyContinue
             Remove-Item dist/windows/tunnel-acceptance.test.exe -Force -ErrorAction SilentlyContinue
