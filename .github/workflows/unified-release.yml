@@ -1,0 +1,44 @@
+name: Publish reviewed Android and Windows release
+on:
+  push:
+    branches: [main]
+    paths: ['.github/unified-release-approval.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: radvpn-unified-2.0.1
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Verify successful same-source builds and human-agent native visual review
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/verify-unified-release.py
+      - name: Download only the actual reviewed build artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ANDROID=$(python3 -c 'import json;print(json.load(open(".github/unified-release-approval.json"))["android_run"])')
+          WINDOWS=$(python3 -c 'import json;print(json.load(open(".github/unified-release-approval.json"))["windows_run"])')
+          gh run download "$ANDROID" --repo "$GITHUB_REPOSITORY" -n RADVPN-Android-native-design -D release/android
+          gh run download "$WINDOWS" --repo "$GITHUB_REPOSITORY" -n RADVPN-2.0.1-windows-x64-installer -D release/windows
+          gh run download "$WINDOWS" --repo "$GITHUB_REPOSITORY" -n RADVPN-native-evidence -D release/evidence
+          python3 scripts/prepare-unified-release.py
+          SIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)
+          test -n "$SIGNER"
+          "$SIGNER" verify --verbose release/assets/RADVPN-Android.apk
+      - name: Publish one APK and one Windows installer in a non-prerelease GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SHA=$(python3 -c 'import json;print(json.load(open(".github/unified-release-approval.json"))["source_sha"])')
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref=refs/tags/v2.0.1 -f sha="$SHA"
+          gh release create v2.0.1 release/assets/* --repo "$GITHUB_REPOSITORY" --verify-tag --latest --title 'RADVPN 2.0.1 — Lightning' --notes-file docs/RELEASE_NOTES_2.0.1.md
+          gh release view v2.0.1 --repo "$GITHUB_REPOSITORY" --json url,isPrerelease,assets

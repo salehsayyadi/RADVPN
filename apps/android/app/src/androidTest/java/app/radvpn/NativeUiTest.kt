@@ -69,6 +69,17 @@ class NativeUiTest {
             val en = JSONObject(inst.targetContext.assets.open("en.json").bufferedReader().use { it.readText() })
             val fa = JSONObject(inst.targetContext.assets.open("fa.json").bufferedReader().use { it.readText() })
             assertEquals(en.keys().asSequence().toSet(), fa.keys().asSequence().toSet()); checks.add("English/Persian locale key parity")
+            inst.runOnMainSync {
+                activity.verifyGroupsForCapture()
+                activity.showForCapture("settings","en")
+                fun switches(v:View):List<android.widget.Switch> = if(v is android.widget.Switch)listOf(v) else if(v is ViewGroup)(0 until v.childCount).flatMap{switches(v.getChildAt(it))} else emptyList()
+                val capture=switches(activity.window.decorView).first{it.contentDescription.toString()==en.getString("capture_allowed")}
+                assertTrue(capture.isChecked);capture.isChecked=false
+                assertNotEquals(0,activity.window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_SECURE)
+                capture.isChecked=true
+                assertEquals(0,activity.window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_SECURE)
+            }
+            checks.add("same endpoint remains in two independent subscription groups; refresh preserves favorite/custom name; actual capture privacy switch toggles FLAG_SECURE")
             val captures = JSONArray()
             for (language in listOf("en", "fa")) for (page in MainActivity.qaPages) {
                 inst.runOnMainSync { activity.showForCapture(page, language) }
