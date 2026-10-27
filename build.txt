@@ -1,0 +1,117 @@
+go: downloading golang.org/x/mobile v0.0.0-20261011034528-197770444867
+go: downloading golang.org/x/mod v0.42.0
+go: downloading golang.org/x/tools v0.52.0
+Bundled Android selected-module licenses: 46
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :app:collectAndroidNotices
+> Task :app:preBuild
+> Task :app:preDebugBuild
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugBuildConfig
+> Task :app:generateDebugResValues
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:mergeDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:javaPreCompileDebug
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets
+> Task :app:processDebugResources
+> Task :app:desugarDebugFileDependencies
+> Task :app:checkDebugDuplicateClasses
+> Task :app:mergeExtDexDebug
+> Task :app:mergeLibDexDebug
+> Task :app:mergeDebugJniLibFolders
+> Task :app:mergeDebugNativeLibs
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libgojni.so.
+
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:processDebugAndroidTestManifest
+> Task :app:generateDebugAndroidTestBuildConfig
+> Task :app:checkDebugAndroidTestAarMetadata
+> Task :app:generateDebugAndroidTestResValues
+> Task :app:mapDebugAndroidTestSourceSetPaths
+> Task :app:generateDebugAndroidTestResources
+> Task :app:mergeDebugAndroidTestResources
+> Task :app:processDebugAndroidTestResources
+> Task :app:javaPreCompileDebugAndroidTest
+> Task :app:mergeDebugAndroidTestShaders
+> Task :app:compileDebugAndroidTestShaders NO-SOURCE
+> Task :app:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :app:mergeDebugAndroidTestAssets
+> Task :app:compressDebugAndroidTestAssets
+> Task :app:desugarDebugAndroidTestFileDependencies
+> Task :app:checkDebugAndroidTestDuplicateClasses
+> Task :app:mergeExtDexDebugAndroidTest
+> Task :app:mergeLibDexDebugAndroidTest
+> Task :app:mergeDebugAndroidTestJniLibFolders
+> Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebugAndroidTest
+> Task :app:writeDebugAndroidTestSigningConfigVersions
+> Task :app:extractProguardFiles
+> Task :app:preDebugUnitTestBuild
+
+> Task :app:compileDebugKotlin
+w: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:18:8 'class IntentIntegrator : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:89:49 'fun setDecorFitsSystemWindows(p0: Boolean): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:90:16 Wrapping the left-hand side of assignments in parentheses, labels or annotations is not allowed. This will become an error in Kotlin 2.2.
+w: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:92:60 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:343:75 'constructor(p0: Activity!): IntentIntegrator' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:343:123 'class IntentIntegrator : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:579:9 'class IntentIntegrator : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:579:26 'static fun parseActivityResult(p0: Int, p1: Int, p2: Intent!): IntentResult!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/RADVPN/RADVPN/apps/android/app/src/main/java/app/radvpn/MainActivity.kt:581:116 'fun onBackPressed(): Unit' is deprecated. Deprecated in Java.
+
+> Task :app:compileDebugJavaWithJavac
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugGlobalSynthetics
+> Task :app:processDebugJavaRes
+> Task :app:mergeProjectDexDebug
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:mergeDebugJavaResource
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+> Task :app:compileDebugAndroidTestKotlin
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:compileDebugAndroidTestJavaWithJavac
+> Task :app:dexBuilderDebugAndroidTest
+> Task :app:mergeDebugAndroidTestGlobalSynthetics
+> Task :app:processDebugAndroidTestJavaRes
+> Task :app:mergeProjectDexDebugAndroidTest
+> Task :app:mergeDebugAndroidTestJavaResource
+> Task :app:generateDebugLintReportModel
+> Task :app:generateDebugUnitTestLintModel
+> Task :app:packageDebugAndroidTest
+> Task :app:createDebugAndroidTestApkListingFileRedirect
+> Task :app:assembleDebugAndroidTest
+> Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :app:lintAnalyzeDebug
+
+> Task :app:lintReportDebug
+Wrote HTML report to file:///home/runner/work/RADVPN/RADVPN/apps/android/app/build/reports/lint-results-debug.html
+
+> Task :app:lintDebug
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1793102075066.json
+
+BUILD SUCCESSFUL in 45s
+76 actionable tasks: 76 executed
