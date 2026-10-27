@@ -82,7 +82,7 @@
   "vpn_permission_required": "VPN permission is required.",
   "core_config_invalid": "Xray rejected the configuration. Credentials were not logged.",
   "core_start_failed": "Could not start Xray. Check port conflicts, elevation and Wintun availability.",
-  "probe_failed": "HTTPS through the proxy failed. The connection was closed. Check server access.",
+  "probe_failed": "No verified HTTPS response arrived through the proxy from either connectivity endpoint. The connection was stopped; a test endpoint may be blocked.",
   "invalid_url": "Use a valid HTTPS subscription URL without embedded login.",
   "subscription_failed": "Subscription download failed. Existing profiles were kept.",
   "invalid_request": "Invalid request.",
@@ -280,5 +280,8 @@
   "elevation_explanation": "Tunnel mode needs permission to create the network adapter and configure routes. Save the selected server, reopen with Windows approval, then continue connecting.",
   "continue_uac": "Continue with Windows UAC",
   "not_now": "Not now",
-  "elevation_cancelled": "Administrator approval was cancelled. The app remains open and disconnected."
+  "elevation_cancelled": "Administrator approval was cancelled. The app remains open and disconnected.",
+  "endpoint_dns_failed": "The selected server name could not be resolved before starting the tunnel. Check DNS and try again.",
+  "tunnel_endpoint_ipv6_blocked": "This server has only IPv6 addresses, but IPv6 is blocked in Settings. Select another server or allow IPv6 tunneling.",
+  "subscription_rejected": "Unsupported or invalid entries rejected"
 }
