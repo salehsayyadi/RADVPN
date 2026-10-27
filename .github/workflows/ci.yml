@@ -61,9 +61,9 @@ jobs:
       - name: Upload installer and checksum
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: RADVPN-2.0.0-windows-x64-installer
+          name: RADVPN-2.0.1-windows-x64-installer
           path: |
-            dist/RADVPN-Setup-2.0.0-x64.exe
+            dist/RADVPN-Setup-2.0.1-x64.exe
             dist/SHA256SUMS.txt
           if-no-files-found: error
       - name: Install, launch, capture actual WPF UI, repair and uninstall
@@ -126,7 +126,7 @@ jobs:
         run: "$ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose apps/android/app/build/outputs/apk/debug/app-debug.apk"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: RADVPN-2.0.0-android-debug-testing
+          name: RADVPN-2.0.1-android-debug-testing
           path: |
             apps/android/app/build/outputs/apk/debug/app-debug.apk
             apps/android/app/build/reports/lint-results-debug.html

@@ -2,7 +2,7 @@ name: Android native redesign and emulator acceptance
 on:
   push:
     branches: [main]
-    paths: ['apps/android/**', 'scripts/*android*', '.github/workflows/android-design.yml', 'packages/localization/**']
+    paths: ['apps/android/**', 'scripts/*android*', '.github/workflows/android-design.yml', 'packages/localization/**', 'packages/engine/**']
   workflow_dispatch:
 permissions:
   contents: read
@@ -41,7 +41,7 @@ jobs:
           python3 scripts/check.py
           bash scripts/build-android.sh 2>&1 | tee dist/android/build.txt
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose apps/android/app/build/outputs/apk/debug/app-debug.apk | tee dist/android/signature.txt
-          cp apps/android/app/build/outputs/apk/debug/app-debug.apk dist/android/RADVPN-2.0.0-android-design1-debug.apk
+          cp apps/android/app/build/outputs/apk/debug/app-debug.apk dist/android/RADVPN-Android.apk
           cp apps/android/app/build/outputs/apk/debug/output-metadata.json dist/android/metadata.json
           (cd dist/android && sha256sum *.apk > SHA256SUMS.txt)
       - name: Enable emulator acceleration
@@ -64,6 +64,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: RADVPN-Android-native-design
+          overwrite: true
           path: |
             dist/android/
             apps/android/app/build/reports/lint-results-debug.html

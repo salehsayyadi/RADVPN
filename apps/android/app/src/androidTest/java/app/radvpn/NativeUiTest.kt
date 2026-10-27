@@ -24,7 +24,20 @@ class NativeUiTest {
         val checks = mutableListOf<String>()
         val out = File(inst.targetContext.getExternalFilesDir(null), "native-evidence").apply { mkdirs() }
         try {
-            assertEquals("2.0.0", Api.call(JSONObject().put("method", "version")).getString("app"))
+            assertEquals("2.0.1", Api.call(JSONObject().put("method", "version")).getString("app"))
+            assertEquals(0, activity.window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_SECURE)
+            val artwork=android.util.Base64.decode(inst.targetContext.assets.list("lightning")!!.sorted().joinToString(""){name->inst.targetContext.assets.open("lightning/$name").bufferedReader().use{it.readText()}},android.util.Base64.DEFAULT)
+            val sha=java.security.MessageDigest.getInstance("SHA-256").digest(artwork).joinToString(""){"%02x".format(it)}
+            assertEquals("4e105c50bdc9c657793e7fcfb197bca3413d688169bf9c0172a058f5ecdf96ee",sha)
+            assertEquals("1.0 KiB/s",RadVpnService.rate(1024))
+            assertEquals("0 B/s",RadVpnService.rate(-1))
+            checks.add("exact approved lightning asset; screenshots enabled by default; measured notification rate formatting")
+            val metadata="ss://"+android.util.Base64.encodeToString("chacha20-ietf-poly1305:fixture-only".toByteArray(),android.util.Base64.NO_WRAP).replace("=","%3D")+"@0.0.0.0:1234#Quota%20remaining"
+            val info=Api.call(JSONObject().put("method","import").put("text",metadata))
+            assertEquals(0,info.getJSONArray("profiles").length());assertEquals("Quota remaining",info.getJSONArray("info").getString(0))
+            val reality="vless://11111111-1111-4111-8111-111111111111@example.org:443?security=reality&flow=xtls-rprx-vision&encryption=none&type=tcp&headerType=none&[sni=example.org](http://sni=example.org/)&fp=chrome&pbk=MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1ub3BxcnN0dXY&sid=1122334455667788#Fixture"
+            assertEquals(1,Api.call(JSONObject().put("method","import").put("text",reality)).getJSONArray("profiles").length())
+            checks.add("REALITY none-header, pasted Markdown SNI and percent-encoded Shadowsocks metadata through actual native core")
             val settings = Api.call(JSONObject().put("method", "defaults"))
             assertEquals("tunnel", settings.getString("mode")); assertEquals(10808, settings.getInt("port"))
             checks.add("actual packaged native core/version and Tunnel/10808 defaults")
@@ -87,7 +100,7 @@ class NativeUiTest {
                 captures.put(JSONObject().put("page", "dialog").put("language", language).put("file", name)); bitmap.recycle()
                 inst.runOnMainSync { dialog.dismiss() }
             }
-            checks.add("22 actual native page captures plus 2 native dialogs; English/Persian RTL and horizontal control bounds")
+            checks.add("30 actual native page captures plus 2 native dialogs; English/Persian RTL and horizontal control bounds")
             File(out, "report-${activity.resources.displayMetrics.widthPixels}.json").writeText(JSONObject().put("passed", true).put("checks", JSONArray(checks)).put("captures", captures).put("scope", "Actual installed debug APK on Android API35 emulator; not physical-device VPN, remote server, leak or battery acceptance.").toString(2))
         } finally {
             Api.call(JSONObject().put("method", "stop"))
