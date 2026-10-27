@@ -10,6 +10,6 @@ Repository Actions secrets for a persistent private identity:
 
 Use the **same key as the installed 2.0.1 APK** to support in-place updates. If that private key is unavailable, an in-place update cannot be promised. A new persistent key requires a one-time migration and cannot fix the old signature mismatch. Keep encrypted backups before any uninstall; do not assume Android restores the app's Keystore key after uninstall.
 
-Without configured secrets, CI still creates disposable Debug APKs for testing, but the public-release gate refuses them. Do not publish those as an upgrade fix.
+Without configured secrets, CI creates disposable Debug APKs for testing. For 2.0.2, the owner explicitly requested publication despite unverified upgrade compatibility; the release gate requires that exception and a prominent warning. This artifact must not be described as an upgrade-signature fix. Future releases should use a persistent private signing identity.
 
 Before setting `android_upgrade_verified` in an approval, compare the old and new APK signing certificate SHA-256 with apksigner, and run `adb install -r` over the prior APK with non-sensitive fixture state. Verify both installation and fixture preservation. Never set this field based only on versionCode.

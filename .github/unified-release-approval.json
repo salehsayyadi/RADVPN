@@ -1,12 +1,17 @@
 {
-  "version": "2.0.1",
-  "source_sha": "569c27a7b6f99a1c949a071869fe1d73fa55e726",
-  "android_run": 40499361210,
-  "windows_run": 40499361261,
+  "version": "2.0.2",
+  "source_sha": "4a9cd16a6fd4e937c0a863ceb0bd5194c37f1709",
+  "android_run": 40521178022,
+  "windows_run": 40521177900,
   "native_ui_reviewed": true,
   "github_channel": "release",
   "android_signature": "ci-testing",
   "windows_signature": "unsigned",
   "device_tunnel_verified": false,
-  "visual_review_scope": "Actual installed emulator screenshots: four primary pages at both sizes, English/Persian, populated states and direct-entry screens, Servers popup, Favorites and validation dialogs; all 64 captures have automated bounds checks. Windows native reports/installer checks accepted; representative About screen reviewed. Physical-device network and desktop display tests NOT RUN."
+  "android_upgrade_verified": false,
+  "release_approved": true,
+  "publish_with_unverified_android_upgrade": true,
+  "android_upgrade_warning_in_release_notes": true,
+  "approval_context": "Owner explicitly requested publication after the Android signing/upgrade limitation was explained; publish one APK, one installer and one portable ZIP without an in-place-upgrade claim.",
+  "visual_review_scope": "Representative actual native captures reviewed: Windows populated Home at 1440x900, populated Servers at 1280x720, Persian Configs at 1280x720; Android English Home at 390dp and populated Servers at 360dp. All 64 Windows and 64 Android captures have successful automated acceptance/bounds checks. Full manual review of every capture, physical-device networking and interactive UAC have NOT been performed."
 }

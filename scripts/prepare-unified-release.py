@@ -6,7 +6,11 @@ def one(folder,name):
  files=list(folder.rglob(name));assert len(files)==1,(name,len(files));return files[0]
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 apk=one(a,'RADVPN-Android.apk');installer=one(w,'RADVPN-Setup-2.0.2-x64.exe');portable=one(w,'RADVPN-Windows-Portable-2.0.2-x64.zip')
-assert json.loads(one(a,'signing-policy.json').read_text())['persistent_key'] is True
+approval=json.loads(pathlib.Path('.github/unified-release-approval.json').read_text())
+policy=json.loads(one(a,'signing-policy.json').read_text())
+if not policy['persistent_key']:
+ assert approval['android_signature']=='ci-testing' and approval['android_upgrade_verified'] is False
+ assert approval['publish_with_unverified_android_upgrade'] is True and approval['android_upgrade_warning_in_release_notes'] is True
 for folder,file in [(a,apk),(w,installer),(w,portable)]:
  sums=one(folder,'SHA256SUMS.txt').read_text(encoding='utf-8-sig').splitlines()
  assert any(line.split()[0].lower()==digest(file) and line.split()[-1].lstrip('*')==file.name for line in sums)
