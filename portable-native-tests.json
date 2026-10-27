@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checks": [
+    "native child IPC/version",
+    "Tunnel/10808 defaults",
+    "invalid import rejected",
+    "valid profile import (no remote connection claim)",
+    "UI metadata excluded from strict native profile request",
+    "UTF8 names and offline country flag lookup",
+    "legacy persisted name repair and preservation of valid Unicode",
+    "DPAPI persistence, atomic backup and corrupted-primary recovery",
+    "traffic delta and counter-reset arithmetic (unit test)",
+    "real loopback TCP endpoint measurement",
+    "clean core stop"
+  ]
+}
