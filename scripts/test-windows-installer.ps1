@@ -6,7 +6,7 @@ trap {
   exit 1
 }
 Set-Location "$PSScriptRoot/.."
-$setup = (Resolve-Path dist/RADVPN-Setup-2.0.0-x64.exe).Path
+$setup = (Resolve-Path dist/RADVPN-Setup-2.0.1-x64.exe).Path
 $install = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'RADVPN-Install-Smoke'
 $report = [System.Collections.Generic.List[string]]::new()
 function Run-Wait($file,$arguments) { Write-Host "Executing $([IO.Path]::GetFileName($file)) $arguments"; $p = Start-Process -FilePath $file -ArgumentList $arguments -PassThru -Wait; if ($p.ExitCode -ne 0) { throw "$file failed with $($p.ExitCode)" } }

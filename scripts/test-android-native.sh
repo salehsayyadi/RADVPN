@@ -21,6 +21,6 @@ p=pathlib.Path('dist/android/emulator')
 reports=list(p.glob('report-*.json'))
 assert len(reports)==2,'Missing two native phone-size test reports'
 assert all(json.loads(r.read_text())['passed'] for r in reports)
-assert len(list(p.glob('*.png')))==48,'Missing actual English/Persian native screenshots'
-print('PASS installed native APK, Keystore/core checks, 48 actual emulator captures at 360x720 and 390x844 dp')
+assert len(list(p.glob('*.png')))==64,'Missing actual English/Persian native screenshots'
+print('PASS installed native APK, Keystore/core checks, 64 actual emulator captures at 360x720 and 390x844 dp')
 PY

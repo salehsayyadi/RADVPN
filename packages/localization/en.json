@@ -205,5 +205,20 @@
   "android_traffic_help": "Actual current-session proxy counters. The graph contains only samples collected while this screen/app is visible; no historical totals are invented.",
   "android_testing_channel": "Android design update 1 · debug-signed testing build · not production verified",
   "no_events": "No recorded events in this app session.",
-  "theme_description": "Dark blue-black surfaces, orange accents. No unsupported theme toggle."
+  "theme_description": "Dark blue-black surfaces, orange accents. No unsupported theme toggle.",
+  "real_status_help": "Connection status and speed come from real traffic.",
+  "direct_link_help": "Paste a server link directly.",
+  "server_links": "Server links",
+  "add_server": "Add server",
+  "subscription_details": "Subscription details",
+  "subscription_details_help": "Account, expiry and quota stay separate from servers.",
+  "test_configs": "Test real connections",
+  "sort_test_result": "Sort by test result",
+  "subscription_exists": "This subscription already exists.",
+  "display_preferences": "Display and app preferences",
+  "capture_allowed": "Screenshots & recording",
+  "capture_help": "Allowed when enabled. App previews remain visible in Recents.",
+  "notification_speed": "Speed in notification",
+  "notification_speed_help": "Live download and upload rates, alongside connection status.",
+  "connection_summary": "Mode, ports, DNS and routing"
 }

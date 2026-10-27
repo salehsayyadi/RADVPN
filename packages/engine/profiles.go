@@ -10,11 +10,12 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 )
 
-const Version = "2.0.0"
+const Version = "2.0.1"
 const CoreVersion = "26.10.21"
 const MaxImport = 2 * 1024 * 1024
 
@@ -29,6 +30,7 @@ type Profile struct {
 type ImportResult struct {
 	Profiles []Profile `json:"profiles"`
 	Rejected int       `json:"rejected"`
+	Info     []string  `json:"info,omitempty"`
 }
 
 func decode64(s string) ([]byte, error) {
@@ -122,7 +124,7 @@ func ParseLink(raw string) (Profile, error) {
 	}
 	q := u.Query()
 	allowed := map[string]bool{}
-	for _, k := range []string{"type", "security", "encryption", "flow", "sni", "fp", "alpn", "pbk", "sid", "spx", "path", "host", "serviceName", "mode"} {
+	for _, k := range []string{"type", "security", "encryption", "flow", "sni", "fp", "alpn", "pbk", "sid", "spx", "path", "host", "serviceName", "mode", "headerType"} {
 		allowed[k] = true
 	}
 	for k, vs := range q {
@@ -135,6 +137,9 @@ func ParseLink(raw string) (Profile, error) {
 		transport = "tcp"
 	}
 	if transport != "tcp" && transport != "ws" && transport != "grpc" && transport != "xhttp" {
+		return Profile{}, errors.New("unsupported_feature")
+	}
+	if h := q.Get("headerType"); h != "" && (h != "none" || transport != "tcp") {
 		return Profile{}, errors.New("unsupported_feature")
 	}
 	security := q.Get("security")
@@ -309,7 +314,7 @@ func Import(text string) (ImportResult, error) {
 	if len(text) > MaxImport {
 		return r, errors.New("import_too_large")
 	}
-	text = strings.TrimSpace(text)
+	text = normalizePastedLinks(strings.TrimSpace(text))
 	if strings.HasPrefix(text, "{") || strings.HasPrefix(text, "[") {
 		return ImportOutbounds(text)
 	}
@@ -318,7 +323,7 @@ func Import(text string) (ImportResult, error) {
 		if e != nil {
 			return r, fail()
 		}
-		text = string(b)
+		text = normalizePastedLinks(string(b))
 	}
 	seen := map[string]bool{}
 	for _, line := range strings.Fields(text) {
@@ -327,13 +332,42 @@ func Import(text string) (ImportResult, error) {
 			r.Rejected++
 			continue
 		}
+		if placeholderOutbound(p.Outbound) {
+			if p.Name != "0.0.0.0" && p.Name != "::" && len(r.Info) < 64 {
+				r.Info = append(r.Info, p.Name)
+			}
+			continue
+		}
 		if !seen[p.ID] {
 			r.Profiles = append(r.Profiles, p)
 			seen[p.ID] = true
 		}
 	}
-	if len(r.Profiles) == 0 {
+	if len(r.Profiles) == 0 && len(r.Info) == 0 {
 		return r, fail()
 	}
 	return r, nil
+}
+
+// Rich-text chat editors can wrap query values as Markdown or separate links with HTML breaks.
+// Only unwrap a literal query assignment; never fetch a Markdown destination.
+var pastedQuery = regexp.MustCompile(`\[([A-Za-z][A-Za-z0-9]*=[^\]\s]+)\]\(https?://[^)\s]+\)`)
+var pastedBreak = regexp.MustCompile(`(?i)<br\s*/?>`)
+
+func normalizePastedLinks(s string) string {
+	s = pastedBreak.ReplaceAllString(s, "\n")
+	return pastedQuery.ReplaceAllString(s, "$1")
+}
+func placeholderOutbound(o map[string]any) bool {
+	settings, _ := o["settings"].(map[string]any)
+	for _, key := range []string{"servers", "vnext"} {
+		list, _ := settings[key].([]any)
+		for _, value := range list {
+			endpoint, _ := value.(map[string]any)
+			if ip := net.ParseIP(str(endpoint, "address")); ip != nil && ip.IsUnspecified() {
+				return true
+			}
+		}
+	}
+	return false
 }
