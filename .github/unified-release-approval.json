@@ -1,8 +1,8 @@
 {
   "version": "2.0.3",
-  "source_sha": "68b35cfd4ae33dc62030718ad9f59a72af40da67",
-  "android_run": 40533106638,
-  "windows_run": 40533105960,
+  "source_sha": "d797fe168bfbd2f97a1f992eb8abeb2fa7e1fc9d",
+  "android_run": 40548757975,
+  "windows_run": 40548757936,
   "native_ui_reviewed": true,
   "github_channel": "release",
   "android_signature": "ci-testing",
@@ -12,9 +12,13 @@
   "release_approved": true,
   "publish_with_unverified_android_upgrade": true,
   "android_upgrade_warning_in_release_notes": true,
-  "approval_context": "Owner explicitly requested upload of this version to test personally after unresolved device-specific connection behavior was disclosed. Preserve Android signing and upgrade warnings.",
-  "visual_review_scope": "Representative compiled Windows Home, Servers, Configs English/Persian, Subscriptions, Diagnostics and native editor captures reviewed, with fixes re-rendered. 68 Windows and 64 Android page captures have automated checks. No claim of full manual capture review, physical-device remote VPN, leak or interactive UAC acceptance.",
+  "approval_context": "Owner explicitly requested fixing subscription import and tunnel behavior and replacing the packages within existing v2.0.3, without a new version. Private subscription stays out of the repository and public evidence.",
+  "visual_review_scope": "Representative compiled Windows Home and Subscriptions captures reviewed after hotfix; unchanged glass/table layout. 68 Windows and 64 Android page captures passed automated checks. Public CI used synthetic fixtures only. Full manual review of every capture, owner-device remote VPN, physical leak tests and interactive UAC not performed.",
   "hosted_windows_tunnel_test_verified": true,
-  "publication_attempt": 4,
-  "tag_target": "publication_commit_with_verified_no_application_source_changes"
+  "publication_attempt": 1,
+  "tag_target": "preserved existing v2.0.3 tag; replacement binary provenance in build-provenance.json",
+  "replace_existing_assets": true,
+  "preserve_existing_tag": true,
+  "existing_release_id": 425695186,
+  "existing_tag_sha": "a49abf284102b1601aecd8efd439736e1c3e1297"
 }

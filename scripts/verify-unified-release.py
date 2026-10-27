@@ -23,6 +23,9 @@ for key,path,names in [('android_run','.github/workflows/android-design.yml',['a
  assert run['head_branch']=='main' and run['event']!='pull_request' and run['path']==path
  jobs=api(f'repos/{repo}/actions/runs/{int(a[key])}/jobs?per_page=100')['jobs']
  assert all(any(j['name']==name and j['conclusion']=='success' for j in jobs) for name in names)
-assert not any(t['ref']=='refs/tags/v2.0.3' for t in api(f'repos/{repo}/git/matching-refs/tags/v2.0.3')),'Never overwrite a tag'
+assert a.get('replace_existing_assets') is True and a.get('preserve_existing_tag') is True
+release=api(f'repos/{repo}/releases/tags/v2.0.3')
+assert release['id']==a['existing_release_id'] and not release['draft']
+assert api(f'repos/{repo}/git/ref/tags/v2.0.3')['object']['sha']==a['existing_tag_sha'], 'Existing tag must not move'
 assert not api(f'repos/{repo}')['private']
-print('Same-source successful builds and explicit native visual review approved; unused immutable tag.')
+print('Same-source successful builds and explicit native visual review approved; existing release replacement authorized, tag preserved.')

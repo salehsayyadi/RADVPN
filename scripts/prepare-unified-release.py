@@ -51,7 +51,7 @@ with zipfile.ZipFile(out/'RADVPN-native-acceptance.zip','w',zipfile.ZIP_DEFLATED
   if p.is_file() and p.suffix in ['.png','.json','.txt']:z.write(p,'windows/'+str(p.relative_to(e)))
 approval=json.loads(pathlib.Path('.github/unified-release-approval.json').read_text())
 approval['publication_sha']=os.environ['GITHUB_SHA']
-approval['tag_target']='publication_sha; application binaries from source_sha'
+approval['tag_target']='existing immutable v2.0.3 tag preserved; replaced binaries built from source_sha'
 (out/'build-provenance.json').write_text(json.dumps(approval,indent=2)+'\n')
 assert len(list(out.glob('*.apk')))==1 and len(list(out.glob('*.exe')))==1
 (out/'SHA256SUMS.txt').write_text(''.join(f'{digest(p)}  {p.name}\n' for p in sorted(out.iterdir()) if p.name!='SHA256SUMS.txt'))

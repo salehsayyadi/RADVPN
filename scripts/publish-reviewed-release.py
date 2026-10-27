@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Publish reviewed immutable packages; errors expose only allowlisted categories."""
-import json, os, pathlib, subprocess, sys
+import hashlib, json, os, pathlib, subprocess, sys
 approval=json.loads(pathlib.Path('.github/unified-release-approval.json').read_text())
 repo=os.environ['GITHUB_REPOSITORY']
 sha=approval['source_sha']
@@ -14,13 +14,30 @@ def run(stage,args):
   print('::error::Publication failed: '+stage+' / '+category,flush=True)
   sys.exit(1)
  print('Completed '+stage,flush=True)
-# Tag the publication commit, while binaries remain from the approved immutable source.
-# GitHub Actions cannot tag an older commit with a different workflow tree using GITHUB_TOKEN.
+ return result.stdout
+# The owner requested asset replacement inside v2.0.3, not a new tag or release.
+assert approval.get('replace_existing_assets') is True
+existing=json.loads(run('inspect_existing_release',['api',f'repos/{repo}/releases/tags/{tag}']))
+assert existing['id']==approval['existing_release_id'] and not existing['draft']
+ref=json.loads(run('inspect_existing_tag',['api',f'repos/{repo}/git/ref/tags/{tag}']))
+assert ref['object']['sha']==approval['existing_tag_sha']
 comparison=subprocess.run(['gh','api',f'repos/{repo}/compare/{sha}...'+os.environ['GITHUB_SHA']],text=True,capture_output=True,check=True)
 allowed={'.github/unified-release-approval.json','.github/workflows/unified-release.yml','scripts/verify-unified-release.py','scripts/prepare-unified-release.py','scripts/publish-reviewed-release.py','docs/RELEASE_NOTES_2.0.3.md'}
 assert all(f['filename'] in allowed for f in json.loads(comparison.stdout)['files']), 'Publication commit changed unreviewed application sources'
-run('create_tag',['api' ,'--method','POST',f'repos/{repo}/git/refs','-f','ref=refs/tags/'+tag,'-f','sha='+os.environ['GITHUB_SHA']])
 assets=[str(p) for p in sorted(pathlib.Path('release/assets').iterdir()) if p.is_file()]
 assert assets
-run('create_release',['release','create',tag,*assets,'--repo',repo,'--verify-tag','--latest','--title','RADVPN '+version+' — Lightning','--notes-file','docs/RELEASE_NOTES_'+version+'.md'])
-run('verify_release',['release','view',tag,'--repo',repo,'--json','url,isPrerelease,assets'])
+# Upload all verified packages, then the checksum manifest last.
+for asset in [p for p in assets if pathlib.Path(p).name!='SHA256SUMS.txt']:
+ run('replace_verified_asset',['release','upload',tag,asset,'--repo',repo,'--clobber'])
+run('replace_checksums',['release','upload',tag,'release/assets/SHA256SUMS.txt','--repo',repo,'--clobber'])
+run('update_release_notes',['release','edit',tag,'--repo',repo,'--notes-file','docs/RELEASE_NOTES_'+version+'.md'])
+updated=json.loads(run('verify_replacement',['api',f'repos/{repo}/releases/tags/{tag}']))
+assert updated['id']==approval['existing_release_id']
+remote={a['name']:a for a in updated['assets']}
+for path in map(pathlib.Path,assets):
+ item=remote[path.name]
+ assert item['size']==path.stat().st_size
+ assert item.get('digest')=='sha256:'+hashlib.sha256(path.read_bytes()).hexdigest(), 'Published asset digest mismatch'
+ref=json.loads(run('verify_unchanged_tag',['api',f'repos/{repo}/git/ref/tags/{tag}']))
+assert ref['object']['sha']==approval['existing_tag_sha']
+print('PASS replaced verified assets in existing release; unchanged version and tag',flush=True)
