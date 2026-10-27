@@ -39,6 +39,6 @@ jobs:
         run: |
           set -euo pipefail
           SHA=$(python3 -c 'import json;print(json.load(open(".github/unified-release-approval.json"))["source_sha"])')
-          gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref=refs/tags/v2.0.3 -f sha="$SHA"
-          gh release create v2.0.3 release/assets/* --repo "$GITHUB_REPOSITORY" --verify-tag --latest --title 'RADVPN 2.0.3 — Lightning' --notes-file docs/RELEASE_NOTES_2.0.3.md
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref=refs/tags/v2.0.3 -f sha="$SHA" 2>release/publish-error.txt || { echo "::error::Tag creation: $(cat release/publish-error.txt)"; exit 1; }
+          gh release create v2.0.3 release/assets/* --repo "$GITHUB_REPOSITORY" --verify-tag --latest --title 'RADVPN 2.0.3 — Lightning' --notes-file docs/RELEASE_NOTES_2.0.3.md 2>release/publish-error.txt || { echo "::error::Release creation: $(cat release/publish-error.txt)"; exit 1; }
           gh release view v2.0.3 --repo "$GITHUB_REPOSITORY" --json url,isPrerelease,assets
