@@ -11,7 +11,7 @@ import android.widget.LinearLayout
 object Design {
     val background = Color.rgb(5, 8, 11)
     val app = Color.rgb(7, 11, 15)
-    val panel = Color.rgb(11, 17, 24)
+    val panel = Color.argb(240, 11, 17, 24)
     val secondary = Color.rgb(14, 22, 32)
     val input = Color.rgb(16, 26, 37)
     val border = Color.rgb(30, 44, 59)
@@ -28,6 +28,12 @@ object Design {
     fun dp(c: Context, n: Int) = (n * c.resources.displayMetrics.density + .5f).toInt()
     fun surface(c: Context, color: Int = panel, stroke: Int = border, radius: Int = 12) = GradientDrawable().apply {
         setColor(color); cornerRadius = dp(c, radius).toFloat(); setStroke(dp(c, 1), stroke)
+    }
+    fun icon(c: Context, kind: String, tint: Int): android.graphics.drawable.Drawable {
+        val n = dp(c, 20)
+        val bitmap = Bitmap.createBitmap(n, n, Bitmap.Config.ARGB_8888)
+        Symbol(c, kind, tint).apply { layout(0, 0, n, n); draw(Canvas(bitmap)) }
+        return android.graphics.drawable.BitmapDrawable(c.resources, bitmap)
     }
     fun button(c: Context, primary: Boolean = false): StateListDrawable {
         fun shape(pressed: Boolean) = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
@@ -68,6 +74,9 @@ class Symbol(context: Context, private val kind: String, var tint: Int = Design.
             "back" -> path(14f, 5f, 7f, 12f, 14f, 19f)
             "next" -> path(9f, 5f, 16f, 12f, 9f, 19f)
             "more" -> { for(y in listOf(5f,12f,19f))canvas.drawCircle(12f,y,1f,p) }
+            "eye" -> { canvas.drawOval(2f,6f,22f,18f,p); canvas.drawCircle(12f,12f,3f,p) }
+            "bell" -> { path(5f,17f,7f,14f,7f,8f,9f,4f,15f,4f,17f,8f,17f,14f,19f,17f,5f,17f); canvas.drawArc(9f,17f,15f,22f,0f,180f,false,p) }
+            "copy" -> { canvas.drawRoundRect(8f,7f,21f,22f,1f,1f,p);path(5f,17f,3f,17f,3f,2f,16f,2f,16f,4f) }
             "search" -> { canvas.drawCircle(10f, 10f, 6f, p); line(15f, 15f, 21f, 21f) }
             "traffic" -> { line(3f, 21f, 21f, 21f); line(6f, 17f, 6f, 10f); line(12f, 17f, 12f, 3f); line(18f, 17f, 18f, 7f) }
             "refresh" -> { canvas.drawArc(4f, 4f, 20f, 20f, 30f, 285f, false, p); path(15f, 3f, 20f, 4f, 20f, 9f) }
@@ -84,7 +93,7 @@ class PowerControl(context: Context) : LinearLayout(context) {
     init { setWillNotDraw(false); gravity = android.view.Gravity.CENTER; isClickable = true; isFocusable = true; minimumWidth = Design.dp(context, 164); minimumHeight = Design.dp(context, 164) }
     override fun onDraw(c: Canvas) {
         super.onDraw(c)
-        val x = width / 2f; val y = height / 2f; val r = minOf(x,y) - Design.dp(context,18)
+        val x = width / 2f; val y = height / 2f; val r = minOf(x,y) - Design.dp(context,8)
         val color = if (state == "connected") Design.green else if (state == "error") Design.red else Design.orange
         val p = Paint(Paint.ANTI_ALIAS_FLAG)
         p.shader = RadialGradient(x,y,r*1.28f,intArrayOf(Color.TRANSPARENT,Color.argb(38,Color.red(color),Color.green(color),Color.blue(color)),Color.TRANSPARENT),floatArrayOf(0f,.78f,1f),Shader.TileMode.CLAMP)

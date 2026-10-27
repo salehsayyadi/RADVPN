@@ -14,20 +14,45 @@ import org.json.JSONObject
 import java.util.concurrent.Executors
 
 class RadVpnService : VpnService() {
- companion object { @Volatile var lastError="" }
+ companion object {
+  @Volatile var lastError=""
+  fun rate(value:Long):String = when {
+   value >= 1048576 -> String.format(java.util.Locale.US,"%.1f MiB/s",value/1048576.0)
+   value >= 1024 -> String.format(java.util.Locale.US,"%.1f KiB/s",value/1024.0)
+   else -> "${value.coerceAtLeast(0)} B/s"
+  }
+ }
  private var tun: ParcelFileDescriptor?=null
  private val worker=Executors.newSingleThreadExecutor()
  private val handler=Handler(Looper.getMainLooper())
- private var closing=false
+ @Volatile private var closing=false
+ private var previousTime=0L
+ private var previousUp=0L
+ private var previousDown=0L
+ private var rateUp=0L
+ private var rateDown=0L
+ private var showSpeed=true
  private var language="en"
  private var lastState=""
  private val watch=object: Runnable { override fun run() {
   if(closing)return
-  val state=try{val snapshot=Api.call(JSONObject().put("method","status"));if(snapshot.optString("error").isNotEmpty())lastError=snapshot.optString("error");snapshot.optString("state")}catch(_:Exception){lastError="operation_failed";"error"}
-  if(state=="error"||state=="disconnected"){shutdown();return}
-  val lang=try{Vault.load(this@RadVpnService).optString("lang","en")}catch(_:Exception){language}
-  if(state!=lastState||lang!=language){language=lang;lastState=state;getSystemService(NotificationManager::class.java).notify(200,notification(state))}
-  handler.postDelayed(this,2000)
+  worker.execute {
+   if(!closing) {
+    try {
+     val snapshot=Api.call(JSONObject().put("method","status"))
+     val state=snapshot.optString("state")
+     if(snapshot.optString("error").isNotEmpty())lastError=snapshot.optString("error")
+     if(state=="error"||state=="disconnected") { handler.post{shutdown()}; return@execute }
+     val now=android.os.SystemClock.elapsedRealtime();val up=snapshot.optLong("up");val down=snapshot.optLong("down")
+     if(previousTime>0 && now>previousTime){rateUp=(up-previousUp).coerceAtLeast(0)*1000/(now-previousTime);rateDown=(down-previousDown).coerceAtLeast(0)*1000/(now-previousTime)}
+     previousTime=now;previousUp=up;previousDown=down
+     try { val stored=Vault.load(this@RadVpnService);language=stored.optString("lang","en");showSpeed=stored.optBoolean("showSpeed",true) }catch(_:Exception){}
+     lastState=state
+     if(!closing)getSystemService(NotificationManager::class.java).notify(200,notification(state))
+    } catch(_:Exception) { lastError="operation_failed";handler.post{shutdown()};return@execute }
+    handler.postDelayed(this,2000)
+   }
+  }
  } }
  private fun notification(state:String): Notification {
   val w=Words(this,language)
@@ -35,14 +60,14 @@ class RadVpnService : VpnService() {
   manager.createNotificationChannel(NotificationChannel("vpn","RADVPN",NotificationManager.IMPORTANCE_LOW))
   val open=PendingIntent.getActivity(this,0,Intent(this,MainActivity::class.java),PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
   val stop=PendingIntent.getService(this,1,Intent(this,RadVpnService::class.java).setAction("stop"),PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-  return Notification.Builder(this,"vpn").setSmallIcon(android.R.drawable.ic_lock_lock).setContentTitle("RADVPN 2.0.0").setContentText(w.t(state)).setContentIntent(open).setOngoing(true).addAction(Notification.Action.Builder(null,w.t("disconnect"),stop).build()).build()
+  return Notification.Builder(this,"vpn").setSmallIcon(android.R.drawable.ic_lock_lock).setContentTitle("RADVPN ${BuildConfig.VERSION_NAME}").setContentText(w.t(state) + if(showSpeed && state=="connected") "  ↓ ${rate(rateDown)}  ↑ ${rate(rateUp)}" else "").setContentIntent(open).setOngoing(true).addAction(Notification.Action.Builder(null,w.t("disconnect"),stop).build()).build()
  }
  override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
   if(intent?.action=="stop"){shutdown();return START_NOT_STICKY}
   if(intent==null){stopSelf();return START_NOT_STICKY}
   if(tun!=null||lastState=="connecting"||lastState=="connected")return START_NOT_STICKY
   val data=try{Vault.load(this)}catch(_:Exception){stopSelf();return START_NOT_STICKY}
-  lastError="";language=data.optString("lang","en");lastState="connecting";startForeground(200,notification("connecting"))
+  lastError="";language=data.optString("lang","en");showSpeed=data.optBoolean("showSpeed",true);lastState="connecting";startForeground(200,notification("connecting"))
   worker.execute {
    try {
     val profiles=data.getJSONArray("profiles");var p:JSONObject?=null
@@ -67,6 +92,6 @@ class RadVpnService : VpnService() {
  }
  private fun shutdown(){if(closing)return;closing=true;handler.removeCallbacks(watch);worker.execute{try{Api.call(JSONObject().put("method","stop"))}catch(_:Exception){};try{tun?.close()}catch(_:Exception){};tun=null;engine.Engine.setProtector(null);handler.post{stopForeground(STOP_FOREGROUND_REMOVE);stopSelf()}}}
  override fun onRevoke(){shutdown();super.onRevoke()}
- override fun onDestroy(){handler.removeCallbacksAndMessages(null);try{Api.call(JSONObject().put("method","stop"))}catch(_:Exception){};try{tun?.close()}catch(_:Exception){};engine.Engine.setProtector(null);worker.shutdown();super.onDestroy()}
+ override fun onDestroy(){closing=true;handler.removeCallbacksAndMessages(null);worker.execute{try{Api.call(JSONObject().put("method","stop"))}catch(_:Exception){};try{tun?.close()}catch(_:Exception){};tun=null;engine.Engine.setProtector(null)};worker.shutdown();super.onDestroy()}
  override fun onBind(intent: Intent?): IBinder?=super.onBind(intent)
 }

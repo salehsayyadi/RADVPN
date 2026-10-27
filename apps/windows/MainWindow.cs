@@ -35,7 +35,7 @@ internal sealed partial class MainWindow : Window
     {
         args = arguments;
         smoke = args.Contains("--ui-smoke");
-        Title = "RADVPN 2.0.0";
+        Title = "RADVPN 2.0.1";
         Width = 1440;
         Height = 900;
         MinWidth = 1120;
@@ -147,7 +147,7 @@ internal sealed partial class MainWindow : Window
     }
     void SetupTray()
     {
-        tray = new Forms.NotifyIcon { Icon = new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory, "RADVPN.ico")), Text = "RADVPN 2.0.0", Visible = true };
+        tray = new Forms.NotifyIcon { Icon = new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory, "RADVPN.ico")), Text = "RADVPN 2.0.1", Visible = true };
         tray.DoubleClick += (_, _) => { Show(); WindowState = WindowState.Normal; Activate(); };
         UpdateTray();
     }
@@ -376,7 +376,7 @@ internal sealed partial class MainWindow : Window
         wordmark.Children.Add(new TextBlock { Text = "RAD", FontSize = 24, FontWeight = FontWeights.Bold, Foreground = B("Orange"), Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
         wordmark.Children.Add(new TextBlock { Text = "VPN", FontSize = 24, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center });
         brand.Children.Add(wordmark);
-        brand.Children.Add(Label("2.0.0  ·  " + T("testing_channel"), 11, "Muted"));
+        brand.Children.Add(Label("2.0.1  ·  " + T("testing_channel"), 11, "Muted"));
         DockPanel.SetDock(brand, Dock.Top);
         sidebar.Children.Add(brand);
         var bottom = new StackPanel { Margin = new Thickness(18) };
