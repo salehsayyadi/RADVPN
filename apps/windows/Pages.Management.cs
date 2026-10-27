@@ -49,6 +49,8 @@ internal sealed partial class MainWindow
             details.Children.Add(Label(sub!["name"]?.ToString() ?? "", 15, "Text", true));
             details.Children.Add(Label(Uri.TryCreate(sub["url"]?.ToString(), UriKind.Absolute, out var uri) ? uri.Host : "—", 12, "Subtext"));
             details.Children.Add(Label(Profiles.Count(x => x?["group"]?.ToString() == sub["id"]?.ToString()) + " · " + T("servers") + "    " + T("last_refresh") + ": " + (sub["last"]?.ToString() ?? "—") + "    " + T("manual_update"), 11, "Subtext"));
+            if ((sub["rejected"]?.GetValue<int>() ?? 0) > 0)
+                details.Children.Add(Label(T("subscription_rejected") + ": " + sub["rejected"], 12, "Warning"));
             row.Children.Add(details);
             p.Children.Add(new Border { Child = row, BorderBrush = B("Line"), BorderThickness = new Thickness(0, 0, 0, 1) });
         }
@@ -71,6 +73,7 @@ internal sealed partial class MainWindow
         });
         var items = (JsonArray)result["profiles"]!;
         sub["info"] = result["info"]?.DeepClone() ?? new JsonArray();
+        sub["rejected"] = result["rejected"]?.DeepClone() ?? JsonValue.Create(0);
         var ids = items.Select(p => sub["id"]!.ToString() + ":" + p!["id"]!.ToString()).ToHashSet();
         var group = sub["id"]!.ToString();
         var removed = Profiles.Where(p => p?["group"]?.ToString() == group && !ids.Contains(p["id"]!.ToString())).ToArray();

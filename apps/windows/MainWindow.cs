@@ -337,6 +337,7 @@ internal sealed partial class MainWindow : Window
                 }
                 active = state;
             }
+            UpdateConnection();
             if (s["error"]?.ToString() is string error && error != "" && status != null)
             {
                 status.Text = T("error");
@@ -345,8 +346,6 @@ internal sealed partial class MainWindow : Window
                     Notice(error);
                 status.Foreground = B("Error");
             }
-            else
-                UpdateConnection();
             UpdateMetrics();
             if (++tick % 15 == 0)
                 Save();
