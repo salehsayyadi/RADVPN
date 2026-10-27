@@ -1,4 +1,4 @@
-name: Android native redesign and emulator acceptance
+name: Android 2.0.2 native glass UI and emulator acceptance
 on:
   push:
     branches: [main]

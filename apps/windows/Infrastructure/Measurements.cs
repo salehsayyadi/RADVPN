@@ -68,6 +68,7 @@ internal static class ConfigurationProbe
                     });
                     return new ProbeResult(p["id"]!.ToString(), value["latency"]?.GetValue<long>(), value["connected"]?.GetValue<bool>() == true);
                 }
+                catch (Exception) when (token.IsCancellationRequested) { throw new OperationCanceledException(token); }
                 catch (Exception) when (!token.IsCancellationRequested) { return new ProbeResult(p["id"]!.ToString(), null, false); }
             }
             finally { gate.Release(); }
