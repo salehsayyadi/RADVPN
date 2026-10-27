@@ -35,7 +35,7 @@ internal sealed partial class MainWindow : Window
     {
         args = arguments;
         smoke = args.Contains("--ui-smoke");
-        Title = "RADVPN 2.0.1";
+        Title = "RADVPN 2.0.2";
         Width = 1440;
         Height = 900;
         MinWidth = 1120;
@@ -98,6 +98,8 @@ internal sealed partial class MainWindow : Window
                 await NativeSmoke.Capture(this, args);
                 return;
             }
+            if (args.Contains("--elevated-connect") && IsAdministrator() && Selected() != null)
+                await Toggle();
             if (args.Contains("--minimized"))
                 Hide();
             if (data["autoConnect"]?.GetValue<bool>() == true && Settings["mode"]?.ToString() == "proxy" && Selected() != null)
@@ -147,7 +149,7 @@ internal sealed partial class MainWindow : Window
     }
     void SetupTray()
     {
-        tray = new Forms.NotifyIcon { Icon = new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory, "RADVPN.ico")), Text = "RADVPN 2.0.1", Visible = true };
+        tray = new Forms.NotifyIcon { Icon = new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory, "RADVPN.ico")), Text = "RADVPN 2.0.2", Visible = true };
         tray.DoubleClick += (_, _) => { Show(); WindowState = WindowState.Normal; Activate(); };
         UpdateTray();
     }
@@ -188,7 +190,17 @@ internal sealed partial class MainWindow : Window
             }
             var p = Selected() ?? throw new InvalidOperationException("select_profile");
             if (Settings["mode"]?.ToString() == "tunnel" && !IsAdministrator())
-                throw new InvalidOperationException("admin");
+            {
+                Save();
+                var restart = new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = true, Verb = "runas", WorkingDirectory = AppContext.BaseDirectory };
+                restart.ArgumentList.Add("--elevated-connect");
+                var child = Process.Start(restart);
+                if (child == null)
+                    throw new InvalidOperationException("admin");
+                exitRequested = true;
+                Close();
+                return;
+            }
             ledger.Reset();
             active = "starting";
             UpdateConnection();
@@ -366,7 +378,7 @@ internal sealed partial class MainWindow : Window
         upText = downText = latencyText = null;
         connect = power = null;
         graph = null;
-        var shell = new Grid { Background = B("App") };
+        var shell = new Grid { Background = new ImageBrush(new System.Windows.Media.Imaging.BitmapImage(new Uri(Path.Combine(AppContext.BaseDirectory, "lightning.jpg")))) { Stretch = Stretch.UniformToFill } };
         shell.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(204) });
         shell.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         var sidebar = new DockPanel { Background = B("Sidebar"), Margin = new Thickness(0) };
@@ -376,7 +388,7 @@ internal sealed partial class MainWindow : Window
         wordmark.Children.Add(new TextBlock { Text = "RAD", FontSize = 24, FontWeight = FontWeights.Bold, Foreground = B("Orange"), Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center });
         wordmark.Children.Add(new TextBlock { Text = "VPN", FontSize = 24, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center });
         brand.Children.Add(wordmark);
-        brand.Children.Add(Label("2.0.1  ·  " + T("testing_channel"), 11, "Muted"));
+        brand.Children.Add(Label("2.0.2  ·  " + T("testing_channel"), 11, "Muted"));
         DockPanel.SetDock(brand, Dock.Top);
         sidebar.Children.Add(brand);
         var bottom = new StackPanel { Margin = new Thickness(18) };
@@ -385,7 +397,7 @@ internal sealed partial class MainWindow : Window
         DockPanel.SetDock(bottom, Dock.Bottom);
         sidebar.Children.Add(bottom);
         var navigation = new StackPanel { Margin = new Thickness(12, 0, 12, 0) };
-        foreach (var key in new[] { "home", "servers", "subscriptions", "configs", "profiles", "traffic", "settings", "logs", "about" })
+        foreach (var key in new[] { "home", "servers", "subscriptions", "configs", "traffic", "settings", "logs", "about" })
         {
             var target = key;
             var b = Action(key, () => { Navigate(target); return Task.CompletedTask; }, key);

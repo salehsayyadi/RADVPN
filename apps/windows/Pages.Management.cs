@@ -23,7 +23,7 @@ internal sealed partial class MainWindow
         var form = Panel("add");
         var name = Field(form, "subscription_name");
         var url = Field(form, "sub_url");
-        var interval = Field(form, "interval", "0");
+        var interval = new TextBox { Text = "0" };
         form.Children.Add(Actions(Action("paste", () => { url.Text = System.Windows.Clipboard.GetText(); return Task.CompletedTask; }, "copy"), Action("add", async () => { if (!int.TryParse(interval.Text, out var hours) || hours < 0 || hours > 720) throw new InvalidOperationException("invalid_settings"); var sub = new JsonObject { ["id"] = Guid.NewGuid().ToString("N"), ["url"] = url.Text.Trim(), ["name"] = string.IsNullOrWhiteSpace(name.Text) ? T("subscriptions") : name.Text[..Math.Min(200, name.Text.Length)], ["hours"] = hours, ["paused"] = false }; await Refresh(sub); Subs.Add(sub); Save(); Render(); }, "plus", true)));
         form.Children.Add(Label(T("privacy"), 12, "Muted"));
         columns.Children.Add(Card(form));
@@ -43,7 +43,7 @@ internal sealed partial class MainWindow
             card.Children.Add(Label($"{count} · {T(sub["paused"]?.GetValue<bool>() == true ? "paused" : "active_sub")} · {sub["hours"] ?? 0} h", 12, "Subtext"));
             if (sub["status"]?.ToString() == "refresh_failed")
                 card.Children.Add(Label(T("refresh_failed"), 13, "Error"));
-            card.Children.Add(Actions(Action("refresh", async () => { try { await Refresh(sub); } catch { sub["status"] = "refresh_failed"; Save(); throw; } Render(); }, "refresh"), Action("pause", () => { sub["paused"] = !(sub["paused"]?.GetValue<bool>() ?? false); Save(); Render(); return Task.CompletedTask; }, "clock"), Action("rename", () => { var value = Prompt("subscription_name", sub["name"]?.ToString() ?? ""); if (!string.IsNullOrWhiteSpace(value)) { sub["name"] = value[..Math.Min(200, value.Length)]; Save(); Render(); } return Task.CompletedTask; }), Action("interval", () => { var value = Prompt("interval", sub["hours"]?.ToString() ?? "0"); if (value == null) return Task.CompletedTask; if (!int.TryParse(value, out var h) || h < 0 || h > 720) throw new InvalidOperationException("invalid_settings"); sub["hours"] = h; Save(); Render(); return Task.CompletedTask; }), Action("delete", async () => { if (!Confirm("remove_sub")) return; var removed = Profiles.Where(p => p?["group"]?.ToString() == sub["id"]?.ToString()).ToArray(); if (ConnectionActive && removed.Contains(Selected())) await StopConnection(); foreach (var p in removed) Profiles.Remove(p); Subs.Remove(sub); RepairSelection(); Save(); Render(); }, "delete")));
+            card.Children.Add(Actions(Action("update", async () => { try { await Refresh(sub); } catch { sub["status"] = "refresh_failed"; Save(); throw; } Render(); }, "refresh"), Action("rename", () => { var value = Prompt("subscription_name", sub["name"]?.ToString() ?? ""); if (!string.IsNullOrWhiteSpace(value)) { sub["name"] = value[..Math.Min(200, value.Length)]; Save(); Render(); } return Task.CompletedTask; }), Action("delete", async () => { if (!Confirm("remove_sub")) return; var removed = Profiles.Where(p => p?["group"]?.ToString() == sub["id"]?.ToString()).ToArray(); if (ConnectionActive && removed.Contains(Selected())) await StopConnection(); foreach (var p in removed) Profiles.Remove(p); Subs.Remove(sub); RepairSelection(); Save(); Render(); }, "delete")));
             existing.Children.Add(Card(card, false, 16));
         }
         var right = Card(existing);
@@ -60,7 +60,7 @@ internal sealed partial class MainWindow
             text = sub["url"]!.ToString()
         });
         var items = (JsonArray)result["profiles"]!;
-        var ids = items.Select(p => p!["id"]!.ToString()).ToHashSet();
+        var ids = items.Select(p => sub["id"]!.ToString() + ":" + p!["id"]!.ToString()).ToHashSet();
         var group = sub["id"]!.ToString();
         var removed = Profiles.Where(p => p?["group"]?.ToString() == group && !ids.Contains(p["id"]!.ToString())).ToArray();
         if (ConnectionActive && removed.Contains(Selected()))
@@ -178,7 +178,7 @@ internal sealed partial class MainWindow
     }
     Task ExportBackup()
     {
-        var file = new SaveFileDialog { Filter = "RADVPN (*.radvpn)|*.radvpn", FileName = "RADVPN-2.0.1.radvpn" };
+        var file = new SaveFileDialog { Filter = "RADVPN (*.radvpn)|*.radvpn", FileName = "RADVPN-2.0.2.radvpn" };
         if (file.ShowDialog() == true)
             File.WriteAllBytes(file.FileName, Storage.Encrypt(data));
         return Task.CompletedTask;
@@ -226,12 +226,12 @@ internal sealed partial class MainWindow
             p.Children.Add(Empty("empty", () => { Navigate("configs"); return Task.CompletedTask; }));
         body.Children.Add(Card(p));
     }
-    JsonObject Diagnostics() => new() { ["appVersion"] = "2.0.1", ["coreVersion"] = data["coreVersion"]?.ToString(), ["channel"] = "experimental-unsigned", ["state"] = active, ["mode"] = Settings["mode"]?.ToString(), ["socksPort"] = Settings["port"]?.DeepClone(), ["httpPort"] = (Settings["port"]?.GetValue<int>() ?? 10808) + 1, ["driverFilePresent"] = File.Exists(Path.Combine(AppContext.BaseDirectory, "wintun.dll")), ["administrator"] = IsAdministrator(), ["deviceTunnelVerified"] = false, ["events"] = new JsonArray(events.Select(e => (JsonNode?)new JsonObject { ["time"] = e.Time.ToString("O"), ["code"] = e.Code }).ToArray()) };
+    JsonObject Diagnostics() => new() { ["appVersion"] = "2.0.2", ["coreVersion"] = data["coreVersion"]?.ToString(), ["channel"] = "experimental-unsigned", ["state"] = active, ["mode"] = Settings["mode"]?.ToString(), ["socksPort"] = Settings["port"]?.DeepClone(), ["httpPort"] = (Settings["port"]?.GetValue<int>() ?? 10808) + 1, ["driverFilePresent"] = File.Exists(Path.Combine(AppContext.BaseDirectory, "wintun.dll")), ["administrator"] = IsAdministrator(), ["deviceTunnelVerified"] = false, ["events"] = new JsonArray(events.Select(e => (JsonNode?)new JsonObject { ["time"] = e.Time.ToString("O"), ["code"] = e.Code }).ToArray()) };
     void Logs()
     {
         var p = Panel("logs");
         p.Children.Add(Label(T("safe_name"), 13, "Muted"));
-        p.Children.Add(Actions(Action("copy_diagnostics", () => { System.Windows.Clipboard.SetText(Diagnostics().ToJsonString(new JsonSerializerOptions { WriteIndented = true })); Notice("copied"); return Task.CompletedTask; }, "copy"), Action("export_diagnostics", () => { var file = new SaveFileDialog { Filter = "JSON (*.json)|*.json", FileName = "RADVPN-safe-diagnostics.json" }; if (file.ShowDialog() == true) File.WriteAllText(file.FileName, Diagnostics().ToJsonString(new JsonSerializerOptions { WriteIndented = true })); return Task.CompletedTask; }, "logs"), Action("clear_logs", () => { if (Confirm("confirm_clear")) { events.Clear(); Render(); } return Task.CompletedTask; }, "delete"), Action("check_ports", CheckPorts, "servers"), Action("check_driver", () => { Notice(File.Exists(Path.Combine(AppContext.BaseDirectory, "wintun.dll")) ? "driver_present" : "driver_missing"); return Task.CompletedTask; }, "shield")));
+        p.Children.Add(Actions(Action("copy_diagnostics", () => { System.Windows.Clipboard.SetText(Diagnostics().ToJsonString(new JsonSerializerOptions { WriteIndented = true })); Notice("copied"); return Task.CompletedTask; }, "copy"), Action("clear_logs", () => { if (Confirm("confirm_clear")) { events.Clear(); Render(); } return Task.CompletedTask; }, "delete")));
         p.Children.Add(Label(T("logging_fixed"), 13, "Subtext"));
         var box = new StackPanel { Margin = new Thickness(0, 12, 0, 0) };
         foreach (var item in events.Take(200))
@@ -277,7 +277,7 @@ internal sealed partial class MainWindow
     {
         var p = Panel("about");
         p.Children.Add(Glyphs.Icon("shield", B("Orange"), 66));
-        p.Children.Add(Label("RADVPN 2.0.1", 30, "Text", true));
+        p.Children.Add(Label("RADVPN 2.0.2", 30, "Text", true));
         p.Children.Add(Label(T("testing_channel"), 14, "Warning"));
         p.Children.Add(Label("Xray " + (data["coreVersion"]?.ToString() ?? "—"), 18, "Orange", true));
         p.Children.Add(Label(T("privacy"), 14, "Subtext"));
