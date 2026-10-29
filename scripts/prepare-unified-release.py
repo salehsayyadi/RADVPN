@@ -22,6 +22,7 @@ assert 'Verified using v2 scheme (APK Signature Scheme v2): true' in one(a,'sign
 reports=list(a.rglob('report-*.json'));assert len(reports)==2
 for p in reports:
  r=json.loads(p.read_text());assert r['passed'] is True and len(r['captures'])==32
+ assert any('62 WS/TLS + 12 REALITY PQ' in check for check in r['checks']), 'Packaged Android subscription regression was not exercised'
  assert all(one(a,c['file']).is_file() for c in r['captures'])
 images=list(a.rglob('*.png'));assert len(images)==64
 with zipfile.ZipFile(apk) as z:

@@ -2,6 +2,12 @@
 
 Owner-requested test release. Windows executables remain unsigned. Physical-device VPN operation and leak protection have NOT been verified.
 
+## Android subscription update correction
+- The Android subscription action is now **Update** (Persian: به‌روزرسانی), with matching help and last-update wording.
+- Android applies subscription updates through a staged merge, preserves favorites, disabled state and custom names, and keeps previously loaded profiles when a subscription is only partially parsed. Rejected-entry counts are visible rather than silently hidden.
+- The **actual packaged Android native engine** is tested with a synthetic Base64 subscription containing 62 WS/TLS and 12 REALITY/PQ profiles, plus duplicate and account-metadata records. The resulting 74 unique profiles and all 12 PQ verification values must survive the native bridge and Android merge.
+- These are local synthetic import/emulator tests, not proof of remote-server operation or Android in-place upgrade signature compatibility.
+
 ## Same-version hotfix replacement
 The owner requested replacement of the download assets within this existing v2.0.3 release. The version number and existing tag are unchanged. Download the packages again; do not reuse an earlier cached copy. `build-provenance.json` and `SHA256SUMS.txt` identify the replacement binaries. The tag retains the original source snapshot; use the explicit reviewed source commit below for the replacement sources.
 
@@ -21,9 +27,9 @@ The owner requested replacement of the download assets within this existing v2.0
 
 ## Verified build evidence
 - The existing release tag is preserved. Replacement application binaries are built from the reviewed source identified below.
-- Same source: `d797fe168bfbd2f97a1f992eb8abeb2fa7e1fc9d`.
-- Windows/shared/Android build run: https://github.com/salehsayyadi/RADVPN/actions/runs/40548757936
-- Android native emulator run: https://github.com/salehsayyadi/RADVPN/actions/runs/40548757975
+- Same source: `ee0972e28a0e9ffc1c79b9195164e280f5f8c0e4`.
+- Windows/shared/Android build run: https://github.com/salehsayyadi/RADVPN/actions/runs/40883757025
+- Android native emulator run: https://github.com/salehsayyadi/RADVPN/actions/runs/40883756902
 - Windows installer and Portable native self-tests, encrypted legacy-name migration, installation/repair/uninstall and 68 automated native page captures passed.
 - Real Wintun startup, route/DNS/WFP setup, a local response routed through TUN and shutdown passed on a disposable hosted Windows runner. This is NOT evidence of a working remote server, physical-device leak protection or resolution of every user-device startup failure.
 - Representative compiled Windows screenshots were manually reviewed; full manual review of every capture and interactive Windows UAC were not performed.
