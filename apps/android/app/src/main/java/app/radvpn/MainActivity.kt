@@ -319,13 +319,7 @@ class MainActivity : Activity() {
 
     private fun repairSelection() { if (selected() == null) data.put("selected", items().firstOrNull { it.optBoolean("enabled", true) }?.optString("id") ?: "") }
     private fun merge(incoming: JSONArray, group: String = "") {
-        val existing=items().associateBy{it.optString("id")}.toMutableMap()
-        for(i in 0 until incoming.length()){
-            val p=JSONObject(incoming.getJSONObject(i).toString());val base=p.getString("id");val id=if(group.isEmpty())base else "$group:$base"
-            p.put("id",id).put("group",group)
-            val old=existing[id]
-            if(old==null){profiles().put(p);existing[id]=p}else{old.put("outbound",p.getJSONObject("outbound"));if(!old.optBoolean("userNamed"))old.put("name",p.optString("name"))}
-        }
+        data.put("profiles", SubscriptionUpdates.merge(profiles(), incoming, group))
         repairSelection()
     }
 
@@ -345,7 +339,7 @@ class MainActivity : Activity() {
         row{button("paste"){raw.setText(clipboard())};button("qr"){if(!qa)IntentIntegrator(this).setDesiredBarcodeFormats(IntentIntegrator.QR_CODE).setPrompt(t("qr")).setBeepEnabled(false).initiateScan()};button("file"){startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE),50)}}
         card {
             title("add_subscription");val url=field("sub_url",showLabel=false);url.hint="https://provider.example/…"
-            row{label(t("sub_tab_name"),11f,Design.muted).layoutParams=LinearLayout.LayoutParams(0,-2,1f);iconAction(body,"plus","add_subscription"){idle{prompt("subscription_name",""){name->refresh(JSONObject().put("name",name.take(200)).put("url",url.text.toString().trim()).put("id",java.util.UUID.randomUUID().toString()),true)}}}}
+            row{label(t("sub_tab_name"),11f,Design.muted).layoutParams=LinearLayout.LayoutParams(0,-2,1f);iconAction(body,"plus","add_subscription"){idle{prompt("subscription_name",""){name->updateSubscription(JSONObject().put("name",name.take(200)).put("url",url.text.toString().trim()).put("id",java.util.UUID.randomUUID().toString()),true)}}}}
         }
         card { row {
             body.addView(Symbol(this,"configs",Design.orange),LinearLayout.LayoutParams(dp(23),dp(27)))
@@ -488,24 +482,24 @@ class MainActivity : Activity() {
                 titleText(sub.optString("name").ifBlank { android.net.Uri.parse(sub.optString("url")).host ?: "RADVPN" })
                 label(android.net.Uri.parse(sub.optString("url")).host ?: "—", 12f, Design.muted)
                 label("${t("profile_count")}: ${sub.optInt("count")} · ${t("last_refresh")}: ${sub.optString("last", "—")}", 12f, Design.subtle)
-                row { button("refresh", true) { idle { refresh(sub) } }; button("rename") { prompt("subscription_name", sub.optString("name")) { n -> sub.put("name", n.take(200)); save(); render() } } }
+                if(sub.optInt("rejected")>0) label("${t("subscription_rejected")}: ${sub.optInt("rejected")}",12f,Design.orange)
+                row { button("update", true) { idle { updateSubscription(sub) } }; button("rename") { prompt("subscription_name", sub.optString("name")) { n -> sub.put("name", n.take(200)); save(); render() } } }
                 button("delete") { idle { confirm("remove_sub") { val id = sub.getString("id"); for (j in profiles().length() - 1 downTo 0) if (profiles().getJSONObject(j).optString("group") == id) profiles().remove(j); subs.remove(i); repairSelection(); save(); render() } } }
             }
         }
         card {
             title("add_subscription"); val name = field("subscription_name"); val url = field("sub_url")
-            row { button("paste") { url.setText(clipboard()) }; button("add", true) { idle { refresh(JSONObject().put("name", name.text.toString().take(200)).put("url", url.text.toString().trim()).put("id", java.util.UUID.randomUUID().toString()), true) } } }
+            row { button("paste") { url.setText(clipboard()) }; button("add", true) { idle { updateSubscription(JSONObject().put("name", name.text.toString().take(200)).put("url", url.text.toString().trim()).put("id", java.util.UUID.randomUUID().toString()), true) } } }
             help("android_refresh_help")
         }
     }
-    private fun refresh(sub:JSONObject,add:Boolean=false)=job{
+    private fun updateSubscription(sub:JSONObject,add:Boolean=false)=job{
         val r=Api.call(JSONObject().put("method","subscription").put("text",sub.getString("url")))
         handler.post{
-            val incoming=r.getJSONArray("profiles");val group=sub.getString("id")
-            if(incoming.length()>0){val ids=(0 until incoming.length()).map{"$group:${incoming.getJSONObject(it).getString("id")}"}.toSet();for(i in profiles().length()-1 downTo 0){val p=profiles().getJSONObject(i);if(p.optString("group")==group && !ids.contains(p.getString("id")))profiles().remove(i)}}
-            if(add && (0 until data.getJSONArray("subscriptions").length()).any{data.getJSONArray("subscriptions").getJSONObject(it).optString("url")==sub.optString("url")}){report("subscription_exists");return@post}
-            merge(incoming,group);sub.put("last",SimpleDateFormat("yyyy-MM-dd HH:mm",Locale.US).format(Date())).put("count",items().count{it.optString("group")==group}).put("info",r.optJSONArray("info") ?: JSONArray())
-            if(add)data.getJSONArray("subscriptions").put(sub)
+            try {
+                SubscriptionUpdates.apply(data, sub, r, add)
+                repairSelection()
+            } catch (e: Exception) { report(if(e.message in listOf("subscription_exists","invalid_profile"))e.message!! else "operation_failed"); return@post }
             save();render()
         }
     }
@@ -647,6 +641,7 @@ class MainActivity : Activity() {
             for((i,link)in links.withIndex()){val incoming=Api.call(JSONObject().put("method","import").put("text",link)).getJSONArray("profiles");merge(incoming,if(i==1)"qa-backup" else "qa-personal")}
             profiles().getJSONObject(0).put("favorite",true);repairSelection()
         }
+        if(target=="subscriptions") data.put("subscriptions",JSONArray().put(JSONObject().put("id","qa-personal").put("name",if(language=="fa")"ساب شخصی" else "Personal").put("url","https://example.invalid/subscription").put("count",3)))
         page=when(target){"home-populated"->"home";"servers-populated","server-menu"->"servers";else->target};render()
         if(target=="server-menu")serverAnchor?.let{showServerMenu(it)}
     }
