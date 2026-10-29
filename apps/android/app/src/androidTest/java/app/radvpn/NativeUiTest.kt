@@ -38,6 +38,8 @@ class NativeUiTest {
             val reality="vless://11111111-1111-4111-8111-111111111111@example.org:443?security=reality&flow=xtls-rprx-vision&encryption=none&type=tcp&headerType=none&[sni=example.org](http://sni=example.org/)&fp=chrome&pbk=MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1ub3BxcnN0dXY&sid=1122334455667788#Fixture"
             assertEquals(1,Api.call(JSONObject().put("method","import").put("text",reality)).getJSONArray("profiles").length())
             checks.add("REALITY none-header, pasted Markdown SNI and percent-encoded Shadowsocks metadata through actual native core")
+            verifyLargeSubscriptionThroughPackagedEngine()
+            checks.add("actual packaged JNI engine imports Base64 subscription with 62 WS/TLS + 12 REALITY PQ profiles, duplicate and metadata handling; atomic Android update preserves local edits and partial results")
             val settings = Api.call(JSONObject().put("method", "defaults"))
             assertEquals("tunnel", settings.getString("mode")); assertEquals(10808, settings.getInt("port"))
             checks.add("actual packaged native core/version and Tunnel/10808 defaults")
@@ -83,6 +85,12 @@ class NativeUiTest {
             val captures = JSONArray()
             for (language in listOf("en", "fa")) for (page in MainActivity.qaPages) {
                 inst.runOnMainSync { activity.showForCapture(page, language) }
+                if(page=="subscriptions") inst.runOnMainSync {
+                    fun buttons(v:View):List<Button> = if(v is Button)listOf(v) else if(v is ViewGroup)(0 until v.childCount).flatMap{buttons(v.getChildAt(it))} else emptyList()
+                    val text=buttons(activity.window.decorView).map{it.text.toString()}
+                    assertTrue("subscription Update action missing",text.contains(if(language=="fa")fa.getString("update") else en.getString("update")))
+                    assertFalse("old Refresh action still visible",text.contains("Refresh"))
+                }
                 inst.waitForIdleSync(); SystemClock.sleep(300)
                 val bitmap = requireNotNull(inst.uiAutomation.takeScreenshot())
                 val name = "$page-$language-${bitmap.width}x${bitmap.height}.png"
@@ -118,4 +126,41 @@ class NativeUiTest {
             inst.runOnMainSync { activity.finish() }; MainActivity.instrumentedCapture = false
         }
     }
+    private fun verifyLargeSubscriptionThroughPackagedEngine() {
+        val pq=android.util.Base64.encodeToString(ByteArray(1952){7},android.util.Base64.URL_SAFE or android.util.Base64.NO_PADDING or android.util.Base64.NO_WRAP)
+        val pbk=android.util.Base64.encodeToString(ByteArray(32){3},android.util.Base64.URL_SAFE or android.util.Base64.NO_PADDING or android.util.Base64.NO_WRAP)
+        val id="11111111-1111-4111-8111-111111111111"
+        val ws=(0 until 62).map { "vless://$id@node.example.invalid:${443+it}?encryption=none&security=tls&sni=identity.example.invalid&fp=chrome&type=ws&host=web.example.invalid&path=%2F#SyntheticWS$it" }
+        val reality=(0 until 12).map { "vless://$id@node.example.invalid:${8443+it}?encryption=none&security=reality&type=tcp&sni=identity.example.invalid&fp=chrome&flow=xtls-rprx-vision&pbk=$pbk&sid=1122334455667788&pqv=$pq&spx=%2F#SyntheticPQ$it" }
+        val credential=android.util.Base64.encodeToString("chacha20-ietf-poly1305:fixture-only".toByteArray(),android.util.Base64.NO_WRAP)
+        val metadata=(0 until 3).map{"ss://$credential@0.0.0.0:1234#SyntheticInfo$it"}
+        val body=(metadata+ws+ws.first()+reality).joinToString("\n")
+        val encoded=android.util.Base64.encodeToString(body.toByteArray(Charsets.UTF_8),android.util.Base64.NO_WRAP)
+        val result=Api.call(JSONObject().put("method","import").put("text",encoded))
+        val incoming=result.getJSONArray("profiles")
+        assertEquals(74,incoming.length());assertEquals(0,result.getInt("rejected"));assertEquals(3,result.getJSONArray("info").length())
+        var pqCount=0
+        val settings=Api.call(JSONObject().put("method","defaults")).put("mode","proxy")
+        for(i in 0 until incoming.length()) {
+            val p=incoming.getJSONObject(i)
+            val tls=p.getJSONObject("outbound").getJSONObject("streamSettings").optJSONObject("realitySettings")
+            if(tls!=null) {assertEquals(pq,tls.getString("mldsa65Verify"));pqCount++;Api.call(JSONObject().put("method","validate").put("profile",p).put("settings",settings))}
+        }
+        assertEquals(12,pqCount)
+        val data=JSONObject().put("profiles",JSONArray()).put("subscriptions",JSONArray())
+        val sub=JSONObject().put("id","synthetic").put("url","https://example.invalid/subscription").put("name","Synthetic")
+        SubscriptionUpdates.apply(data,sub,result,true)
+        assertEquals(74,data.getJSONArray("profiles").length());assertEquals(74,sub.getInt("count"))
+        data.getJSONArray("profiles").getJSONObject(0).put("name","Custom").put("userNamed",true).put("favorite",true).put("enabled",false)
+        SubscriptionUpdates.apply(data,sub,result)
+        val old=data.getJSONArray("profiles").getJSONObject(0)
+        assertEquals("Custom",old.getString("name"));assertTrue(old.getBoolean("favorite"));assertFalse(old.getBoolean("enabled"))
+        val partial=JSONObject().put("profiles",JSONArray().put(incoming.getJSONObject(0))).put("rejected",1)
+        SubscriptionUpdates.apply(data,sub,partial)
+        assertEquals(74,data.getJSONArray("profiles").length());assertEquals(1,sub.getInt("rejected"))
+        val before=data.toString();var duplicate=false
+        try {SubscriptionUpdates.apply(data,JSONObject(sub.toString()).put("id","duplicate"),partial,true)}catch(_:IllegalStateException){duplicate=true}
+        assertTrue(duplicate);assertEquals(before,data.toString())
+    }
+
 }
