@@ -1,0 +1,9 @@
+=== RUN   TestWindowsTunnelAcceptance
+2026/10/29 13:44:20 Failed to find matching adapter name: Element not found. (Code 0x00000490)
+2026/10/29 13:44:21 Installing driver 0.14
+2026/10/29 13:44:21 Extracting driver
+2026/10/29 13:44:21 Installing driver
+2026/10/29 13:44:22 Creating adapter
+    tunnel_acceptance_windows_test.go:77: PASS real Wintun startup, configured routes/DNS/WFP, local data through TUN, and shutdown; remote VPN/device leak tests are not implied
+--- PASS: TestWindowsTunnelAcceptance (2.26s)
+PASS
