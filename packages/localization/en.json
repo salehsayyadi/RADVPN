@@ -322,5 +322,6 @@
   "account_revoke_device": "Revoke this device",
   "account_revoke_confirm": "Disconnect this device session? Revoking this device signs it out.",
   "account_this_device": "This device",
-  "account_no_devices": "No active devices"
+  "account_no_devices": "No active devices",
+  "account_more_devices": "Next device page"
 }
