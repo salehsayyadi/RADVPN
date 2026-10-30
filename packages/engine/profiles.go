@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-const Version = "2.0.3"
+const Version = "3.0.3"
 const CoreVersion = "26.10.21"
 const MaxImport = 2 * 1024 * 1024
 
