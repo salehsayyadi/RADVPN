@@ -17,5 +17,5 @@ import json,pathlib
 p=pathlib.Path('dist/android/account-gate');reports=list(p.glob('report-*.json'))
 assert len(reports)==2 and all(json.loads(f.read_text())['passed'] for f in reports)
 assert len(list(p.glob('login-*.png')))==4
-print('PASS installed debug APK login gate, secure storage and four bilingual phone-size captures; not production upgrade')
+print('PASS installed debug APK login gate, secure storage and four bilingual phone-size native view renders (OS capture remains blocked); not production upgrade')
 PY

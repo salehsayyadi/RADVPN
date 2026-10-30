@@ -217,7 +217,7 @@
   "subscription_exists": "This subscription already exists.",
   "display_preferences": "Display and app preferences",
   "capture_allowed": "Screenshots & recording",
-  "capture_help": "Allowed when enabled. App previews remain visible in Recents.",
+  "capture_help": "Off by default. Enabling permits ordinary screens only. Login/account screens remain protected, including Recents.",
   "notification_speed": "Speed in notification",
   "notification_speed_help": "Live download and upload rates, alongside connection status.",
   "connection_summary": "Mode, ports, DNS and routing",

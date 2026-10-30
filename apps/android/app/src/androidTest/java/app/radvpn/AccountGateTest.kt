@@ -3,6 +3,7 @@ package app.radvpn
 import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.text.InputType
 import android.view.View
 import android.view.ViewGroup
@@ -36,6 +37,7 @@ class AccountGateTest {
    assertEquals("",code.text.toString())
    assertFalse(all.filterIsInstance<Button>().any{it.text.toString()==words.t("connect")})
    assertFalse(all.any{it is app.radvpn.ui.PowerControl})
+   assertNotEquals(0,activity.window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_SECURE)
    val root=activity.window.decorView
    for(v in all.filter{it is Button || it is EditText})if(v.visibility==View.VISIBLE && v.width>0){
     val xy=IntArray(2);v.getLocationOnScreen(xy)
@@ -50,10 +52,17 @@ class AccountGateTest {
      inst.runOnMainSync{activity.showForCapture(page,language)}
      inst.waitForIdleSync();inst.runOnMainSync{assertLocked(language)}
     }
-    val bitmap=requireNotNull(inst.uiAutomation.takeScreenshot());val name="login-$language-${bitmap.width}x${bitmap.height}.png"
+    // Draw the real attached native view inside test instrumentation; never weaken FLAG_SECURE
+    // or OS Recents protection to collect evidence. This is a view render, not an OS screenshot.
+    lateinit var bitmap:Bitmap
+    inst.runOnMainSync{val root=activity.window.decorView;bitmap=Bitmap.createBitmap(root.width,root.height,Bitmap.Config.ARGB_8888);root.draw(Canvas(bitmap))}
+    val name="login-$language-${bitmap.width}x${bitmap.height}.png"
     File(out,name).outputStream().use{bitmap.compress(Bitmap.CompressFormat.PNG,100,it)};bitmap.recycle();captures.put(name)
    }
    checks.add("Every protected capture target remains login-gated in English/Persian; masked input and control bounds checked")
+   assertFalse(CapturePolicy.allowed(false,true,false));assertFalse(CapturePolicy.allowed(true,false,false))
+   assertFalse(CapturePolicy.allowed(true,true,true));assertTrue(CapturePolicy.allowed(true,true,false))
+   checks.add("Account/login FLAG_SECURE asserted; default capture denied; only explicit ordinary-page opt-in permitted; evidence is in-process view rendering, not OS screenshots")
    assertEquals("https://t.me/RadVpn7bot?start=register",AccountLoginForm.REGISTRATION_URL)
    assertEquals("https://api.bestget.ir/",AccountApi.endpoint(AccountApi.PRODUCTION_ENDPOINT))
    for(value in listOf("http://api.bestget.ir/","https://foreign.invalid/","https://api.bestget.ir:8443/","https://api.bestget.ir/path","https://user@api.bestget.ir/")){
@@ -82,7 +91,7 @@ class AccountGateTest {
    }finally{directory.deleteRecursively()}
    checks.add("Real Android Keystore encrypted session save/load and tamper rejection; managed cleanup preserves manual data/language in an isolated fixture directory")
    File(out,"report-${activity.resources.displayMetrics.widthPixels}.json").writeText(JSONObject().put("passed",true).put("checks",JSONArray(checks)).put("captures",captures)
-    .put("scope","Installed API35 debug APK; no original-key upgrade, authenticated live account, Telegram launch, remote VPN or production API connectivity claim").toString(2))
+    .put("scope","Installed API35 debug APK with protected account screens and test-only view renders; no original-key upgrade, authenticated live account, Telegram launch, remote VPN or production API connectivity claim").toString(2))
   }finally{inst.runOnMainSync{activity.finish()};MainActivity.instrumentedCapture=false}
  }
 }
