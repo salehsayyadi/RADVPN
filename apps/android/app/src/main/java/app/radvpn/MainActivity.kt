@@ -92,7 +92,7 @@ class MainActivity : Activity() {
         super.onCreate(state)
         if (Build.VERSION.SDK_INT >= 30) window.setDecorFitsSystemWindows(false)
         else { @Suppress("DEPRECATION") window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION }
-        window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        CapturePolicy.apply(this,false,false,true)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         try {
             data = if (qa) JSONObject().put("lang", "en").put("selected", "").put("profiles", JSONArray()).put("subscriptions", JSONArray()).put("settings", Api.call(JSONObject().put("method", "defaults"))) else Vault.load(this)
@@ -115,7 +115,7 @@ class MainActivity : Activity() {
     private fun save() { if (qa) return; try { Vault.save(this, data) } catch (_: Exception) { report("storage_failed") } }
     private fun event(key: String) { events.add(0, clock() to key); while (events.size > 100) events.removeAt(events.lastIndex) }
     private fun showDialog(builder: AlertDialog.Builder): AlertDialog {
-        val dialog = builder.create(); dialog.show()
+        val dialog = builder.create(); dialog.show();dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         val rtl = ::data.isInitialized && data.optString("lang") == "fa"
         dialog.window?.decorView?.let { decor ->
             decor.layoutDirection = if (rtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
@@ -131,11 +131,7 @@ class MainActivity : Activity() {
     private fun job(action: () -> Unit) { if (destroyed) return; worker.execute { try { action() } catch (e: Exception) { handler.post { pending = false; report(if (e is IllegalStateException) e.message ?: "operation_failed" else "operation_failed"); updateMetrics() } } } }
     private fun idle(action: () -> Unit) { if (!isIdle) report("already_running") else action() }
     private fun go(target: String) { page = if(accountReady)target else "account"; filter = ""; favoritesOnly = target == "favorites"; groupFilter = ""; render() }
-    private fun applyCapturePolicy() {
-        val allowed = data.optBoolean("allowCapture", true)
-        if (allowed) window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) else window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        if (Build.VERSION.SDK_INT >= 33) setRecentsScreenshotEnabled(allowed)
-    }
+    private fun applyCapturePolicy() = CapturePolicy.apply(this,data.optBoolean("allowCapture",false),accountReady,page=="account")
     private fun migrateGroups() {
         for (p in items()) { val group = p.optString("group"); val id = p.optString("id"); if (group.isNotEmpty() && !id.startsWith("$group:")) { val next = "$group:$id"; p.put("id", next); if (data.optString("selected") == id) data.put("selected",next) } }
     }
@@ -238,6 +234,7 @@ class MainActivity : Activity() {
     private fun render() {
         if (destroyed) return
         if(!accountReady)page="account"
+        applyCapturePolicy()
         serverPopup?.dismiss(); serverPopup = null; serverAnchor = null
         screenStatus = null; downRate = null; upRate = null; ping = null; session = null; plot = null; power = null; connectButton = null
         root = vertical().apply { setBackgroundColor(android.graphics.Color.TRANSPARENT); layoutDirection = if (data.optString("lang") == "fa") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR }
@@ -346,10 +343,18 @@ class MainActivity : Activity() {
     private fun accountRequest(action:()->JSONObject,done:(JSONObject)->Unit) {
         if(accountBusy)return
         accountBusy=true
+        val guard=AccountRequestGuard(data)
         job {
-            try { val result=action();handler.post{accountBusy=false;if(!destroyed)done(result)} }
-            catch(e:Exception){handler.post{accountBusy=false;if(e.message=="account_revoked")clearAccount();report(e.message?:"account_unavailable");render()}}
+            try { val result=action();handler.post{if(acceptAccountResult(guard))done(result)} }
+            catch(e:Exception){handler.post{if(acceptAccountResult(guard)){if(e.message=="account_revoked")clearAccount();report(e.message?:"account_unavailable");render()}}}
         }
+    }
+    private fun acceptAccountResult(guard:AccountRequestGuard):Boolean {
+        accountBusy=false
+        if(destroyed)return false
+        if(guard.matches(data))return true
+        if(!accountReady)restoreAccount()
+        return false
     }
     private fun restoreAccount() {
         if(data.optJSONObject("radvpn")?.optString("token").isNullOrBlank())return
@@ -573,7 +578,7 @@ class MainActivity : Activity() {
             row{
                 body.addView(Symbol(this,symbol,Design.orange),LinearLayout.LayoutParams(dp(21),dp(24)))
                 val text=label(t(titleKey),14f,Design.text,true);text.layoutParams=LinearLayout.LayoutParams(0,-2,1f).apply{marginStart=dp(8)}
-                val control=Switch(this).apply{isChecked=data.optBoolean(key,true);thumbTintList=android.content.res.ColorStateList.valueOf(Design.text);trackTintList=android.content.res.ColorStateList.valueOf(if(isChecked)Design.orange else Design.border);minHeight=dp(44);contentDescription=t(titleKey);setOnCheckedChangeListener{_,on->data.put(key,on);save();changed();trackTintList=android.content.res.ColorStateList.valueOf(if(on)Design.orange else Design.border)}}
+                val control=Switch(this).apply{isChecked=data.optBoolean(key,key!="allowCapture");thumbTintList=android.content.res.ColorStateList.valueOf(Design.text);trackTintList=android.content.res.ColorStateList.valueOf(if(isChecked)Design.orange else Design.border);minHeight=dp(44);contentDescription=t(titleKey);setOnCheckedChangeListener{_,on->data.put(key,on);save();changed();trackTintList=android.content.res.ColorStateList.valueOf(if(on)Design.orange else Design.border)}}
                 body.addView(control,LinearLayout.LayoutParams(-2,dp(44)))
             };help(helpKey)
             if(key=="showSpeed")row{label("↓ ${bytes(rateDown)}/s",12f,Design.blue).layoutParams=LinearLayout.LayoutParams(0,-2,1f);label("↑ ${bytes(rateUp)}/s",12f,Design.orange).apply{gravity=Gravity.END;layoutParams=LinearLayout.LayoutParams(0,-2,1f)}}
@@ -671,7 +676,7 @@ class MainActivity : Activity() {
             job { when (code) {
                 50 -> { val b = contentResolver.openInputStream(uri)!!.use { bounded(it, 2 * 1024 * 1024 + 1) }; if (b.size > 2 * 1024 * 1024) throw IllegalStateException("import_too_large"); handler.post { importText(String(b, Charsets.UTF_8)) } }
                 51 -> { val copy = Vault.encrypt(data); contentResolver.openOutputStream(uri)!!.use { it.write(copy) } }
-                52 -> { val b = contentResolver.openInputStream(uri)!!.use { bounded(it, 8 * 1024 * 1024 + 1) }; val restored = Vault.decrypt(b); Api.call(JSONObject().put("method", "settings").put("settings", restored.getJSONObject("settings"))); handler.post { data = restored; words = Words(this, data.optString("lang", "en")); repairSelection(); save(); render() } }
+                52 -> { val b = contentResolver.openInputStream(uri)!!.use { bounded(it, 8 * 1024 * 1024 + 1) }; val restored = Vault.decrypt(b); check(restored.optJSONArray("profiles")!=null && restored.optJSONArray("subscriptions")!=null && restored.optString("lang") in listOf("en","fa")){"storage_failed"}; Api.call(JSONObject().put("method", "settings").put("settings", restored.getJSONObject("settings"))); handler.post { accountReady=false;accountVerifiedAt=0L;accountChecked=0L;page="account";if(active!="disconnected"||pending)startService(Intent(this,RadVpnService::class.java).setAction("stop")); data = restored; words = Words(this, data.optString("lang", "en")); repairSelection(); save(); render();restoreAccount() } }
                 53 -> contentResolver.openOutputStream(uri)!!.use { it.write(safeDiagnostics().toString(2).toByteArray()) }
             } }; return
         }
