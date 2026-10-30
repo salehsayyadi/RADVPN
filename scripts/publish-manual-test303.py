@@ -43,7 +43,8 @@ try:
  assert arun['head_sha']==os.environ['GITHUB_SHA']
  ap=json.loads((ROOT/'ANDROID-MANUAL-PROVENANCE.json').read_text());assert ap['source_sha']==os.environ['GITHUB_SHA'] and ap['package']=='app.radvpn.testing' and ap['production_signing_compatible'] is False
  assert ap['sha256']==sha(ROOT/android_names[0])
- assert json.loads((ROOT/'ANDROID-MANUAL-INSTALL-REPORT.json').read_text())['passed'] is True
+ install_report=json.loads((ROOT/'ANDROID-MANUAL-INSTALL-REPORT.json').read_text());assert install_report['passed'] is True and install_report['native_password_test_passed'] is True
+ assert install_report['apk_sha256']==ap['sha256']
  provenance=dict(windows_source_sha=BASE_SOURCE,windows_run_id=WINDOWS_RUN,windows_artifact_id=wa['id'],windows_artifact_digest=wa['digest'],android_source_sha=os.environ['GITHUB_SHA'],android_run_id=os.environ['GITHUB_RUN_ID'],android_artifact_digest=aa['digest'],production_api_deployed_verified=False,android_production_upgrade_verified=False,final_acceptance_passed=False)
  (ROOT/'MANUAL-TEST-PROVENANCE.json').write_text(json.dumps(provenance,indent=2)+'\n')
  body='''# RADVPN 3.0.3 — manual testing only
@@ -57,7 +58,7 @@ try:
 - SHA256SUMS.txt and MANUAL-TEST-PROVENANCE.json identify the actual assets/sources.
 
 ## Verified, scoped tests
-Windows: existing successful candidate run, runtime/DPAPI/login lease/paging helpers and previous-release installer/portable upgrade tests. Android: real engine compiled, sandbox lint/build/signature/package verified, installed beside the actual v2.0.3 baseline on API35 x86_64 emulator; first launch shows login directly, masked code field and Telegram registration button. No login capture protection was disabled. This does not verify live authenticated dashboard/device UI, physical arm64 devices or real VPN connectivity.
+Windows: existing successful candidate run, runtime/DPAPI/login lease/paging helpers and previous-release installer/portable upgrade tests. Android: real engine compiled, sandbox lint/build/signature/package verified, installed beside the actual v2.0.3 baseline on API35 x86_64 emulator; first launch shows login directly and Telegram registration button. The actual sandbox APK native instrumentation verifies password input type and masking transformation, FLAG_SECURE and no connection control before login; the API35 accessibility password flag is not treated as masking proof. No login capture protection was disabled. This does not verify live authenticated dashboard/device UI, physical arm64 devices or real VPN connectivity.
 
 ## Known blockers — expected during manual checks
 The central API is NOT confirmed installed on your server. Normal TLS verification for api.bestget.ir/bestget.ir previously failed hostname matching. Account login requires a correctly deployed API, valid HTTPS and a configured bot tenant/panel. Publishing these files does NOT install the API, fix TLS or enable the bot. Do not bypass TLS validation. Original Android production signer is unavailable; compatible production upgrade was NOT tested. Live Telegram/payment/panel/full E2E acceptance and safe legacy API adoption remain incomplete/unverified.

@@ -1,8 +1,7 @@
 {
   "tag": "v3.0.3-manual-test.1",
-  "requested": "User explicitly requested publication for manual testing",
-  "scope": "manual-test prerelease only; not final/stable",
-  "windows_source": "707d42daec2b3be8d0cb206cf6c3bc4cea685f30",
-  "android_identity": "app.radvpn.testing",
-  "preserve_original_production_signing_gate": true
+  "requested": "User requested manual-test publication",
+  "attempt": 2,
+  "repair": "Verify actual native password transformation rather than Android accessibility isPassword metadata",
+  "preserve_production_signing_gate": true
 }
