@@ -1,10 +1,10 @@
 {
-    "version": "3.0.3",
-    "source_sha": "3c810acab5bcc907d7874a74a7c40b05fa7465ab",
-    "run_id": 41024307785,
-    "artifact_id": 12963365843,
-    "artifact_digest": "sha256:dda013860e0fdd2c8d6f30a0a2d96ae4bc80e00b0ccd544ed10de6f2496c9b36",
-    "prerelease": true,
-    "make_latest": false,
-    "platform_scope": "windows-only"
+  "version": "3.0.3",
+  "source_sha": "3c810acab5bcc907d7874a74a7c40b05fa7465ab",
+  "run_id": 41024307785,
+  "artifact_id": 12963365843,
+  "artifact_digest": "sha256:dda013860e0fdd2c8d6f30a0a2d96ae4bc80e00b0ccd544ed10de6f2496c9b36",
+  "prerelease": true,
+  "make_latest": false,
+  "platform_scope": "windows-only"
 }

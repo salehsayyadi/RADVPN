@@ -17,8 +17,9 @@ EXPECTED_ARTIFACT = 12963365843
 EXPECTED_DIGEST = 'sha256:dda013860e0fdd2c8d6f30a0a2d96ae4bc80e00b0ccd544ed10de6f2496c9b36'
 BINARIES = {'RADVPN-Setup-3.0.3-x64.exe', 'RADVPN-Windows-Portable-3.0.3-x64.zip'}
 
-def gh(path, method='GET', body=None, binary_path=None):
+def gh(path, method='GET', body=None, binary_path=None, octet_stream=False):
     args = ['gh', 'api', '--method', method, '-H', 'X-GitHub-Api-Version: 2022-11-28', f'repos/{REPO}/{path}']
+    if octet_stream: args += ['-H', 'Accept: application/octet-stream']
     payload = None
     if body is not None:
         args += ['--input', '-']; payload = json.dumps(body).encode()
@@ -103,16 +104,33 @@ def main():
         platform_scope='windows-only', android_signed_apk=False, production_e2e_passed=False,
         assets=manifest), indent=2) + '\n')
     # New release/tag only. Leave any partial upload as a non-public draft, never a partial public release.
-    subprocess.run(['gh', 'release', 'create', 'v3.0.3', *map(str, sorted(assets.iterdir())),
-        '--repo', REPO, '--target', EXPECTED_SOURCE, '--draft', '--prerelease', '--latest=false',
-        '--title', 'RADVPN 3.0.3 — Windows testing pre-release', '--notes-file', str(ROOT / 'docs/RELEASE_NOTES_3.0.3.md')], check=True)
-    draft = gh('releases/tags/v3.0.3')
+    drafts = [x for x in gh('releases?per_page=100') if x['tag_name'] == 'v3.0.3']
+    if not drafts:
+        subprocess.run(['gh', 'release', 'create', 'v3.0.3', *map(str, sorted(assets.iterdir())),
+            '--repo', REPO, '--target', EXPECTED_SOURCE, '--draft', '--prerelease', '--latest=false',
+            '--title', 'RADVPN 3.0.3 — Windows testing pre-release', '--notes-file', str(ROOT / 'docs/RELEASE_NOTES_3.0.3.md')], check=True)
+        drafts = [x for x in gh('releases?per_page=100') if x['tag_name'] == 'v3.0.3']
+    # A newly created draft has no published tag yet; get-by-tag can return 404.
+    # Resume only this publisher's exact source/title/notes; never overwrite another release.
+    notes = (ROOT / 'docs/RELEASE_NOTES_3.0.3.md').read_text().strip()
+    if not drafts or any(not x['draft'] or x['target_commitish'] != EXPECTED_SOURCE
+                         or x['name'] != 'RADVPN 3.0.3 — Windows testing pre-release'
+                         or x['body'].strip() != notes for x in drafts):
+        raise RuntimeError('Unexpected existing draft; manual review required')
+    draft = gh('releases/' + str(max(drafts, key=lambda x: x['id'])['id']))
     if not draft['draft'] or not draft['prerelease'] or draft['target_commitish'] != EXPECTED_SOURCE:
         raise RuntimeError('Unexpected draft state; refusing publication')
     uploaded = {a['name']: a for a in draft['assets']}
     if set(uploaded) != {p.name for p in assets.iterdir()}: raise RuntimeError('Incomplete uploaded release assets')
     for path in assets.iterdir():
-        if uploaded[path.name].get('digest') != 'sha256:' + sha(path) or uploaded[path.name]['size'] != path.stat().st_size:
+        compare_path = path
+        if path.name == 'VERIFIED_BUILD.json':
+            # JSON object order varied in an earlier draft; verify semantic provenance AND actual bytes.
+            compare_path = work / 'uploaded-provenance.json'
+            gh('releases/assets/' + str(uploaded[path.name]['id']), binary_path=compare_path, octet_stream=True)
+            if json.loads(compare_path.read_text()) != json.loads(path.read_text()):
+                raise RuntimeError('Uploaded build provenance mismatch')
+        if uploaded[path.name].get('digest') != 'sha256:' + sha(compare_path) or uploaded[path.name]['size'] != compare_path.stat().st_size:
             raise RuntimeError('Uploaded asset integrity mismatch; draft left unpublished')
     result = gh(f"releases/{draft['id']}", method='PATCH', body=dict(draft=False, prerelease=True, make_latest='false'))
     if result['draft'] or not result['prerelease']: raise RuntimeError('Unexpected publication state')
