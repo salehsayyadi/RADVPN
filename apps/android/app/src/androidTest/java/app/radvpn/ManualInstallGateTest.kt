@@ -1,7 +1,9 @@
 package app.radvpn
 
 import android.content.Intent
-import android.test.InstrumentationTestCase
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.*
+import org.junit.Test
 import android.text.InputType
 import android.text.method.PasswordTransformationMethod
 import android.view.View
@@ -12,9 +14,9 @@ import android.widget.TextView
 
 /** Test the distributed sandbox APK itself; no auth/capture overrides, no server calls. */
 @Suppress("DEPRECATION")
-class ManualInstallGateTest : InstrumentationTestCase() {
- fun testInstalledLoginFieldRemainsMaskedAndProtected() {
-  val inst=instrumentation
+class ManualInstallGateTest {
+ @Test fun installedLoginFieldRemainsMaskedAndProtected() {
+  val inst=InstrumentationRegistry.getInstrumentation()
   MainActivity.instrumentedCapture=false
   val activity=inst.startActivitySync(Intent(inst.targetContext,MainActivity::class.java)
    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)) as MainActivity

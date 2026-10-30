@@ -2,6 +2,10 @@ plugins { id("com.android.application"); id("org.jetbrains.kotlin.android") }
 android {
  namespace = "app.radvpn"
  compileSdk = 35
+ // Isolated manual-test instrumentation target; normal CI remains debug.
+ testBuildType = providers.gradleProperty("radvpnTestBuildType").orElse("debug").get().also {
+  require(it in setOf("debug", "sandbox")) { "Unsupported instrumentation build type" }
+ }
  buildFeatures { buildConfig = true }
  defaultConfig { applicationId = "app.radvpn"; minSdk = 26; targetSdk = 35; versionCode = 30003; versionName = "3.0.3"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"; manifestPlaceholders["appLabel"] = "RADVPN" }
  compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
