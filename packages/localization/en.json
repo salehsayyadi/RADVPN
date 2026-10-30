@@ -317,5 +317,10 @@
   "account_get_telegram": "Get / Create Account in Telegram",
   "account_login_help": "Get your shared login code from @RadVpn7bot using /rejecterapp. The Telegram button opens the registration deep link; Telegram may require tapping Start.",
   "account_restore": "Retry saved session",
-  "account_required": "Sign in to RADVPN to continue."
+  "account_required": "Sign in to RADVPN to continue.",
+  "account_devices": "Manage devices",
+  "account_revoke_device": "Revoke this device",
+  "account_revoke_confirm": "Disconnect this device session? Revoking this device signs it out.",
+  "account_this_device": "This device",
+  "account_no_devices": "No active devices"
 }

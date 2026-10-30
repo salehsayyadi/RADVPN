@@ -317,5 +317,10 @@
   "account_get_telegram": "دریافت / ساخت حساب در تلگرام",
   "account_login_help": "کد مشترک ورود را با دستور /rejecterapp از @RadVpn7bot بگیرید. دکمهٔ تلگرام مسیر ثبت‌نام را باز می‌کند؛ ممکن است لازم باشد Start را بزنید.",
   "account_restore": "بررسی دوبارهٔ نشست ذخیره‌شده",
-  "account_required": "برای ادامه وارد حساب RADVPN شوید."
+  "account_required": "برای ادامه وارد حساب RADVPN شوید.",
+  "account_devices": "مدیریت دستگاه‌ها",
+  "account_revoke_device": "لغو نشست این دستگاه",
+  "account_revoke_confirm": "نشست این دستگاه لغو شود؟ لغو نشست دستگاه فعلی شما را از حساب خارج می‌کند.",
+  "account_this_device": "این دستگاه",
+  "account_no_devices": "دستگاه فعالی وجود ندارد"
 }
