@@ -3,7 +3,7 @@ android {
  namespace = "app.radvpn"
  compileSdk = 35
  buildFeatures { buildConfig = true }
- defaultConfig { applicationId = "app.radvpn"; minSdk = 26; targetSdk = 35; versionCode = 20004; versionName = "2.0.3"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+ defaultConfig { applicationId = "app.radvpn"; minSdk = 26; targetSdk = 35; versionCode = 30003; versionName = "3.0.3"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
  compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
  kotlinOptions { jvmTarget = "17" }
  signingConfigs {
@@ -17,7 +17,23 @@ android {
    }
   }
  }
- buildTypes { getByName("release") { isMinifyEnabled = false } }
+ val releaseKey = System.getenv("RADVPN_ANDROID_KEYSTORE_PATH")
+ if (!releaseKey.isNullOrBlank()) {
+  signingConfigs.create("persistentRelease") {
+   storeFile = file(releaseKey)
+   storePassword = System.getenv("RADVPN_ANDROID_STORE_PASSWORD")
+   keyAlias = System.getenv("RADVPN_ANDROID_KEY_ALIAS")
+   keyPassword = System.getenv("RADVPN_ANDROID_KEY_PASSWORD")
+  }
+ }
+ buildTypes { getByName("release") {
+  isMinifyEnabled = false
+  if (!releaseKey.isNullOrBlank()) signingConfig = signingConfigs.getByName("persistentRelease")
+ } }
+ gradle.taskGraph.whenReady {
+  if (allTasks.any { it.name in listOf("assembleRelease", "bundleRelease", "packageRelease") } && releaseKey.isNullOrBlank())
+   throw GradleException("Original compatible RADVPN signing keystore is required; no replacement key is generated.")
+ }
  sourceSets.getByName("main").assets.srcDir("../../../packages/localization")
  packaging { jniLibs { useLegacyPackaging = false } }
 }

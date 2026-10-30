@@ -24,7 +24,7 @@ class NativeUiTest {
         val checks = mutableListOf<String>()
         val out = File(inst.targetContext.getExternalFilesDir(null), "native-evidence").apply { mkdirs() }
         try {
-            assertEquals("2.0.3", Api.call(JSONObject().put("method", "version")).getString("app"))
+            assertEquals("3.0.3", Api.call(JSONObject().put("method", "version")).getString("app"))
             assertEquals(0, activity.window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_SECURE)
             val artwork=android.util.Base64.decode(inst.targetContext.assets.list("lightning")!!.sorted().joinToString(""){name->inst.targetContext.assets.open("lightning/$name").bufferedReader().use{it.readText()}},android.util.Base64.DEFAULT)
             val sha=java.security.MessageDigest.getInstance("SHA-256").digest(artwork).joinToString(""){"%02x".format(it)}
