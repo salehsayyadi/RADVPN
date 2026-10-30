@@ -335,7 +335,7 @@ internal sealed partial class MainWindow
             for (var i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
             {
                 var child = VisualTreeHelper.GetChild(parent, i);
-                if (child is FrameworkElement element && element.IsVisible && element.ActualWidth > 0 && element is Button or TextBox)
+                if (child is FrameworkElement element && element.IsVisible && element.ActualWidth > 0 && element is Button or TextBox or PasswordBox)
                 {
                     try
                     {
