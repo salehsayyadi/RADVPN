@@ -1,0 +1,13 @@
+{
+  "source_sha": "27d944e4269756039cb27143eef1cc399a06e78f",
+  "run_id": 41131206235,
+  "run_url": "https://github.com/salehsayyadi/RADVPN/actions/runs/41131206235",
+  "status": "Blocked",
+  "reason": "original_compatible_signing_identity_not_configured",
+  "expected_package": "app.radvpn",
+  "expected_label": "RADVPN",
+  "apk_built": false,
+  "identity_and_signature_checked": false,
+  "runtime_upgrade_tested": false,
+  "published": false
+}
