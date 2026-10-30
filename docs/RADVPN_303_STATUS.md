@@ -16,18 +16,29 @@ Existing build scripts produced Debug APKs; the signing configuration did not pe
 
 The new release signing config requires the existing keystore and fails closed without it. The candidate CI compiles Kotlin/lint without generating any signing key; it builds a signed APK only if all four existing signing secrets are configured. It then compares the actual previous APK certificate/package/version to the candidate. No replacement key is generated. **Static matching certificates are not an actual upgrade test.** Android `adb install -r`, encrypted-vault preservation, launch, VPN and updater installation still require verification with the original key and a device/emulator. Release is blocked until that is done.
 
-## Native build/test evidence at initial source commit
+## Native build/test evidence
 
 - PASS: Windows cross-compilation using repository-pinned SDK 8.0.427; zero errors/warnings.
 - PASS: Go `go test -race -count=1 ./...`; locale/version consistency checks.
-- PENDING: candidate GitHub CI for actual Windows installer/portable builds and previous v2.0.3 -> v3.0.3 upgrades with encrypted fixture preservation.
-- PENDING: Android Kotlin compile/lint in candidate CI; signing availability check. Do not infer success from committed source.
+- PASS: actual GitHub Windows CI run 41023421920 at source 9e7898d0d58fc5841e4b12eac68e05b428dee2f8. Actual distributed v2.0.3 installer -> v3.0.3 in-place installation and previous portable ZIP overwrite succeeded. Encrypted fixture was byte-identical across installation; native launch retained existing profile, selection, subscription, language and connection settings. 72 offscreen WPF captures (four account-page captures), zero layout audit failures. No physical VPN, interactive installer consent or live API upgrade claim.
+- PASS: Android Go AAR generation, Kotlin compilation and lint in the same actual CI run. BLOCKED: at least one original-key signing secret is absent; signed APK build and certificate-continuity steps were skipped. There is no Android release APK from this run.
 - NOT RUN: live central API/native-client E2E, physical-device VPN regression, real Android upgrade or in-app update installation.
 
 Candidate CI is read-only and cannot publish. Previous stable approval files, tags and release assets are untouched. A future v3.0.3 release must be `prerelease=true`, `make_latest=false`, contain only actually tested artifacts with checksums, and prominently disclose remaining limitations. **No v3.0.3 release has been published by this source change.**
 
 ## Coordinated sources
 
-- `salehsayyadi/vpn-bot-maker`, main: per-instance branch-aware updater, source/image isolation and preserved env.
+- `salehsayyadi/vpn-bot-maker`, feature/radvpn-3.0.3 (draft PR #2; main unchanged): per-instance branch-aware updater, source/image isolation and preserved env.
 - `salehsayyadi/vpn-sell-bot`, RADVPN: independent API, additive schemas, opt-in Telegram integration, separate Mini Apps and existing-wallet checkout. See that branch's `docs/RADVPN_303.md` for endpoints, deployment, recovery, tests and unsupported adapters.
 - `salehsayyadi/RADVPN`, feature/radvpn-3.0.3: this candidate. Do not merge/release as completed while blockers remain.
+
+## Verified candidate Windows artifacts (not a release)
+
+CI: https://github.com/salehsayyadi/RADVPN/actions/runs/41023421920
+
+- RADVPN-Setup-3.0.3-x64.exe — 57,520,323 bytes; SHA-256 `40cf89e6e554b05e220ca3d36b030a85cae8a06024ffbd5e052f8510c44f64f4`
+- RADVPN-Windows-Portable-3.0.3-x64.zip — 81,287,561 bytes; SHA-256 `794d30329a1a87fb53f28ea707b0ec055921d2db21de379ab58452a6ac958145`
+
+Executable PE FileVersion verified as 3.0.3.0. Installer remains unsigned/experimental. Artifacts were retrieved through a public Actions mirror only after checking the complete archive against GitHub's official artifact SHA-256 (`2e8cacca4672d33d332ed42b593fca9991e50d66040973c14e588e9751b129c4`), then each asset against CI SHA256SUMS. These hashes describe this run only.
+
+The first candidate run was rejected: installer labelled 3.0.3 contained executable 2.0.3.0 due to an omitted csproj edit; actual upgrade validation caught it. Committed csproj correction, actual-file-version gate and explicit UTF-8 Windows validation fixed subsequent runs. Do not use the first failed run's files.
