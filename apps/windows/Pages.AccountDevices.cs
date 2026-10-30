@@ -27,14 +27,35 @@ internal sealed partial class MainWindow
     {
         await ValidateAccount();
         var state = AccountState!;
-        var response = await DeviceRequest(state, "v1/account/sessions");
-        var rows = response["sessions"]?.AsArray() ?? throw new InvalidOperationException("account_unavailable");
-        var current = response["current_session_id"]?.ToString();
+        var response = await DeviceRequest(state, AccountDevicePage.Path());
         var dialog = Dialog(T("account_devices"));
         var panel = (StackPanel)dialog.Content;
         var list = new StackPanel();
         panel.Children.Add(new ScrollViewer { Content = list, MaxHeight = 360, VerticalScrollBarVisibility = ScrollBarVisibility.Auto });
-        bool revoking = false;
+        bool revoking = false, loading = false, closed = false;
+        string? cursor = null;
+        dialog.Closed += (_, _) => closed = true;
+        Button more = null!;
+        more = Action("account_more_devices", async () =>
+        {
+            if (loading || revoking || cursor == null) return;
+            loading = true;
+            try
+            {
+                var after = cursor;
+                var result = await DeviceRequest(state, AccountDevicePage.Path(after));
+                if (!closed) ShowPage(result, after);
+            }
+            finally { loading = false; }
+        });
+        panel.Children.Add(more);
+        void ShowPage(JsonObject page, string? after = null)
+        {
+        cursor = AccountDevicePage.Validate(page, after);
+        more.Visibility = cursor == null ? Visibility.Collapsed : Visibility.Visible;
+        var rows = page["sessions"]!.AsArray();
+        var current = page["current_session_id"]?.ToString();
+        list.Children.Clear();
         if (rows.Count == 0)
             list.Children.Add(Label(T("account_no_devices")));
         foreach (var row in rows)
@@ -69,6 +90,8 @@ internal sealed partial class MainWindow
             }, "stop"));
             list.Children.Add(Card(item));
         }
+        }
+        ShowPage(response);
         panel.Children.Add(Action("close", () => { dialog.Close(); return Task.CompletedTask; }));
         dialog.ShowDialog();
     }

@@ -30,13 +30,13 @@ internal object AccountScreen {
    val sub=AccountDetails.subscription(data,result)
    if(sub==null)report("account_subscription_pending")else importSubscription(sub.first,sub.second)
   }}
-  button("account_devices",false){request({AccountApi.call(AccountApi.PRODUCTION_ENDPOINT,"v1/account/sessions",state.getString("token"))}){result->
+  fun devices(after:String?=null){request({AccountDevicePage.fetch(state.getString("token"),after)}){result->
    val rows=result.getJSONArray("sessions");val current=result.getString("current_session_id")
    if(rows.length()==0)report("account_no_devices") else {
     val labels=Array(rows.length()){i->val row=rows.getJSONObject(i)
      row.optString("device_name")+" · "+row.optString("platform")+if(row.getString("id")==current)" · "+text("account_this_device") else ""
     }
-    dialog(AlertDialog.Builder(activity).setTitle(text("account_devices")).setItems(labels){_,index->
+    val builder=AlertDialog.Builder(activity).setTitle(text("account_devices")).setItems(labels){_,index->
      val sid=rows.getJSONObject(index).getString("id")
      dialog(AlertDialog.Builder(activity).setTitle(text("account_revoke_device")).setMessage(text("account_revoke_confirm"))
       .setNegativeButton(text("close"),null).setPositiveButton(text("account_revoke_device")){_,_->
@@ -44,9 +44,12 @@ internal object AccountScreen {
         if(ack.optBoolean("current_session"))clear()else refresh()
        }
       })
-    }.setNegativeButton(text("close"),null))
+    }.setNegativeButton(text("close"),null)
+    if(!result.isNull("next_cursor"))result.optString("next_cursor").takeIf{it.isNotBlank()}?.let{next->builder.setNeutralButton(text("account_more_devices")){_,_->devices(next)}}
+    dialog(builder)
    }
   }}
+  button("account_devices",false){devices()}
   button("account_purchase",false){AccountDetails.purchaseLink(account)?.let{activity.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse(it)))}}
   button("account_logout",false){request({AccountDetails.logout(state)}){clear()}}
  }

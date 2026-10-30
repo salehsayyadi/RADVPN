@@ -46,6 +46,21 @@ internal static class NativeSmoke
             lease.Reset();
             if (lease.IsFresh) throw new Exception("reset lease accepted");
             checks.Add("monotonic account lease: absent/reset/future/expired timestamps rejected; 60-second boundary independent of wall clock");
+            const string pageId = "11111111-1111-1111-1111-111111111111", nextId = "22222222-2222-2222-2222-222222222222";
+            var devicePage = new JsonObject { ["current_session_id"] = pageId, ["sessions"] = new JsonArray(new JsonObject { ["id"] = pageId }), ["next_cursor"] = nextId };
+            if (AccountDevicePage.Path(nextId) != "v1/account/sessions?after=" + nextId || AccountDevicePage.Validate(devicePage) != nextId) throw new Exception("device paging");
+            foreach (var bad in new[] { "../owner", "https://foreign.invalid", "not-a-cursor" })
+            {
+                bool rejected = false; try { AccountDevicePage.Path(bad); } catch (InvalidOperationException) { rejected = true; }
+                if (!rejected) throw new Exception("invalid device cursor accepted");
+            }
+            bool repeatedCursor = false; try { AccountDevicePage.Validate(devicePage, nextId); } catch (InvalidOperationException) { repeatedCursor = true; }
+            if (!repeatedCursor) throw new Exception("repeated cursor accepted");
+            var hugeRows = new JsonArray(); for (int i = 0; i < 101; i++) hugeRows.Add(new JsonObject { ["id"] = pageId });
+            var hugePage = new JsonObject { ["current_session_id"] = pageId, ["sessions"] = hugeRows };
+            bool oversizedPage = false; try { AccountDevicePage.Validate(hugePage); } catch (InvalidOperationException) { oversizedPage = true; }
+            if (!oversizedPage) throw new Exception("oversized device page accepted");
+            checks.Add("native device paging cursor/path and row bounds; isolated fixtures, not authenticated live UI");
             using var core = new Core();
             var version = await core.Call(new
             {

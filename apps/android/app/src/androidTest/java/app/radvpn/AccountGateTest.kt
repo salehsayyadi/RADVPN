@@ -69,6 +69,16 @@ class AccountGateTest {
     var rejected=false;try{AccountApi.endpoint(value)}catch(_:Exception){rejected=true};assertTrue(rejected)
    }
    checks.add("Canonical API validation and exact Telegram register deep link; Telegram client opening not exercised")
+   val pageId="11111111-1111-1111-1111-111111111111";val nextId="22222222-2222-2222-2222-222222222222"
+   val page=JSONObject().put("current_session_id",pageId).put("sessions",JSONArray().put(JSONObject().put("id",pageId))).put("next_cursor",nextId)
+   assertEquals("v1/account/sessions?after=$nextId",AccountDevicePage.path(nextId));AccountDevicePage.validate(page)
+   for(bad in listOf("../owner","https://foreign.invalid","not-a-cursor")){
+    var denied=false;try{AccountDevicePage.path(bad)}catch(_:Exception){denied=true};assertTrue(denied)
+   }
+   var repeated=false;try{AccountDevicePage.validate(page,nextId)}catch(_:Exception){repeated=true};assertTrue(repeated)
+   val oversized=JSONObject(page.toString()).put("sessions",JSONArray().apply{repeat(101){put(JSONObject().put("id",pageId))}})
+   var bounded=false;try{AccountDevicePage.validate(oversized)}catch(_:Exception){bounded=true};assertTrue(bounded)
+   checks.add("Native device paging cursor/path, repeated-cursor and response-row bounds tested with isolated fixtures; no authenticated device UI claim")
    val source=JSONObject().put("radvpn",JSONObject().put("token","LOCAL-NONAUTHENTIC-GUARD-FIXTURE"))
    val guard=AccountRequestGuard(source);assertTrue(guard.matches(source));assertFalse(guard.matches(JSONObject(source.toString())))
    source.put("radvpn",JSONObject());assertFalse(guard.matches(source))
