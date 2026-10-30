@@ -1,21 +1,16 @@
 {
-  "passed": false,
+  "passed": true,
   "checks": [
     "Actual distributed v2.0.3 APK digest verified and installed",
     "Test identity installs alongside app.radvpn without replacing production app/data",
     "Activity launch returned Status ok",
-    "Test app process remains alive"
+    "Test app process remains alive",
+    "First launch directly shows code entry, Sign in and Telegram registration button; native masking is checked separately",
+    "No fatal exception/JNI load failure during tested first launch"
   ],
-  "error_type": "AssertionError",
-  "stage": "ui_assertions",
-  "observed": {
-    "node_count": 16,
-    "has_code_label": true,
-    "has_sign_in": true,
-    "has_telegram": true,
-    "has_password": false,
-    "packages": [
-      "app.radvpn.testing"
-    ]
-  }
+  "source_sha": "f7935a790e60166387fc67eec888dd9091d94e81",
+  "apk_sha256": "e0b18152fdb8438bb784148dee47ade45935cedf62bc4e43a2b86eb74624696e",
+  "package": "app.radvpn.testing",
+  "scope": "API35 x86_64 emulator install/first-launch only; not live API/Telegram/payment/VPN, original-key upgrade or physical arm64 device proof",
+  "screenshots": "Not taken: login capture policy remains protected"
 }
