@@ -255,6 +255,7 @@ class MainActivity : Activity() {
         root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
         body = vertical().apply { setPadding(dp(16), dp(6), dp(16), dp(14)) }; scroll.addView(body)
         when (page) {
+            "account" -> accountPage()
             "home" -> home()
             "servers", "profiles", "favorites" -> serverPage()
             "configs" -> configs()
@@ -277,6 +278,7 @@ class MainActivity : Activity() {
     }
     private fun modes(on: String, action: (String) -> Unit) = row { for (mode in listOf("tunnel", "proxy")) button(mode, mode == on) { action(mode) } }
     private fun home() {
+        button("account") { go("account") }
         modes(settings().optString("mode")) { mode -> if (mode != settings().optString("mode")) idle { settings().put("mode",mode); save(); render() } }
         val compact = resources.displayMetrics.heightPixels / resources.displayMetrics.density < 780
         val area = vertical().apply { gravity = Gravity.CENTER; setPadding(0,dp(4),0,dp(8)) }; body.addView(area)
@@ -316,6 +318,42 @@ class MainActivity : Activity() {
     }
     private fun startVpn() { pending = true; RadVpnService.lastError = ""; event("starting"); updateMetrics(); startForegroundService(Intent(this, RadVpnService::class.java).setAction("start")) }
     override fun onRequestPermissionsResult(code: Int, permissions: Array<out String>, grantResults: IntArray) { super.onRequestPermissionsResult(code, permissions, grantResults); if (code == 100) requestVpn() }
+
+    private fun checkForUpdate()=job {
+        val candidate=VerifiedUpdates.find()
+        handler.post {
+            if(candidate==null)report("update_no_newer") else showDialog(AlertDialog.Builder(this).setTitle("RADVPN "+candidate.version).setMessage(t(if(candidate.testing)"update_testing_confirm" else "update_download_confirm")).setNegativeButton(t("close"),null).setPositiveButton(t("update")){_,_->job{
+                val file=VerifiedUpdates.download(this,candidate)
+                handler.post{try{VerifiedUpdates.install(this,file)}catch(e:Exception){report(e.message?:"operation_failed")}}
+            }})
+        }
+    }
+    private fun clearAccount() {
+        if (AccountApi.managed(selected())) startService(Intent(this,RadVpnService::class.java).setAction("stop"))
+        val kept=JSONArray();for(p in items())if(!AccountApi.managed(p))kept.put(p);data.put("profiles",kept)
+        val subs=JSONArray();val old=data.getJSONArray("subscriptions");for(i in 0 until old.length()){val sub=old.getJSONObject(i);if(!sub.optString("id").startsWith("radvpn-account-"))subs.put(sub)};data.put("subscriptions",subs)
+        val endpoint=data.optJSONObject("radvpn")?.optString("endpoint")?:"";data.put("radvpn",JSONObject().put("endpoint",endpoint));repairSelection();save()
+    }
+    private fun accountRequest(action:()->JSONObject,done:(JSONObject)->Unit)=job {
+        try { val result=action();handler.post{if(!destroyed)done(result)} }
+        catch(e:Exception){handler.post{if(e.message=="account_revoked")clearAccount();report(e.message?:"account_unavailable");if(page=="account")render()}}
+    }
+    private fun accountPage() {
+        val state=data.optJSONObject("radvpn")?:JSONObject()
+        if(state.optString("token").isBlank()) {
+            label(t("account_endpoint"));val endpoint=EditText(this).apply{setText(state.optString("endpoint"));inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_URI};body.addView(endpoint)
+            label(t("account_code"));val code=EditText(this).apply{inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD};body.addView(code)
+            button("account_login",true){val base=endpoint.text.toString();val login=code.text.toString().trim();code.setText("");accountRequest({val r=AccountApi.call(base,"v1/auth/login",payload=JSONObject().put("code",login).put("platform","android").put("device_name","RADVPN Android"));r.put("endpoint",AccountApi.endpoint(base))}){r->data.put("radvpn",r);save();render()}}
+            return
+        }
+        val a=state.optJSONObject("account")?:JSONObject();val sub=a.optJSONObject("subscription")?:JSONObject()
+        fun amount(k:String)=if(sub.isNull(k))"—" else String.format(Locale.US,"%.2f GiB",sub.optLong(k)/1073741824.0)
+        for((k,v)in listOf("account_id" to a.optString("telegram_id"),"account_status" to a.optString("status"),"account_subscription" to sub.optString("status"),"account_total" to amount("total_bytes"),"account_used" to amount("used_bytes"),"account_remaining" to amount("remaining_bytes"),"account_capacity" to a.optString("device_capacity"),"account_active" to a.optString("active_sessions"),"account_slots" to a.optString("available_slots")))label(t(k)+": "+v)
+        button("update"){accountRequest({AccountApi.validate(data)}){r->state.put("account",r);save();render()}}
+        button("account_import",true){accountRequest({AccountApi.validate(data)}){r->state.put("account",r);save();val url=r.optJSONObject("subscription")?.optString("url")?:"";if(url.isBlank())report("account_subscription_pending")else{val id="radvpn-account-"+r.getString("account_id");val subs=data.getJSONArray("subscriptions");var existing:JSONObject?=null;for(i in 0 until subs.length())if(subs.getJSONObject(i).optString("id")==id)existing=subs.getJSONObject(i);updateSubscription(existing?:JSONObject().put("id",id).put("name","RADVPN account").put("url",url),existing==null)}}}
+        button("account_purchase"){val url=a.optString("purchase_url");if(url.matches(Regex("https://t\\.me/[A-Za-z0-9_]+")))startActivity(Intent(Intent.ACTION_VIEW,android.net.Uri.parse(url+"?start=radvpn")))}
+        button("account_logout"){accountRequest({try{AccountApi.call(state.getString("endpoint"),"v1/auth/logout",state.getString("token"),JSONObject())}catch(e:IllegalStateException){if(e.message!="account_revoked")throw e;JSONObject()}}){clearAccount();render()}}
+    }
 
     private fun repairSelection() { if (selected() == null) data.put("selected", items().firstOrNull { it.optBoolean("enabled", true) }?.optString("id") ?: "") }
     private fun merge(incoming: JSONArray, group: String = "") {
@@ -559,7 +597,7 @@ class MainActivity : Activity() {
                 help("rules_help"); val rules = field("rules", draft.optJSONArray("rules")?.toString(2) ?: "[]", true)
                 button("save", true) { idle { job { val candidate = JSONObject(draft.toString()).put("rules", JSONArray(rules.text.toString())); Api.call(JSONObject().put("method", "settings").put("settings", candidate)); handler.post { data.put("settings", candidate); save(); Toast.makeText(this, t("applied"), Toast.LENGTH_SHORT).show() } } } }
                 help("advanced_help"); button("profiles") { go("profiles") }; help("backup_help")
-                button("export") { startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/octet-stream").putExtra(Intent.EXTRA_TITLE, "RADVPN-2.0.3.radvpn"), 51) }
+                button("export") { startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/octet-stream").putExtra(Intent.EXTRA_TITLE, "RADVPN-3.0.3.radvpn"), 51) }
                 button("restore") { idle { startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/octet-stream"), 52) } }
             }
         }
@@ -571,7 +609,7 @@ class MainActivity : Activity() {
         card { title("live_traffic"); plot = TrafficPlot(this, samples); body.addView(plot, LinearLayout.LayoutParams(-1, dp(180))); if (samples.isEmpty()) help("awaiting_traffic") }
         help("measured_only")
     }
-    private fun safeDiagnostics() = JSONObject().put("app", "2.0.3").put("core", "26.10.21").put("state", active).put("mode", settings().optString("mode")).put("profileCount", profiles().length()).put("tunnelDeviceVerified", false).put("events", JSONArray(events.map { it.first + " " + it.second }))
+    private fun safeDiagnostics() = JSONObject().put("app", "3.0.3").put("core", "26.10.21").put("state", active).put("mode", settings().optString("mode")).put("profileCount", profiles().length()).put("tunnelDeviceVerified", false).put("events", JSONArray(events.map { it.first + " " + it.second }))
     private fun diagnostics() {
         card {
             title("diagnostics"); help("safe_name"); help("logging_fixed")
@@ -585,10 +623,10 @@ class MainActivity : Activity() {
     private fun about() {
         card {
             body.addView(Symbol(this, "brand", Design.orange), LinearLayout.LayoutParams(dp(66), dp(72)).apply { gravity = Gravity.CENTER_HORIZONTAL; bottomMargin = dp(16) })
-            label("RADVPN 2.0.3", 26f, Design.text, true).apply { gravity = Gravity.CENTER; layoutDirection = View.LAYOUT_DIRECTION_LTR }
+            label("RADVPN 3.0.3", 26f, Design.text, true).apply { gravity = Gravity.CENTER; layoutDirection = View.LAYOUT_DIRECTION_LTR }
             label("Xray 26.10.21", 16f, Design.orange).apply { gravity = Gravity.CENTER; textDirection = View.TEXT_DIRECTION_LTR }
             help("android_testing_channel"); help("privacy"); help("not_full_protection")
-            button("check_updates") { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/salehsayyadi/RADVPN/releases"))) }
+            button("check_updates") { checkForUpdate() }
             button("license_notices") { val notice = assets.open("licenses/ANDROID-NOTICES.txt").bufferedReader().use { it.readText() }; prompt("license_notices", notice.take(180000), true, readOnly = true) {} }
         }
     }
