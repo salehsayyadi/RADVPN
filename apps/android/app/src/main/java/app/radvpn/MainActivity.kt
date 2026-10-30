@@ -47,7 +47,11 @@ class MainActivity : Activity() {
     private val probes = Executors.newFixedThreadPool(4)
     private val handler = Handler(Looper.getMainLooper())
     private val polling = AtomicBoolean(false)
-    private var page = "home"
+    private var page = "account"
+    @Volatile private var accountReady=false
+    @Volatile private var accountBusy=false
+    private var accountChecked=0L
+    private var accountVerifiedAt=0L
     private var active = "disconnected"
     private var pending = false
     private var resumed = false
@@ -100,10 +104,11 @@ class MainActivity : Activity() {
         words = Words(this, data.optString("lang", "en"))
         migrateGroups(); applyCapturePolicy(); render()
         if (state != null) { page = state.getString("page", "home"); render() }
-        if (intent.action == Intent.ACTION_SEND) intent.getStringExtra(Intent.EXTRA_TEXT)?.let { importText(it) }
+        if (accountReady && intent.action == Intent.ACTION_SEND) intent.getStringExtra(Intent.EXTRA_TEXT)?.let { importText(it) }
+        restoreAccount()
     }
     override fun onSaveInstanceState(out: Bundle) { out.putString("page", page); super.onSaveInstanceState(out) }
-    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); if (intent.action == Intent.ACTION_SEND) intent.getStringExtra(Intent.EXTRA_TEXT)?.let { importText(it) } }
+    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); if (accountReady && intent.action == Intent.ACTION_SEND) intent.getStringExtra(Intent.EXTRA_TEXT)?.let { importText(it) } }
     override fun onResume() { super.onResume(); resumed = true; if (::data.isInitialized) handler.post(poll) }
     override fun onPause() { resumed = false; handler.removeCallbacks(poll); super.onPause() }
     override fun onDestroy() { destroyed = true; handler.removeCallbacksAndMessages(null); probeCancel.set(true); worker.shutdownNow(); probes.shutdownNow(); super.onDestroy() }
@@ -125,7 +130,7 @@ class MainActivity : Activity() {
     private fun report(key: String) { if (destroyed) return; event(key); showDialog(AlertDialog.Builder(this).setTitle("RADVPN").setMessage(t(key)).setPositiveButton(t("close"), null)) }
     private fun job(action: () -> Unit) { if (destroyed) return; worker.execute { try { action() } catch (e: Exception) { handler.post { pending = false; report(if (e is IllegalStateException) e.message ?: "operation_failed" else "operation_failed"); updateMetrics() } } } }
     private fun idle(action: () -> Unit) { if (!isIdle) report("already_running") else action() }
-    private fun go(target: String) { page = target; filter = ""; favoritesOnly = target == "favorites"; groupFilter = ""; render() }
+    private fun go(target: String) { page = if(accountReady)target else "account"; filter = ""; favoritesOnly = target == "favorites"; groupFilter = ""; render() }
     private fun applyCapturePolicy() {
         val allowed = data.optBoolean("allowCapture", true)
         if (allowed) window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) else window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
@@ -141,6 +146,7 @@ class MainActivity : Activity() {
             if (!resumed || destroyed) return
             if (polling.compareAndSet(false, true)) job {
                 try {
+                    accountHeartbeat()
                     val result = Api.call(JSONObject().put("method", "status"))
                     handler.post {
                         if (destroyed) return@post
@@ -231,6 +237,7 @@ class MainActivity : Activity() {
 
     private fun render() {
         if (destroyed) return
+        if(!accountReady)page="account"
         serverPopup?.dismiss(); serverPopup = null; serverAnchor = null
         screenStatus = null; downRate = null; upRate = null; ping = null; session = null; plot = null; power = null; connectButton = null
         root = vertical().apply { setBackgroundColor(android.graphics.Color.TRANSPARENT); layoutDirection = if (data.optString("lang") == "fa") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR }
@@ -242,9 +249,9 @@ class MainActivity : Activity() {
         val backdrop = LightningBackdrop(this); backdrop.addView(root, FrameLayout.LayoutParams(-1,-1)); setContentView(backdrop); root.requestApplyInsets()
         val header = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL; orientation = LinearLayout.HORIZONTAL; setPadding(dp(12), dp(8), dp(12), dp(8)) }
         root.addView(header, LinearLayout.LayoutParams(-1, dp(64)))
-        if (page !in listOf("home", "servers", "configs", "settings")) iconAction(header, "back", "home") { go(if (page == "favorites") "servers" else "home") }
+        if (accountReady && page !in listOf("home", "servers", "configs", "settings")) iconAction(header, "back", "home") { go(if (page == "favorites") "servers" else "home") }
         val brand = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL or Gravity.START; layoutDirection = View.LAYOUT_DIRECTION_LTR }
-        if (page == "home") {
+        if (page == "home" || !accountReady) {
             brand.addView(Symbol(this, "brand", Design.orange), LinearLayout.LayoutParams(dp(27), dp(30)))
             val text = SpannableString("RADVPN").apply { setSpan(ForegroundColorSpan(Design.orange), 0, 3, 0) }
             brand.addView(TextView(this).apply { this.text = text; textSize = 22f; setTextColor(Design.text); setTypeface(typeface, Typeface.BOLD); setPadding(dp(7), 0, 0, 0) })
@@ -265,6 +272,7 @@ class MainActivity : Activity() {
             "logs" -> diagnostics()
             "about" -> about()
         }
+        if(!accountReady){updateMetrics();return}
         val nav = LinearLayout(this).apply { gravity = Gravity.CENTER; orientation = LinearLayout.HORIZONTAL; setPadding(dp(8), dp(6), dp(8), dp(6)); background = Design.surface(this@MainActivity, Design.panel, radius = 0) }
         root.addView(nav, LinearLayout.LayoutParams(-1, dp(72)))
         for (target in listOf("home", "servers", "configs", "settings")) {
@@ -305,6 +313,7 @@ class MainActivity : Activity() {
         body = old; return value
     }
     private fun toggle() {
+        if(!accountReady){go("account");report("account_required");return}
         if (qa) { report("select_profile"); return }
         if (!isIdle) { pending = false; event("disconnecting"); startService(Intent(this, RadVpnService::class.java).setAction("stop")); return }
         if (selected() == null) { report("select_profile"); return }
@@ -313,10 +322,11 @@ class MainActivity : Activity() {
         requestVpn()
     }
     private fun requestVpn() {
+        if(!accountReady){go("account");return}
         if (settings().optString("mode") == "tunnel") { val intent = VpnService.prepare(this); if (intent != null) { startActivityForResult(intent, 42); return } }
         startVpn()
     }
-    private fun startVpn() { pending = true; RadVpnService.lastError = ""; event("starting"); updateMetrics(); startForegroundService(Intent(this, RadVpnService::class.java).setAction("start")) }
+    private fun startVpn() { if(!accountReady){go("account");return};pending = true; RadVpnService.lastError = ""; event("starting"); updateMetrics(); startForegroundService(Intent(this, RadVpnService::class.java).setAction("start")) }
     override fun onRequestPermissionsResult(code: Int, permissions: Array<out String>, grantResults: IntArray) { super.onRequestPermissionsResult(code, permissions, grantResults); if (code == 100) requestVpn() }
 
     private fun checkForUpdate()=job {
@@ -329,30 +339,59 @@ class MainActivity : Activity() {
         }
     }
     private fun clearAccount() {
-        if (AccountApi.managed(selected())) startService(Intent(this,RadVpnService::class.java).setAction("stop"))
-        val kept=JSONArray();for(p in items())if(!AccountApi.managed(p))kept.put(p);data.put("profiles",kept)
-        val subs=JSONArray();val old=data.getJSONArray("subscriptions");for(i in 0 until old.length()){val sub=old.getJSONObject(i);if(!sub.optString("id").startsWith("radvpn-account-"))subs.put(sub)};data.put("subscriptions",subs)
-        val endpoint=data.optJSONObject("radvpn")?.optString("endpoint")?:"";data.put("radvpn",JSONObject().put("endpoint",endpoint));repairSelection();save()
+        if(active!="disconnected"||pending)startService(Intent(this,RadVpnService::class.java).setAction("stop"))
+        accountReady=false;page="account";accountChecked=0L
+        AccountApi.clearManagedData(data);repairSelection();save()
     }
-    private fun accountRequest(action:()->JSONObject,done:(JSONObject)->Unit)=job {
-        try { val result=action();handler.post{if(!destroyed)done(result)} }
-        catch(e:Exception){handler.post{if(e.message=="account_revoked")clearAccount();report(e.message?:"account_unavailable");if(page=="account")render()}}
+    private fun accountRequest(action:()->JSONObject,done:(JSONObject)->Unit) {
+        if(accountBusy)return
+        accountBusy=true
+        job {
+            try { val result=action();handler.post{accountBusy=false;if(!destroyed)done(result)} }
+            catch(e:Exception){handler.post{accountBusy=false;if(e.message=="account_revoked")clearAccount();report(e.message?:"account_unavailable");render()}}
+        }
+    }
+    private fun restoreAccount() {
+        if(data.optJSONObject("radvpn")?.optString("token").isNullOrBlank())return
+        accountRequest({AccountApi.validate(data)}){result->
+            data.getJSONObject("radvpn").put("endpoint",AccountApi.PRODUCTION_ENDPOINT).put("account",result)
+            accountReady=true;accountVerifiedAt=SystemClock.elapsedRealtime();accountChecked=accountVerifiedAt;save();go("home")
+        }
+    }
+    private fun accountHeartbeat() {
+        val now=SystemClock.elapsedRealtime()
+        if(!accountReady||accountBusy||now-accountChecked<30000L)return
+        accountChecked=now
+        val snapshot=JSONObject(data.toString());val token=snapshot.optJSONObject("radvpn")?.optString("token")?:return
+        try {
+            val result=AccountApi.validate(snapshot)
+            handler.post{if(data.optJSONObject("radvpn")?.optString("token")==token){data.getJSONObject("radvpn").put("account",result);accountVerifiedAt=now;save()}}
+        } catch(e:Exception) {
+            handler.post{if(data.optJSONObject("radvpn")?.optString("token")==token){
+                if(e.message=="account_revoked")clearAccount()
+                else if(now-accountVerifiedAt>60000L){accountReady=false;page="account";startService(Intent(this,RadVpnService::class.java).setAction("stop"))}
+                if(!accountReady)render()
+            }}
+        }
     }
     private fun accountPage() {
         val state=data.optJSONObject("radvpn")?:JSONObject()
-        if(state.optString("token").isBlank()) {
-            label(t("account_endpoint"));val endpoint=EditText(this).apply{setText(state.optString("endpoint"));inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_URI};body.addView(endpoint)
-            label(t("account_code"));val code=EditText(this).apply{inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD};body.addView(code)
-            button("account_login",true){val base=endpoint.text.toString();val login=code.text.toString().trim();code.setText("");accountRequest({val r=AccountApi.call(base,"v1/auth/login",payload=JSONObject().put("code",login).put("platform","android").put("device_name","RADVPN Android"));r.put("endpoint",AccountApi.endpoint(base))}){r->data.put("radvpn",r);save();render()}}
+        if(!accountReady) {
+            AccountLoginForm.render(this,body,::t,{label(it)},{key,primary,action->button(key,primary,action)},state.optString("token").isNotBlank(),::restoreAccount,{code->
+                accountRequest({AccountApi.login(code)}){result->data.put("radvpn",result);accountReady=true;accountVerifiedAt=SystemClock.elapsedRealtime();accountChecked=accountVerifiedAt;save();go("home")}
+            },{report("account_login_help")})
             return
         }
-        val a=state.optJSONObject("account")?:JSONObject();val sub=a.optJSONObject("subscription")?:JSONObject()
-        fun amount(k:String)=if(sub.isNull(k))"—" else String.format(Locale.US,"%.2f GiB",sub.optLong(k)/1073741824.0)
-        for((k,v)in listOf("account_id" to a.optString("telegram_id"),"account_status" to a.optString("status"),"account_subscription" to sub.optString("status"),"account_total" to amount("total_bytes"),"account_used" to amount("used_bytes"),"account_remaining" to amount("remaining_bytes"),"account_capacity" to a.optString("device_capacity"),"account_active" to a.optString("active_sessions"),"account_slots" to a.optString("available_slots")))label(t(k)+": "+v)
+        val a=state.optJSONObject("account")?:JSONObject()
+        AccountDetails.lines(a,::t).forEach{label(it)}
         button("update"){accountRequest({AccountApi.validate(data)}){r->state.put("account",r);save();render()}}
-        button("account_import",true){accountRequest({AccountApi.validate(data)}){r->state.put("account",r);save();val url=r.optJSONObject("subscription")?.optString("url")?:"";if(url.isBlank())report("account_subscription_pending")else{val id="radvpn-account-"+r.getString("account_id");val subs=data.getJSONArray("subscriptions");var existing:JSONObject?=null;for(i in 0 until subs.length())if(subs.getJSONObject(i).optString("id")==id)existing=subs.getJSONObject(i);updateSubscription(existing?:JSONObject().put("id",id).put("name","RADVPN account").put("url",url),existing==null)}}}
-        button("account_purchase"){val url=a.optString("purchase_url");if(url.matches(Regex("https://t\\.me/[A-Za-z0-9_]+")))startActivity(Intent(Intent.ACTION_VIEW,android.net.Uri.parse(url+"?start=radvpn")))}
-        button("account_logout"){accountRequest({try{AccountApi.call(state.getString("endpoint"),"v1/auth/logout",state.getString("token"),JSONObject())}catch(e:IllegalStateException){if(e.message!="account_revoked")throw e;JSONObject()}}){clearAccount();render()}}
+        button("account_import",true){accountRequest({AccountApi.validate(data)}){r->
+            state.put("account",r);save()
+            val sub=AccountDetails.subscription(data,r)
+            if(sub==null)report("account_subscription_pending")else updateSubscription(sub.first,sub.second)
+        }}
+        button("account_purchase"){AccountDetails.purchaseLink(a)?.let{startActivity(Intent(Intent.ACTION_VIEW,android.net.Uri.parse(it)))}}
+        button("account_logout"){accountRequest({AccountDetails.logout(state)}){clearAccount();render()}}
     }
 
     private fun repairSelection() { if (selected() == null) data.put("selected", items().firstOrNull { it.optBoolean("enabled", true) }?.optString("id") ?: "") }
