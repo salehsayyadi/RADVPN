@@ -374,25 +374,10 @@ class MainActivity : Activity() {
             }}
         }
     }
-    private fun accountPage() {
-        val state=data.optJSONObject("radvpn")?:JSONObject()
-        if(!accountReady) {
-            AccountLoginForm.render(this,body,::t,{label(it)},{key,primary,action->button(key,primary,action)},state.optString("token").isNotBlank(),::restoreAccount,{code->
-                accountRequest({AccountApi.login(code)}){result->data.put("radvpn",result);accountReady=true;accountVerifiedAt=SystemClock.elapsedRealtime();accountChecked=accountVerifiedAt;save();go("home")}
-            },{report("account_login_help")})
-            return
-        }
-        val a=state.optJSONObject("account")?:JSONObject()
-        AccountDetails.lines(a,::t).forEach{label(it)}
-        button("update"){accountRequest({AccountApi.validate(data)}){r->state.put("account",r);save();render()}}
-        button("account_import",true){accountRequest({AccountApi.validate(data)}){r->
-            state.put("account",r);save()
-            val sub=AccountDetails.subscription(data,r)
-            if(sub==null)report("account_subscription_pending")else updateSubscription(sub.first,sub.second)
-        }}
-        button("account_purchase"){AccountDetails.purchaseLink(a)?.let{startActivity(Intent(Intent.ACTION_VIEW,android.net.Uri.parse(it)))}}
-        button("account_logout"){accountRequest({AccountDetails.logout(state)}){clearAccount();render()}}
-    }
+    private fun accountPage() = AccountScreen.render(this,body,data,accountReady,::t,{label(it)},
+        {key,primary,action->button(key,primary,action)},::accountRequest,::restoreAccount,
+        {result->data.put("radvpn",result);accountReady=true;accountVerifiedAt=SystemClock.elapsedRealtime();accountChecked=accountVerifiedAt;save();go("home")},
+        {sub,fresh->updateSubscription(sub,fresh)},::save,{clearAccount();render()},::render,::report,::showDialog)
 
     private fun repairSelection() { if (selected() == null) data.put("selected", items().firstOrNull { it.optBoolean("enabled", true) }?.optString("id") ?: "") }
     private fun merge(incoming: JSONArray, group: String = "") {
