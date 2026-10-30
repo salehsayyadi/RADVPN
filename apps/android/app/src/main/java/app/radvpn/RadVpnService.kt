@@ -34,11 +34,19 @@ class RadVpnService : VpnService() {
  private var showSpeed=true
  private var language="en"
  private var lastState=""
+ private var managed=false
+ private var accountCheck=0L
+ private var accountValid=0L
  private val watch=object: Runnable { override fun run() {
   if(closing)return
   worker.execute {
    if(!closing) {
     try {
+     if(managed && android.os.SystemClock.elapsedRealtime()-accountCheck>30000L){
+      accountCheck=android.os.SystemClock.elapsedRealtime()
+      try{AccountApi.validate(Vault.load(this@RadVpnService));accountValid=accountCheck}
+      catch(e:Exception){if(e.message=="account_revoked" || accountCheck-accountValid>60000L){lastError=e.message?:"account_unavailable";handler.post{shutdown()};return@execute}}
+     }
      val snapshot=Api.call(JSONObject().put("method","status"))
      val state=snapshot.optString("state")
      if(snapshot.optString("error").isNotEmpty())lastError=snapshot.optString("error")
@@ -73,6 +81,8 @@ class RadVpnService : VpnService() {
     val profiles=data.getJSONArray("profiles");var p:JSONObject?=null
     for(i in 0 until profiles.length()){val item=profiles.getJSONObject(i);if(item.optString("id")==data.optString("selected"))p=item}
     check(p!=null){"select_profile"}
+    managed=AccountApi.managed(p)
+    if(managed){AccountApi.validate(data);accountValid=android.os.SystemClock.elapsedRealtime();accountCheck=accountValid}
     val settings=data.getJSONObject("settings")
     Api.call(JSONObject().put("method","validate").put("profile",p).put("settings",settings))
     engine.Engine.setProtector(object: engine.Protector { override fun protect(fd:Long):Boolean=this@RadVpnService.protect(fd.toInt()) })

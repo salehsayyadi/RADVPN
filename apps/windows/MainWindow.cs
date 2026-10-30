@@ -35,7 +35,7 @@ internal sealed partial class MainWindow : Window
     {
         args = arguments;
         smoke = args.Contains("--ui-smoke");
-        Title = "RADVPN 2.0.3";
+        Title = "RADVPN 3.0.3";
         Width = 1440;
         Height = 900;
         MinWidth = 1120;
@@ -151,7 +151,7 @@ internal sealed partial class MainWindow : Window
     }
     void SetupTray()
     {
-        tray = new Forms.NotifyIcon { Icon = new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory, "RADVPN.ico")), Text = "RADVPN 2.0.3", Visible = true };
+        tray = new Forms.NotifyIcon { Icon = new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory, "RADVPN.ico")), Text = "RADVPN 3.0.3", Visible = true };
         tray.DoubleClick += (_, _) => { Show(); WindowState = WindowState.Normal; Activate(); };
         UpdateTray();
     }
@@ -191,6 +191,7 @@ internal sealed partial class MainWindow : Window
                 return;
             }
             var p = Selected() ?? throw new InvalidOperationException("select_profile");
+            if (ManagedProfile(p)) await ValidateAccount();
             if (Settings["mode"]?.ToString() == "tunnel" && !IsAdministrator())
             {
                 if (!ConfirmElevation())
@@ -318,6 +319,7 @@ internal sealed partial class MainWindow : Window
         ticking = true;
         try
         {
+            await AccountHeartbeat();
             var s = await core.Call(new
             {
                 method = "status"
@@ -436,7 +438,7 @@ internal sealed partial class MainWindow : Window
         DockPanel.SetDock(bottom, Dock.Bottom);
         sidebar.Children.Add(bottom);
         var navigation = new StackPanel { Margin = new Thickness(12, 0, 12, 0) };
-        foreach (var key in new[] { "home", "servers", "subscriptions", "configs", "settings", "logs" })
+        foreach (var key in new[] { "home", "account", "servers", "subscriptions", "configs", "settings", "logs" })
         {
             var target = key;
             var b = Action(key, () => { Navigate(target); return Task.CompletedTask; }, key);
@@ -507,6 +509,9 @@ internal sealed partial class MainWindow : Window
         }
         switch (page)
         {
+            case "account":
+                AccountPage();
+                break;
             case "home":
                 Home();
                 break;
