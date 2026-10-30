@@ -213,10 +213,19 @@ internal sealed partial class MainWindow
             settings = restored["settings"]
         });
         await StopConnection();
+        // A decrypted backup is not proof that its bearer session is still valid.
+        accountReady = false;
+        accountVerified = DateTime.MinValue;
+        page = "account";
         data = restored;
         RepairSelection();
         LoadWords();
         UpdateTray();
+        if (AccountState?["token"] != null)
+        {
+            try { await ValidateAccount(); page = "home"; }
+            catch { Notice("account_unavailable"); }
+        }
         Save();
         draft = null;
         Render();

@@ -21,7 +21,7 @@ try {
  $fixtureProfile=$fixtureImport.profiles[0]
  if(-not $fixtureProfile.id){throw 'Previous engine fixture import failed'}
  $fixtureSubscription=@{id='upgrade-sub-fixture';name='Upgrade fixture';url='https://upgrade-fixture.example.invalid/subscription'}
- $state=@{profiles=@($fixtureProfile);subscriptions=@($fixtureSubscription);lang='fa';selected=$fixtureProfile.id;settings=$defaults;tray=$false;upgradeFixture='radvpn303-preserve-fixture';trafficDays=@{}} | ConvertTo-Json -Depth 30 -Compress
+ $state=@{profiles=@($fixtureProfile);subscriptions=@($fixtureSubscription);lang='fa';selected=$fixtureProfile.id;settings=$defaults;tray=$false;upgradeFixture='radvpn303-preserve-fixture';trafficDays=@{};radvpn=@{endpoint='https://api.bestget.ir/';token='LOCAL-NONAUTHENTIC-UPGRADE-SESSION-FIXTURE';session_id='upgrade-fixture-session'}} | ConvertTo-Json -Depth 30 -Compress
  Add-Type -AssemblyName System.Security.Cryptography.ProtectedData
  New-Item (Split-Path $vault) -ItemType Directory -Force | Out-Null
  [IO.File]::WriteAllBytes($vault,[Security.Cryptography.ProtectedData]::Protect([Text.Encoding]::UTF8.GetBytes($state),$null,[Security.Cryptography.DataProtectionScope]::CurrentUser))
@@ -38,6 +38,8 @@ try {
  if($decoded.profiles.Count -ne 1 -or $decoded.profiles[0].id -ne $fixtureProfile.id -or $decoded.selected -ne $fixtureProfile.id){throw 'Existing profile/selection not retained'}
  if($decoded.subscriptions.Count -ne 1 -or $decoded.subscriptions[0].url -ne $fixtureSubscription.url){throw 'Existing subscription not retained'}
  if($decoded.settings.mode -ne $defaults.mode -or $decoded.settings.port -ne $defaults.port){throw 'Existing connection settings not retained'}
+ if($decoded.radvpn.token -ne 'LOCAL-NONAUTHENTIC-UPGRADE-SESSION-FIXTURE' -or $decoded.radvpn.session_id -ne 'upgrade-fixture-session'){throw 'Encrypted session fixture not retained'}
+ $report.Add('PASS encrypted non-authentic session fixture retained across installed upgrade and launch; no live session-validity claim')
  $report.Add('PASS upgraded native UI launches; existing profile, selection, subscription, language and connection settings retained')
  $portable=Join-Path $env:RUNNER_TEMP 'RADVPN-portable-upgrade-303'
  $oldZip=$release.assets|Where-Object name -eq 'RADVPN-Windows-Portable.zip'|Select-Object -First 1
