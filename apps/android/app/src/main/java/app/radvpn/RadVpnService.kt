@@ -81,8 +81,9 @@ class RadVpnService : VpnService() {
     val profiles=data.getJSONArray("profiles");var p:JSONObject?=null
     for(i in 0 until profiles.length()){val item=profiles.getJSONObject(i);if(item.optString("id")==data.optString("selected"))p=item}
     check(p!=null){"select_profile"}
-    managed=AccountApi.managed(p)
-    if(managed){AccountApi.validate(data);accountValid=android.os.SystemClock.elapsedRealtime();accountCheck=accountValid}
+    // Every application connection requires a valid session, including manual profiles.
+    managed=true
+    AccountApi.validate(data);accountValid=android.os.SystemClock.elapsedRealtime();accountCheck=accountValid
     val settings=data.getJSONObject("settings")
     Api.call(JSONObject().put("method","validate").put("profile",p).put("settings",settings))
     engine.Engine.setProtector(object: engine.Protector { override fun protect(fd:Long):Boolean=this@RadVpnService.protect(fd.toInt()) })

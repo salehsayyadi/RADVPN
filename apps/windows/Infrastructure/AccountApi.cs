@@ -9,9 +9,10 @@ using System.Threading.Tasks;
 namespace RADVPN;
 internal static class AccountApi
 {
+    internal const string ProductionEndpoint = "https://api.bestget.ir/";
     internal static Uri Base(string value)
     {
-        if (!Uri.TryCreate(value.TrimEnd('/') + "/", UriKind.Absolute, out var uri) || uri.Scheme != "https" || !string.IsNullOrEmpty(uri.UserInfo) || !string.IsNullOrEmpty(uri.Query) || !string.IsNullOrEmpty(uri.Fragment))
+        if (!Uri.TryCreate(value.TrimEnd('/') + "/", UriKind.Absolute, out var uri) || uri.Scheme != "https" || !string.IsNullOrEmpty(uri.UserInfo) || !string.IsNullOrEmpty(uri.Query) || !string.IsNullOrEmpty(uri.Fragment) || !string.Equals(uri.Host, "api.bestget.ir", StringComparison.OrdinalIgnoreCase) || uri.Port != 443 || uri.AbsolutePath != "/")
             throw new InvalidOperationException("account_https_required");
         return uri;
     }
@@ -20,8 +21,10 @@ internal static class AccountApi
         using var handler = new HttpClientHandler { AllowAutoRedirect = false };
         using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(20) };
         using var request = new HttpRequestMessage(payload == null ? HttpMethod.Get : HttpMethod.Post, new Uri(Base(endpoint), path));
-        if (token != null) request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        if (payload != null) request.Content = new StringContent(payload.ToJsonString(), Encoding.UTF8, "application/json");
+        if (token != null)
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        if (payload != null)
+            request.Content = new StringContent(payload.ToJsonString(), Encoding.UTF8, "application/json");
         try
         {
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
@@ -29,8 +32,14 @@ internal static class AccountApi
                 throw new InvalidOperationException("account_revoked");
             using var input = await response.Content.ReadAsStreamAsync();
             using var output = new MemoryStream();
-            var buffer = new byte[4096]; int n;
-            while ((n = await input.ReadAsync(buffer)) > 0) { if (output.Length + n > 262144) throw new InvalidOperationException("account_unavailable"); output.Write(buffer, 0, n); }
+            var buffer = new byte[4096];
+            int n;
+            while ((n = await input.ReadAsync(buffer)) > 0)
+            {
+                if (output.Length + n > 262144)
+                    throw new InvalidOperationException("account_unavailable");
+                output.Write(buffer, 0, n);
+            }
             var data = JsonNode.Parse(output.ToArray()) as JsonObject ?? throw new InvalidOperationException("account_unavailable");
             if (!response.IsSuccessStatusCode || data["error"] != null)
             {

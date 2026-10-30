@@ -91,6 +91,15 @@ internal sealed partial class MainWindow : Window
                 RestoreGeometry();
                 SetupTray();
             }
+            if (!smoke && AccountState?["token"] != null)
+            {
+                try
+                {
+                    await ValidateAccount();
+                    page = "home";
+                }
+                catch { Notice("account_unavailable"); }
+            }
             Render();
             timer.Start();
             if (smoke)
@@ -100,9 +109,9 @@ internal sealed partial class MainWindow : Window
             }
             if (args.Contains("--elevated-connect") && IsAdministrator() && Selected() != null)
                 await Toggle();
-            if (args.Contains("--minimized"))
+            if (args.Contains("--minimized") && accountReady)
                 Hide();
-            if (data["autoConnect"]?.GetValue<bool>() == true && Settings["mode"]?.ToString() == "proxy" && Selected() != null)
+            if (accountReady && data["autoConnect"]?.GetValue<bool>() == true && Settings["mode"]?.ToString() == "proxy" && Selected() != null)
                 await Toggle();
         }
         catch (Exception e) { active = "error"; Notice(Code(e)); }
@@ -191,7 +200,7 @@ internal sealed partial class MainWindow : Window
                 return;
             }
             var p = Selected() ?? throw new InvalidOperationException("select_profile");
-            if (ManagedProfile(p)) await ValidateAccount();
+            await ValidateAccount();
             if (Settings["mode"]?.ToString() == "tunnel" && !IsAdministrator())
             {
                 if (!ConfirmElevation())
@@ -408,12 +417,14 @@ internal sealed partial class MainWindow : Window
     }
     public void Navigate(string target)
     {
-        page = target;
+        page = accountReady ? target : "account";
         draft = null;
         Render();
     }
     void Render()
     {
+        if (!accountReady)
+            page = "account";
         status = null;
         sessionInfo = null;
         upText = downText = latencyText = null;
@@ -438,7 +449,7 @@ internal sealed partial class MainWindow : Window
         DockPanel.SetDock(bottom, Dock.Bottom);
         sidebar.Children.Add(bottom);
         var navigation = new StackPanel { Margin = new Thickness(12, 0, 12, 0) };
-        foreach (var key in new[] { "home", "account", "servers", "subscriptions", "configs", "settings", "logs" })
+        foreach (var key in accountReady ? new[] { "home", "account", "servers", "subscriptions", "configs", "settings", "logs" } : new[] { "account" })
         {
             var target = key;
             var b = Action(key, () => { Navigate(target); return Task.CompletedTask; }, key);
