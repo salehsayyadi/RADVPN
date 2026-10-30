@@ -41,8 +41,8 @@ jobs:
           gradle -p apps/android --no-daemon -PradvpnTestBuildType=sandbox assembleSandbox assembleSandboxAndroidTest lintSandbox
           cp apps/android/app/build/outputs/apk/sandbox/app-sandbox.apk dist/manual-android/RADVPN-Android-3.0.3-MANUAL-TEST.apk
           cp apps/android/app/build/outputs/apk/androidTest/sandbox/app-sandbox-androidTest.apk dist/manual-android/TEST-INSTRUMENTATION.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs dist/manual-android/*.apk > "$RUNNER_TEMP/manual-signature.txt"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/manual-android/*.apk > "$RUNNER_TEMP/manual-package.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs dist/manual-android/RADVPN-Android-3.0.3-MANUAL-TEST.apk > "$RUNNER_TEMP/manual-signature.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/manual-android/RADVPN-Android-3.0.3-MANUAL-TEST.apk > "$RUNNER_TEMP/manual-package.txt"
           python3 - <<'PY'
           import json,hashlib,pathlib,os,re
           p=pathlib.Path('dist/manual-android');apk=p/'RADVPN-Android-3.0.3-MANUAL-TEST.apk'

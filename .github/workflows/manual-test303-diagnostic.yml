@@ -16,7 +16,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import subprocess,json,zipfile,io,base64,hashlib
-          repo='salehsayyadi/RADVPN';run=41073508651
+          repo='salehsayyadi/RADVPN';run=41076266957
           def api(path,method='GET',body=None):
            cmd=['gh','api','--method',method,'repos/'+repo+'/'+path]
            if body is not None:cmd+=['--input','-']
