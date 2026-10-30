@@ -20,7 +20,7 @@ jobs:
           python3 - <<'PY'
           import subprocess,json,hashlib,zipfile,io,pathlib
           base='repos/salehsayyadi/RADVPN/'
-          a=next(a for a in json.loads(subprocess.check_output(['gh','api',base+'actions/runs/41069345424/artifacts']))['artifacts'] if a['name']=='RADVPN-303-Android-manual-test')
+          a=next(a for a in json.loads(subprocess.check_output(['gh','api',base+'actions/runs/41073508651/artifacts']))['artifacts'] if a['name']=='RADVPN-303-Android-manual-test')
           data=subprocess.check_output(['gh','api',base+f'actions/artifacts/{a["id"]}/zip']);assert a['digest']=='sha256:'+hashlib.sha256(data).hexdigest()
           p=pathlib.Path('dist/manual-android');p.mkdir(parents=True)
           with zipfile.ZipFile(io.BytesIO(data)) as z:
