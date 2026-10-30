@@ -2,8 +2,8 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType><TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms><EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <Nullable>enable</Nullable><ImplicitUsings>disable</ImplicitUsings><Version>2.0.3</Version>
-    <AssemblyVersion>2.0.3.0</AssemblyVersion><FileVersion>2.0.3.0</FileVersion><Product>RADVPN</Product>
+    <Nullable>enable</Nullable><ImplicitUsings>disable</ImplicitUsings><Version>3.0.3</Version>
+    <AssemblyVersion>3.0.3.0</AssemblyVersion><FileVersion>3.0.3.0</FileVersion><Product>RADVPN</Product>
     <ApplicationIcon>../../assets/RADVPN.ico</ApplicationIcon><ApplicationManifest>app.manifest</ApplicationManifest><StartupObject>RADVPN.Program</StartupObject>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile><RuntimeFrameworkVersion>8.0.33</RuntimeFrameworkVersion>
   </PropertyGroup>

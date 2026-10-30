@@ -10,6 +10,7 @@ go build -trimpath -ldflags='-s -w' -o dist/windows/radcore.exe ./cmd/radcore
 if ($LASTEXITCODE -ne 0) { throw 'Go build failed' }
 dotnet publish apps/windows/RADVPN.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o dist/windows
 if ($LASTEXITCODE -ne 0) { throw 'Windows publish failed' }
+if ((Get-Item dist/windows/RADVPN.exe).VersionInfo.FileVersion -ne '3.0.3.0') { throw 'Published Windows executable version is not 3.0.3.0' }
 python scripts/fetch-wintun.py
 if ($LASTEXITCODE -ne 0) { throw 'Wintun checksum failed' }
 if ((Get-AuthenticodeSignature dist/windows/wintun.dll).Status -ne 'Valid') { throw 'Wintun Authenticode signature is not valid' }
