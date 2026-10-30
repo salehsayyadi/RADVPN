@@ -121,4 +121,12 @@ def main():
     print('Android APK absent; live ecosystem deployment/E2E remains blocked. Latest unchanged.')
     for path in assets.iterdir(): print(sha(path), path.name)
 
-if __name__ == '__main__': main()
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception as exc:
+        # Only fixed validation messages / public API paths; never dump environment or credentials.
+        message = (type(exc).__name__ + ': ' + str(exc)).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+        print('::error title=RADVPN publication blocked::' + message, flush=True)
+        raise
+
