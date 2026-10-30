@@ -60,6 +60,10 @@ class AccountGateTest {
     var rejected=false;try{AccountApi.endpoint(value)}catch(_:Exception){rejected=true};assertTrue(rejected)
    }
    checks.add("Canonical API validation and exact Telegram register deep link; Telegram client opening not exercised")
+   val source=JSONObject().put("radvpn",JSONObject().put("token","LOCAL-NONAUTHENTIC-GUARD-FIXTURE"))
+   val guard=AccountRequestGuard(source);assertTrue(guard.matches(source));assertFalse(guard.matches(JSONObject(source.toString())))
+   source.put("radvpn",JSONObject());assertFalse(guard.matches(source))
+   checks.add("Old account request completion rejected after data/account reference replacement")
    val directory=File(inst.targetContext.cacheDir,"account-vault-fixture").apply{mkdirs()}
    val context=object:ContextWrapper(inst.targetContext){override fun getFilesDir():File=directory}
    try{
