@@ -1,0 +1,106 @@
+name: Verify original-identity RADVPN Android production build
+on:
+  push:
+    branches: [feature/radvpn-3.0.3]
+    paths: [.github/production303-request.json]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: radvpn303-production-android
+  cancel-in-progress: false
+jobs:
+  production:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - name: Test production branding guard
+        run: python3 -m unittest discover -s tests -p test_production_branding303.py -v
+      - id: signer
+        name: Require the original persistent signing identity, never substitute a debug key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RADVPN_ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.RADVPN_ANDROID_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.RADVPN_ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.RADVPN_ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$STORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ]; then
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+            echo 'Blocked: original compatible signing identity is not configured. No replacement key, APK or release was generated.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          umask 077
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/original-radvpn.jks"
+          echo "RADVPN_ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/original-radvpn.jks" >> "$GITHUB_ENV"
+          echo "RADVPN_ANDROID_STORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "RADVPN_ANDROID_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "RADVPN_ANDROID_KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
+          echo 'ready=true' >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff
+        if: steps.signer.outputs.ready == 'true'
+        with: {go-version: '1.27.3'}
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        if: steps.signer.outputs.ready == 'true'
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        if: steps.signer.outputs.ready == 'true'
+        with: {gradle-version: '8.11.1'}
+      - id: build
+        name: Build actual release flavor with normal package and RADVPN display name
+        if: steps.signer.outputs.ready == 'true'
+        run: |
+          set -Eeuo pipefail
+          set +o pipefail
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null
+          set -o pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.0.13004108'
+          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/28.0.13004108"
+          export PATH="$(go env GOPATH)/bin:$PATH"
+          VERSION=$(cat scripts/gomobile-version.txt)
+          go install "golang.org/x/mobile/cmd/gomobile@$VERSION"
+          go install "golang.org/x/mobile/cmd/gobind@$VERSION"
+          mkdir -p apps/android/app/libs dist/production-android
+          gomobile bind -ldflags='-checklinkname=0 -s -w' -target=android/arm64,android/amd64 -androidapi=26 -o apps/android/app/libs/radengine.aar ./packages/mobile
+          python3 scripts/collect-android-licenses.py
+          python3 scripts/check.py
+          gradle -p apps/android --no-daemon assembleRelease lintRelease
+          cp apps/android/app/build/outputs/apk/release/app-release.apk dist/production-android/RADVPN-Android.apk
+      - id: verify
+        name: Verify real APK label, package and original baseline signing continuity
+        if: steps.build.outcome == 'success'
+        run: |
+          set -Eeuo pipefail
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          python3 scripts/verify-production-branding303.py dist/production-android/RADVPN-Android.apk "$tools" > dist/production-android/Android-metadata.json
+          curl -fL https://github.com/salehsayyadi/RADVPN/releases/download/v2.0.3/RADVPN-Android.apk -o "$RUNNER_TEMP/previous.apk"
+          python3 scripts/check-android-upgrade-303.py "$RUNNER_TEMP/previous.apk" dist/production-android/RADVPN-Android.apk "$tools"
+          cp dist/android-upgrade-303-report.txt dist/production-android/
+          (cd dist/production-android && sha256sum RADVPN-Android.apk > SHA256SUMS.txt)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: steps.verify.outcome == 'success'
+        with:
+          name: RADVPN-Android-original-identity
+          path: dist/production-android/
+          if-no-files-found: error
+      - name: Remove temporary original signing material
+        if: always()
+        run: rm -f "$RUNNER_TEMP/original-radvpn.jks"
+      - name: Record exact production build status without secrets
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          SIGNER_READY: ${{ steps.signer.outputs.ready }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          VERIFY_OUTCOME: ${{ steps.verify.outcome }}
+        with:
+          script: |
+            const verified=process.env.VERIFY_OUTCOME==='success';
+            const ready=process.env.SIGNER_READY==='true';
+            const report={source_sha:context.sha,run_id:context.runId,run_url:`https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,status:verified?'Implemented but not tested':ready?'Blocked':'Blocked',reason:verified?'original_identity_apk_built_runtime_upgrade_not_tested':ready?'build_or_identity_verification_failed':'original_compatible_signing_identity_not_configured',expected_package:'app.radvpn',expected_label:'RADVPN',apk_built:process.env.BUILD_OUTCOME==='success',identity_and_signature_checked:verified,runtime_upgrade_tested:false,published:false};
+            const path='docs/production303/latest.json',branch='feature/radvpn-3.0.3';
+            let sha;try{sha=(await github.rest.repos.getContent({...context.repo,path,ref:branch})).data.sha;}catch(e){if(e.status!==404)throw e;}
+            await github.rest.repos.createOrUpdateFileContents({...context.repo,path,branch,sha,message:'docs: record original-identity Android build status [skip ci]',content:Buffer.from(JSON.stringify(report,null,2)+'\n').toString('base64')});

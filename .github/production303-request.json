@@ -1,0 +1,1 @@
+{"reason":"Owner requests original RADVPN app name, not a relabeled testing APK","require_original_signer":true,"allow_replacement_key":false,"expected_package":"app.radvpn","expected_label":"RADVPN"}
