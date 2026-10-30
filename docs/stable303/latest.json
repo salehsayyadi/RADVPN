@@ -1,0 +1,64 @@
+{
+  "published": true,
+  "cleanup_complete": true,
+  "target_tag": "3.0.3",
+  "binary_source_sha": "df491cfe9f2d1c1a8c4441246335ea1b7be501de",
+  "automation_sha": "6c59aaa3c03b7ebac6bfcfdf42e15a5e2629f6e2",
+  "owner_test_accepted": true,
+  "android_package": "app.radvpn.testing",
+  "android_version_name": "3.0.3-testing",
+  "android_in_place_production_upgrade_verified": false,
+  "deleted_prerelease_ids": [
+    428793318,
+    429172446,
+    428795098,
+    429465633
+  ],
+  "preserved_git_tags": true,
+  "replacement_release_id": 429479807,
+  "release_url": "https://github.com/salehsayyadi/RADVPN/releases/tag/3.0.3",
+  "assets": [
+    {
+      "name": "Android-metadata.json",
+      "size": 347,
+      "digest": "sha256:7585c69e6676354867f8991113fc2b4ad3fb80e318546999d23a2918b68449d0",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/3.0.3/Android-metadata.json"
+    },
+    {
+      "name": "build-provenance.json",
+      "size": 1849,
+      "digest": "sha256:e5a0c3346d1e18f0abc608d5d825f5482a4082979b6f5e69e7b70feb48d5cab8",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/3.0.3/build-provenance.json"
+    },
+    {
+      "name": "RADVPN-Android.apk",
+      "size": 71476627,
+      "digest": "sha256:f36264fc174e41e9df865b6d44760673557b545a78938e1d65318d2cb86e4e75",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/3.0.3/RADVPN-Android.apk"
+    },
+    {
+      "name": "RADVPN-Windows-Portable.zip",
+      "size": 81307978,
+      "digest": "sha256:e24e39bcff987eb6aea1b49685475a5fcd70350124ff48957625437a543cad96",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/3.0.3/RADVPN-Windows-Portable.zip"
+    },
+    {
+      "name": "RADVPN-Windows-Setup.exe",
+      "size": 57524634,
+      "digest": "sha256:1f7b523787719784bb9f7385e86d9b6308de76107c80cac09b3c7d229e766d4e",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/3.0.3/RADVPN-Windows-Setup.exe"
+    },
+    {
+      "name": "RELEASE-NOTES.md",
+      "size": 2315,
+      "digest": "sha256:6d98de76ba2aff02ac2c680f898743b98b099ac7453605fc3208e5e60dda3fb7",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/3.0.3/RELEASE-NOTES.md"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 529,
+      "digest": "sha256:792e05e208df8e34ccc0baecf5eb9d222c085ae9b59f3224faaca31891e55c7e",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/3.0.3/SHA256SUMS.txt"
+    }
+  ]
+}
