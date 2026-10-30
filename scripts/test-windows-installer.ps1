@@ -6,7 +6,7 @@ trap {
   exit 1
 }
 Set-Location "$PSScriptRoot/.."
-$setup = (Resolve-Path dist/RADVPN-Setup-2.0.3-x64.exe).Path
+$setup = (Resolve-Path dist/RADVPN-Setup-3.0.3-x64.exe).Path
 $install = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'RADVPN-Install-Smoke'
 $report = [System.Collections.Generic.List[string]]::new()
 function Run-Wait($file,$arguments) { Write-Host "Executing $([IO.Path]::GetFileName($file)) $arguments"; $p = Start-Process -FilePath $file -ArgumentList $arguments -PassThru -Wait; if ($p.ExitCode -ne 0) { throw "$file failed with $($p.ExitCode)" } }
@@ -16,7 +16,7 @@ Run-Wait $setup "/S /D=$install"
 if (-not (Test-Path "$install/RADVPN.exe") -or -not (Test-Path "$install/radcore.exe") -or -not (Test-Path "$install/wintun.dll")) { throw 'Installed payload missing' }
 $report.Add('PASS silent per-user installation and bundled app/core/driver files')
 $portable = Join-Path $env:RUNNER_TEMP ('RADVPN-Portable-' + [guid]::NewGuid().ToString('N'))
-Expand-Archive -Path dist/RADVPN-Windows-Portable-2.0.3-x64.zip -DestinationPath $portable
+Expand-Archive -Path dist/RADVPN-Windows-Portable-3.0.3-x64.zip -DestinationPath $portable
 try {
  if (-not (Test-Path "$portable/radcore.exe") -or -not (Test-Path "$portable/wintun.dll") -or -not (Test-Path "$portable/flags-atlas.json") -or -not (Test-Path "$portable/lightning.jpg")) { throw 'Portable runtime assets missing' }
  Run-Wait "$portable/RADVPN.exe" "--self-test `"$PWD/dist/portable-native-tests.json`""
