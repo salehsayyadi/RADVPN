@@ -24,12 +24,15 @@ jobs:
         with: {gradle-version: '8.11.1'}
       - name: Build separate-identity testing APK; no production signing secrets
         run: |
-          set -euo pipefail
+          set -Eeuo pipefail
+          exec > >(tee "$RUNNER_TEMP/android-standalone-build.log") 2>&1
+          trap 'python3 scripts/annotate-android-test-failure.py "$RUNNER_TEMP/android-standalone-build.log"' ERR
           set +o pipefail
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null
           set -o pipefail
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.0.13004108'
           export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/28.0.13004108"
+          gradle -p apps/android --no-daemon help
           export PATH="$(go env GOPATH)/bin:$PATH"
           VERSION=$(cat scripts/gomobile-version.txt)
           go install "golang.org/x/mobile/cmd/gomobile@$VERSION"
