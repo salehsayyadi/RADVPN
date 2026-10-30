@@ -2,7 +2,15 @@
 set -euo pipefail
 python3 scripts/test-manual-android303.py
 adb install -r apps/android/app/build/outputs/apk/androidTest/sandbox/app-sandbox-androidTest.apk
-adb shell am instrument -w -r -e class app.radvpn.ManualInstallGateTest app.radvpn.testing.test/androidx.test.runner.AndroidJUnitRunner | tee dist/manual-android/native-mask-instrumentation.txt
+COMPONENT=$(python3 - <<'PY_COMPONENT'
+import re,subprocess
+s=subprocess.check_output(['adb','shell','pm','list','instrumentation'],text=True)
+rows=re.findall(r'^instrumentation:([^ ]+) \(target=app\.radvpn\.testing\)$',s,re.M)
+assert len(rows)==1 and rows[0].endswith('/androidx.test.runner.AndroidJUnitRunner'), 'Expected one actual sandbox test runner'
+print(rows[0])
+PY_COMPONENT
+)
+adb shell am instrument -w -r -e class app.radvpn.ManualInstallGateTest "$COMPONENT" | tee dist/manual-android/native-mask-instrumentation.txt
 grep -q 'OK (1 test)' dist/manual-android/native-mask-instrumentation.txt
 python3 - <<'PY'
 import json,pathlib

@@ -1,1 +1,1 @@
-{"tag":"v3.0.3-manual-test.1","attempt":4,"repair":"enforce password transformation after single-line configuration; verify actual transformation in debug and sandbox instrumentation"}
+{"tag":"v3.0.3-manual-test.1","attempt":5,"repair":"wait for real app window without dismissing OS dialogs; resolve installed instrumentation component from package manager; all existing assertions retained"}

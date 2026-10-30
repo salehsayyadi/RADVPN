@@ -24,10 +24,15 @@ try:
  stage='launch';result=adb('shell','am','start','-W','-n','app.radvpn.testing/app.radvpn.MainActivity')
  assert 'Status: ok' in result,'Activity launch status not ok';checks.append('Activity launch returned Status ok')
  time.sleep(5);stage='process';assert adb('shell','pidof','app.radvpn.testing').strip();checks.append('Test app process remains alive');stage='ui_dump'
- adb('shell','uiautomator','dump','/sdcard/radvpn-manual-ui.xml')
- root=ET.fromstring(adb('exec-out','cat','/sdcard/radvpn-manual-ui.xml'))
- texts=[n.attrib.get('text','') for n in root.iter('node')]
- observed={'node_count':len(list(root.iter('node'))),'has_code_label':'Shared login code from Telegram' in texts,'has_sign_in':'Sign in' in texts,'has_telegram':'Get / Create Account in Telegram' in texts,'has_password':any(n.attrib.get('password')=='true' for n in root.iter('node')),'packages':sorted({n.attrib.get('package','') for n in root.iter('node')})};stage='ui_assertions'
+ # Wait for the app's actual window; Android's transient installer/system window
+ # can briefly obscure it. No dialog is dismissed and no auth/privacy check is skipped.
+ for attempt in range(12):
+  adb('shell','uiautomator','dump','/sdcard/radvpn-manual-ui.xml')
+  root=ET.fromstring(adb('exec-out','cat','/sdcard/radvpn-manual-ui.xml'))
+  texts=[n.attrib.get('text','') for n in root.iter('node')]
+  if all(label in texts for label in ('Shared login code from Telegram','Sign in','Get / Create Account in Telegram')):break
+  time.sleep(2)
+ observed={'node_count':len(list(root.iter('node'))),'has_code_label':'Shared login code from Telegram' in texts,'has_sign_in':'Sign in' in texts,'has_telegram':'Get / Create Account in Telegram' in texts,'has_password':any(n.attrib.get('password')=='true' for n in root.iter('node')),'packages':sorted({n.attrib.get('package','') for n in root.iter('node')}),'clean_fixture_system_dialog_labels':[n.attrib.get('text','')[:180] for n in root.iter('node') if n.attrib.get('package')=='android' and n.attrib.get('text')][:15]};stage='ui_assertions'
  assert 'Shared login code from Telegram' in texts
  assert 'Sign in' in texts and 'Get / Create Account in Telegram' in texts
  # Accessibility isPassword is not the native masking authority on API35; native test must pass separately.
