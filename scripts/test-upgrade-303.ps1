@@ -17,7 +17,11 @@ try {
  Run-Wait $prior "/S /D=$target"
  if(-not (Test-Path "$target/RADVPN.exe")){throw 'Previous installation failed'}
  $defaults=('{"method":"defaults"}' | & "$target/radcore.exe" | ConvertFrom-Json).data
- $state=@{profiles=@();subscriptions=@();lang='fa';selected='';settings=$defaults;tray=$false;upgradeFixture='radvpn303-preserve-fixture';trafficDays=@{}} | ConvertTo-Json -Depth 30 -Compress
+ $fixtureImport=('{"method":"import","text":"http://fixture-only@127.0.0.1:3128#upgrade-fixture"}' | & "$target/radcore.exe" | ConvertFrom-Json).data
+ $fixtureProfile=$fixtureImport.profiles[0]
+ if(-not $fixtureProfile.id){throw 'Previous engine fixture import failed'}
+ $fixtureSubscription=@{id='upgrade-sub-fixture';name='Upgrade fixture';url='https://upgrade-fixture.example.invalid/subscription'}
+ $state=@{profiles=@($fixtureProfile);subscriptions=@($fixtureSubscription);lang='fa';selected=$fixtureProfile.id;settings=$defaults;tray=$false;upgradeFixture='radvpn303-preserve-fixture';trafficDays=@{}} | ConvertTo-Json -Depth 30 -Compress
  Add-Type -AssemblyName System.Security.Cryptography.ProtectedData
  New-Item (Split-Path $vault) -ItemType Directory -Force | Out-Null
  [IO.File]::WriteAllBytes($vault,[Security.Cryptography.ProtectedData]::Protect([Text.Encoding]::UTF8.GetBytes($state),$null,[Security.Cryptography.DataProtectionScope]::CurrentUser))
@@ -31,7 +35,10 @@ try {
  Run-Wait "$target/RADVPN.exe" "--ui-smoke --capture-dir `"$PWD/dist/upgrade-ui`""
  $decoded=[Text.Encoding]::UTF8.GetString([Security.Cryptography.ProtectedData]::Unprotect([IO.File]::ReadAllBytes($vault),$null,[Security.Cryptography.DataProtectionScope]::CurrentUser)) | ConvertFrom-Json
  if($decoded.upgradeFixture -ne 'radvpn303-preserve-fixture' -or $decoded.lang -ne 'fa'){throw 'User fixture/settings were not retained at launch'}
- $report.Add('PASS upgraded native UI launches and retained fixture/language are readable')
+ if($decoded.profiles.Count -ne 1 -or $decoded.profiles[0].id -ne $fixtureProfile.id -or $decoded.selected -ne $fixtureProfile.id){throw 'Existing profile/selection not retained'}
+ if($decoded.subscriptions.Count -ne 1 -or $decoded.subscriptions[0].url -ne $fixtureSubscription.url){throw 'Existing subscription not retained'}
+ if($decoded.settings.mode -ne $defaults.mode -or $decoded.settings.port -ne $defaults.port){throw 'Existing connection settings not retained'}
+ $report.Add('PASS upgraded native UI launches; existing profile, selection, subscription, language and connection settings retained')
  $portable=Join-Path $env:RUNNER_TEMP 'RADVPN-portable-upgrade-303'
  $oldZip=$release.assets|Where-Object name -eq 'RADVPN-Windows-Portable.zip'|Select-Object -First 1
  if(-not $oldZip){throw 'Previous portable package missing'}
@@ -41,7 +48,8 @@ try {
  Expand-Archive $zip $portable
  Expand-Archive dist/RADVPN-Windows-Portable-3.0.3-x64.zip $portable -Force
  Run-Wait "$portable/RADVPN.exe" "--self-test `"$PWD/dist/portable-tests-303.json`""
- if((Get-FileHash $vault -Algorithm SHA256).Hash -eq ''){throw 'User vault missing'}
+ $portableState=[Text.Encoding]::UTF8.GetString([Security.Cryptography.ProtectedData]::Unprotect([IO.File]::ReadAllBytes($vault),$null,[Security.Cryptography.DataProtectionScope]::CurrentUser)) | ConvertFrom-Json
+ if($portableState.selected -ne $fixtureProfile.id -or $portableState.profiles.Count -ne 1 -or $portableState.subscriptions[0].url -ne $fixtureSubscription.url){throw 'Portable upgrade lost profile/subscription data'}
  $report.Add('PASS previous portable ZIP overwritten by v3.0.3; new native executable self-tests pass; user vault retained')
  $report.Add('NOT RUN: physical remote VPN, live central API account upgrade, interactive installer consent, Android upgrade')
 } catch { $report.Add('FAIL: '+$_.Exception.Message);throw }

@@ -177,13 +177,14 @@ internal sealed partial class MainWindow
         Directory.CreateDirectory(directory);
         var results = new List<object>();
         var failures = new List<string>();
+        var originalState = (JsonObject)data.DeepClone();
         try
         {
             foreach (var language in new[] { "en", "fa" })
             {
                 foreach (var size in new[] { (Width: 1440, Height: 900), (Width: 1280, Height: 720) })
                 {
-                    foreach (var target in new[] { "home", "servers", "subscriptions", "configs", "profiles", "traffic", "settings", "settings-connection", "settings-security", "settings-advanced", "advanced", "logs", "about", "home-proxy", "home-populated", "servers-populated", "subscriptions-populated" })
+                    foreach (var target in new[] { "home", "account", "servers", "subscriptions", "configs", "profiles", "traffic", "settings", "settings-connection", "settings-security", "settings-advanced", "advanced", "logs", "about", "home-proxy", "home-populated", "servers-populated", "subscriptions-populated" })
                     {
                         Width = size.Width;
                         Height = size.Height;
@@ -324,7 +325,7 @@ internal sealed partial class MainWindow
             Environment.ExitCode = failures.Count == 0 ? 0 : 2;
         }
         catch (Exception e) { File.WriteAllText(Path.Combine(directory, "ui-error.txt"), e.GetType().Name + ": " + e.Message); Environment.ExitCode = 1; }
-        finally { exitRequested = true; Close(); }
+        finally { data = originalState; LoadWords(); exitRequested = true; Close(); }
     }
     static List<string> Audit(FrameworkElement root)
     {
