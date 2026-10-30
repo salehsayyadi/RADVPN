@@ -1,8 +1,8 @@
 {
   "tag": "v3.0.3-manual-test.1",
   "published": false,
-  "source_sha": "d8224e9cb90e972b9a0c8657b62a300f66ee3ddb",
-  "run_id": 41071594136,
+  "source_sha": "ebdf0ae14b5a87580a91060a861118f880870836",
+  "run_id": 41072968656,
   "scope": "User-requested manual-test prerelease; NOT final/stable/production acceptance",
   "error_type": "AssertionError"
 }
