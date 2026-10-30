@@ -313,5 +313,9 @@
   "update_portable_help": "Close RADVPN, then extract the verified portable ZIP over the application files. Keep the existing user-data folder.",
   "update_install_permission": "Allow this app to install updates in Android settings, then retry.",
   "update_signature_mismatch": "Update signing identity or package does not match this installation. Do not uninstall; contact the publisher.",
-  "update_install_failed": "Android could not complete the update. Check installation permission, storage and compatibility; do not uninstall."
+  "update_install_failed": "Android could not complete the update. Check installation permission, storage and compatibility; do not uninstall.",
+  "account_get_telegram": "Get / Create Account in Telegram",
+  "account_login_help": "Get your shared login code from @RadVpn7bot using /rejecterapp. The Telegram button opens the registration deep link; Telegram may require tapping Start.",
+  "account_restore": "Retry saved session",
+  "account_required": "Sign in to RADVPN to continue."
 }

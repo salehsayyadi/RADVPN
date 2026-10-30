@@ -23,6 +23,20 @@ internal static class NativeSmoke
         var checks = new List<string>();
         try
         {
+            if (AccountApi.Base(AccountApi.ProductionEndpoint).Host != "api.bestget.ir")
+                throw new Exception("canonical API");
+            foreach (var invalid in new[] { "http://api.bestget.ir", "https://example.invalid", "https://api.bestget.ir:8443", "https://api.bestget.ir/other", "https://user:secret@api.bestget.ir" })
+            {
+                bool rejected = false;
+                try
+                {
+                    AccountApi.Base(invalid);
+                }
+                catch (InvalidOperationException) { rejected = true; }
+                if (!rejected)
+                    throw new Exception("noncanonical API accepted");
+            }
+            checks.Add("production account API canonical restriction");
             using var core = new Core();
             var version = await core.Call(new
             {
@@ -243,7 +257,7 @@ internal sealed partial class MainWindow
                         }
                         await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
                         await Task.Delay(160);
-                        if (target == "servers-populated" && size.Width == 1440)
+                        if (accountReady && target == "servers-populated" && size.Width == 1440)
                         {
                             var editTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
                             editTimer.Tick += (_, _) => { var editor = OwnedWindows.Cast<Window>().FirstOrDefault(); if (editor == null) return; editTimer.Stop(); NativeSmoke.Bitmap(editor, Path.Combine(directory, "editor-" + language + ".png")); editor.Close(); };
@@ -281,11 +295,15 @@ internal sealed partial class MainWindow
                         var filename = $"{target}-{language}-{size.Width}x{size.Height}.png";
                         NativeSmoke.Bitmap(root, Path.Combine(directory, filename));
                         var overflow = Audit(root);
+                        if (accountReady || page != "account")
+                            overflow.Add("Unauthenticated navigation escaped mandatory login gate");
                         if (Math.Abs(root.ActualWidth - size.Width) > 1 || Math.Abs(root.ActualHeight - size.Height) > 1)
                             overflow.Add("Offscreen native viewport size mismatch");
                         results.Add(new
                         {
-                            page = target,
+                            requestedPage = target,
+                            actualPage = page,
+                            authenticationGateExpected = true,
                             language,
                             windowWidth = ActualWidth,
                             windowHeight = ActualHeight,
@@ -320,7 +338,7 @@ internal sealed partial class MainWindow
                 passed = failures.Count == 0,
                 captures = results,
                 failures,
-                scope = "Actual compiled WPF pages rendered offscreen at requested CLIENT viewport sizes with RTL root transform restored. Native host window dimensions are recorded separately. Physical window-resize/desktop-display QA and VPN leak tests are NOT RUN."
+                scope = "Unauthenticated production binary navigation-gate regression: each requested protected route must render the login page. These captures DO NOT verify authenticated dashboard layouts. Live login, revocation, physical desktop and VPN leak tests are NOT RUN."
             }, new JsonSerializerOptions { WriteIndented = true }));
             Environment.ExitCode = failures.Count == 0 ? 0 : 2;
         }
