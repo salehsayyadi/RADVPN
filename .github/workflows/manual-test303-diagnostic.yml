@@ -16,7 +16,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import subprocess,json,zipfile,io,base64,hashlib
-          repo='salehsayyadi/RADVPN';run=41069345424
+          repo='salehsayyadi/RADVPN';run=41073508651
           def api(path,method='GET',body=None):
            cmd=['gh','api','--method',method,'repos/'+repo+'/'+path]
            if body is not None:cmd+=['--input','-']
@@ -26,10 +26,10 @@ jobs:
           artifact=next(a for a in json.loads(api(f'actions/runs/{run}/artifacts'))['artifacts'] if a['name']=='RADVPN-303-Android-manual-test')
           data=api(f'actions/artifacts/{artifact["id"]}/zip');assert artifact['digest']=='sha256:'+hashlib.sha256(data).hexdigest()
           with zipfile.ZipFile(io.BytesIO(data)) as z:
-           for name in ['ANDROID-MANUAL-INSTALL-REPORT.json','ANDROID-MANUAL-PROVENANCE.json']:
+           for name in ['ANDROID-MANUAL-INSTALL-REPORT.json','ANDROID-MANUAL-PROVENANCE.json','native-mask-instrumentation.txt']:
             found=[i for i in z.infolist() if i.filename==name or i.filename.endswith('/'+name)]
             if found:
-             assert len(found)==1 and found[0].file_size<20000;report[name]=json.loads(z.read(found[0]))
+             assert len(found)==1 and found[0].file_size<20000;report[name]=z.read(found[0]).decode() if name.endswith('.txt') else json.loads(z.read(found[0]))
           p='contents/docs/manual-test303/diagnostic.json'
           payload=dict(message='docs: record bounded manual-test failure diagnosis',content=base64.b64encode((json.dumps(report,indent=2)+'\n').encode()).decode(),branch='feature/radvpn-3.0.3')
           try:payload['sha']=json.loads(api(p+'?ref=feature/radvpn-3.0.3'))['sha']
