@@ -1,0 +1,115 @@
+{
+  "run_id": 41069345424,
+  "jobs": [
+    {
+      "name": "build-android-manual",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run gradle/actions/setup-gradle@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build separate-identity manual-test APK; no production signer or secrets",
+          "conclusion": "success"
+        },
+        {
+          "name": "Enable disposable emulator acceleration",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install alongside production baseline and check login-first",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run gradle/actions/setup-gradle@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "publish-manual-test",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify artifacts and publish prerelease only; record bounded status",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "ANDROID-MANUAL-INSTALL-REPORT.json": {
+    "passed": false,
+    "checks": [
+      "Actual distributed v2.0.3 APK digest verified and installed",
+      "Test identity installs alongside app.radvpn without replacing production app/data"
+    ],
+    "error_type": "AssertionError"
+  },
+  "ANDROID-MANUAL-PROVENANCE.json": {
+    "source_sha": "08a1116500985af6a51fa907c52ad6906fc5ab07",
+    "run_id": "41069345424",
+    "package": "app.radvpn.testing",
+    "version": "3.0.3-testing",
+    "sha256": "d6a1f666e6f2811c4addd4c37d2db338de5a542210f1dc3f0cbebaa8eb49d811",
+    "signer_sha256": "0d0f2a53f8f62fbfd20a93136c6c85a978ec64c226d692331b50e4677f5fb244",
+    "production_signing_compatible": false,
+    "test_signing_persistence_guaranteed": false,
+    "abis": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  }
+}
