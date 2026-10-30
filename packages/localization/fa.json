@@ -322,5 +322,6 @@
   "account_revoke_device": "لغو نشست این دستگاه",
   "account_revoke_confirm": "نشست این دستگاه لغو شود؟ لغو نشست دستگاه فعلی شما را از حساب خارج می‌کند.",
   "account_this_device": "این دستگاه",
-  "account_no_devices": "دستگاه فعالی وجود ندارد"
+  "account_no_devices": "دستگاه فعالی وجود ندارد",
+  "account_more_devices": "صفحهٔ بعد دستگاه‌ها"
 }
