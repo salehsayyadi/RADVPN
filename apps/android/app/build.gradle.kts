@@ -3,7 +3,7 @@ android {
  namespace = "app.radvpn"
  compileSdk = 35
  buildFeatures { buildConfig = true }
- defaultConfig { applicationId = "app.radvpn"; minSdk = 26; targetSdk = 35; versionCode = 30003; versionName = "3.0.3"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+ defaultConfig { applicationId = "app.radvpn"; minSdk = 26; targetSdk = 35; versionCode = 30003; versionName = "3.0.3"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"; manifestPlaceholders["appLabel"] = "RADVPN" }
  compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
  kotlinOptions { jvmTarget = "17" }
  signingConfigs {
@@ -26,7 +26,17 @@ android {
    keyPassword = System.getenv("RADVPN_ANDROID_KEY_PASSWORD")
   }
  }
- buildTypes { getByName("release") {
+ buildTypes {
+  create("testing") {
+   initWith(getByName("debug"))
+   applicationIdSuffix = ".testing"
+   versionNameSuffix = "-testing"
+   manifestPlaceholders["appLabel"] = "RADVPN Test 3.0.3"
+   // Separate install only: never a replacement key or identity for app.radvpn.
+   signingConfig = signingConfigs.getByName("debug")
+   matchingFallbacks += listOf("debug")
+  }
+  getByName("release") {
   isMinifyEnabled = false
   if (!releaseKey.isNullOrBlank()) signingConfig = signingConfigs.getByName("persistentRelease")
  } }
