@@ -1,1 +1,5 @@
-{"attempt": 6, "reason": "Verify application APK explicitly; test APK is a distinct artifact, not an apksigner positional argument"}
+{
+  "attempt": 7,
+  "release_tag": "v3.0.3-rc.2",
+  "reason": "User-requested downloadable Android and Windows candidate with automatic account subscription import; preserve stable/latest and existing test releases until user acceptance. Both platform artifacts must match this request commit."
+}
