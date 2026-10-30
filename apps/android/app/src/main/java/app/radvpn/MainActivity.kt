@@ -379,10 +379,13 @@ class MainActivity : Activity() {
             }}
         }
     }
-    private fun accountPage() = AccountScreen.render(this,body,data,accountReady,::t,{label(it)},
-        {key,primary,action->button(key,primary,action)},::accountRequest,::restoreAccount,
+    private fun accountPage() {
+        val pageGuard=AccountRequestGuard(data)
+        AccountScreen.render(this,body,data,accountReady,::t,{label(it)},
+        {key,primary,action->button(key,primary,action)},{action,done->if(pageGuard.matches(data))accountRequest(action,done)},::restoreAccount,
         {result->data.put("radvpn",result);accountReady=true;accountVerifiedAt=SystemClock.elapsedRealtime();accountChecked=accountVerifiedAt;save();go("home")},
         {sub,fresh->updateSubscription(sub,fresh)},::save,{clearAccount();render()},::render,::report,::showDialog)
+    }
 
     private fun repairSelection() { if (selected() == null) data.put("selected", items().firstOrNull { it.optBoolean("enabled", true) }?.optString("id") ?: "") }
     private fun merge(incoming: JSONArray, group: String = "") {
