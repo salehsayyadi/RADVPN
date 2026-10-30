@@ -32,7 +32,7 @@ Candidate CI is read-only and cannot publish. Previous stable approval files, ta
 - `salehsayyadi/vpn-sell-bot`, RADVPN: independent API, additive schemas, opt-in Telegram integration, separate Mini Apps and existing-wallet checkout. See that branch's `docs/RADVPN_303.md` for endpoints, deployment, recovery, tests and unsupported adapters.
 - `salehsayyadi/RADVPN`, feature/radvpn-3.0.3: this candidate. Do not merge/release as completed while blockers remain.
 
-## Verified candidate Windows artifacts (not a release)
+## Independently downloaded earlier Windows candidate (historical, not a release)
 
 CI: https://github.com/salehsayyadi/RADVPN/actions/runs/41023421920
 
@@ -42,3 +42,9 @@ CI: https://github.com/salehsayyadi/RADVPN/actions/runs/41023421920
 Executable PE FileVersion verified as 3.0.3.0. Installer remains unsigned/experimental. Artifacts were retrieved through a public Actions mirror only after checking the complete archive against GitHub's official artifact SHA-256 (`2e8cacca4672d33d332ed42b593fca9991e50d66040973c14e588e9751b129c4`), then each asset against CI SHA256SUMS. These hashes describe this run only.
 
 The first candidate run was rejected: installer labelled 3.0.3 contained executable 2.0.3.0 due to an omitted csproj edit; actual upgrade validation caught it. Committed csproj correction, actual-file-version gate and explicit UTF-8 Windows validation fixed subsequent runs. Do not use the first failed run's files.
+
+## Final themed candidate
+
+Final source `3c810acab5bcc907d7874a74a7c40b05fa7465ab` also corrects the dark account-code field styling and audits PasswordBox layout. CI https://github.com/salehsayyadi/RADVPN/actions/runs/41024307785 completed successfully: Windows build/actual installer and portable upgrade; Android AAR/Kotlin/lint. Android signed APK and certificate comparison were skipped, not passed.
+
+Official Windows artifact: https://github.com/salehsayyadi/RADVPN/actions/runs/41024307785/artifacts/12963365843 (193,549,765 bytes). GitHub-reported archive SHA-256: `dda013860e0fdd2c8d6f30a0a2d96ae4bc80e00b0ccd544ed10de6f2496c9b36`. The public artifact mirror returned HTTP 500 service-wide at final handoff; this final archive was not locally retrieved/re-hashed and its individual asset hashes were not read. Use its included SHA256SUMS after official GitHub download. The earlier independently verified hashes above MUST NOT be used for this final themed run. No older binary is represented as the final artifact.
