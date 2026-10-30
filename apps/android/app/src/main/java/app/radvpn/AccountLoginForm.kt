@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.text.InputType
+import android.text.method.PasswordTransformationMethod
 import android.widget.EditText
 import android.widget.LinearLayout
 import app.radvpn.ui.Design
@@ -31,8 +32,10 @@ internal object AccountLoginForm {
         if (hasSavedSession) button("account_restore", false, restore)
         label(text("account_code"))
         val code = EditText(activity).apply {
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            // setSingleLine can replace the transformation method; enforce masking last.
             isSingleLine = true
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            transformationMethod = PasswordTransformationMethod.getInstance()
             setTextColor(Design.text); setHintTextColor(Design.muted)
             background = Design.surface(activity,Design.input,Design.border,10)
             setPadding(Design.dp(activity,12),Design.dp(activity,12),Design.dp(activity,12),Design.dp(activity,12))

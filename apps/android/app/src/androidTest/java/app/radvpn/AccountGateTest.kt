@@ -34,6 +34,7 @@ class AccountGateTest {
    assertTrue(text.contains(words.t("account_login")));assertTrue(text.contains(words.t("account_get_telegram")))
    val code=all.filterIsInstance<EditText>().single()
    assertEquals(InputType.TYPE_TEXT_VARIATION_PASSWORD,code.inputType and InputType.TYPE_MASK_VARIATION)
+   assertTrue(code.transformationMethod is android.text.method.PasswordTransformationMethod)
    assertEquals("",code.text.toString())
    assertFalse(all.filterIsInstance<Button>().any{it.text.toString()==words.t("connect")})
    assertFalse(all.any{it is app.radvpn.ui.PowerControl})

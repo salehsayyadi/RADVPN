@@ -1,1 +1,1 @@
-{"tag":"v3.0.3-manual-test.1","attempt":3,"repair":"explicit sandbox instrumentation variant and existing AndroidX JUnit4 runner; original signer gate unchanged"}
+{"tag":"v3.0.3-manual-test.1","attempt":4,"repair":"enforce password transformation after single-line configuration; verify actual transformation in debug and sandbox instrumentation"}
