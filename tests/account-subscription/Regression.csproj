@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><Nullable>enable</Nullable></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../apps/windows/AccountSubscriptions.cs" />
+    <Compile Include="../../apps/windows/AccountSubscriptionFixtures.cs" />
+    <Compile Include="../../apps/windows/Pages.AccountSubscription.cs" />
+  </ItemGroup>
+</Project>
