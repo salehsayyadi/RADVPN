@@ -9,7 +9,7 @@ namespace RADVPN;
 internal sealed partial class MainWindow
 {
     JsonObject? AccountState => data["radvpn"] as JsonObject;
-    DateTime accountVerified = DateTime.MinValue;
+    readonly AccountLease accountLease = new();
     int accountTicks;
     bool accountReady, accountSigningIn;
     bool ManagedProfile(JsonNode? p) => AccountSessionData.Managed(p);
@@ -41,7 +41,7 @@ internal sealed partial class MainWindow
                     code.Clear();
                     var result = await AccountApi.Call(endpoint, "v1/auth/login", payload: new JsonObject { ["code"] = enteredCode, ["platform"] = "windows", ["device_name"] = "RADVPN Windows" });
                     data["radvpn"] = new JsonObject { ["endpoint"] = endpoint, ["token"] = result["token"]!.DeepClone(), ["session_id"] = result["session_id"]!.DeepClone(), ["account"] = result["account"]!.DeepClone() };
-                    accountVerified = DateTime.UtcNow;
+                    accountLease.MarkVerified();
                     accountReady = true;
                     page = "home";
                     Save();
@@ -135,7 +135,7 @@ internal sealed partial class MainWindow
         accountReady = false;
         page = "account";
         AccountSessionData.ClearManaged(data);
-        accountVerified = DateTime.MinValue;
+        accountLease.Reset();
         RepairSelection();
         Save();
     }
@@ -151,7 +151,7 @@ internal sealed partial class MainWindow
                 throw new InvalidOperationException("account_revoked");
             state["endpoint"] = AccountApi.ProductionEndpoint;
             state["account"] = result;
-            accountVerified = DateTime.UtcNow;
+            accountLease.MarkVerified();
             accountReady = true;
             Save();
         }
@@ -167,7 +167,7 @@ internal sealed partial class MainWindow
         }
         catch
         {
-            if (DateTime.UtcNow - accountVerified > TimeSpan.FromSeconds(60))
+            if (!accountLease.IsFresh)
             {
                 accountReady = false;
                 page = "account";

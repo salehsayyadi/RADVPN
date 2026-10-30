@@ -37,6 +37,15 @@ internal static class NativeSmoke
                     throw new Exception("noncanonical API accepted");
             }
             checks.Add("production account API canonical restriction");
+            if (AccountLease.Within(null, 1, 1000) || !AccountLease.Within(1000, 61000, 1000) || AccountLease.Within(1000, 61001, 1000) || AccountLease.Within(1000, 999, 1000) || AccountLease.Within(1000, 1001, 0))
+                throw new Exception("monotonic account lease boundary");
+            var lease = new AccountLease();
+            if (lease.IsFresh) throw new Exception("unverified lease accepted");
+            lease.MarkVerified();
+            if (!lease.IsFresh) throw new Exception("fresh monotonic lease rejected");
+            lease.Reset();
+            if (lease.IsFresh) throw new Exception("reset lease accepted");
+            checks.Add("monotonic account lease: absent/reset/future/expired timestamps rejected; 60-second boundary independent of wall clock");
             using var core = new Core();
             var version = await core.Call(new
             {

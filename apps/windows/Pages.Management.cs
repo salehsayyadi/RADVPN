@@ -215,7 +215,7 @@ internal sealed partial class MainWindow
         await StopConnection();
         // A decrypted backup is not proof that its bearer session is still valid.
         accountReady = false;
-        accountVerified = DateTime.MinValue;
+        accountLease.Reset();
         page = "account";
         data = restored;
         RepairSelection();
