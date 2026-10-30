@@ -28,7 +28,7 @@ internal static class NativeSmoke
             {
                 method = "version"
             });
-            if (version["app"]?.ToString() != "2.0.3")
+            if (version["app"]?.ToString() != "3.0.3")
                 throw new Exception("version");
             checks.Add("native child IPC/version");
             var defaults = await core.Call(new

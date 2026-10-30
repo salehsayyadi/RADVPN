@@ -146,7 +146,7 @@ internal sealed partial class MainWindow
             AddCheck(p, "start_windows", draft["startWindows"]?.GetValue<bool>() ?? false, v => draft["startWindows"] = v);
             AddCheck(p, "autoconnect_proxy", draft["autoConnect"]?.GetValue<bool>() ?? false, v => draft["autoConnect"] = v);
             p.Children.Add(Label(T("autoconnect_help"), 12, "Muted"));
-            p.Children.Add(Action("check_updates", () => { OpenUrl("https://github.com/salehsayyadi/RADVPN/releases"); return Task.CompletedTask; }, "refresh"));
+            p.Children.Add(Action("check_updates", CheckForUpdate, "refresh"));
         }
         if (settingsTab == "connection")
         {
@@ -192,7 +192,7 @@ internal sealed partial class MainWindow
     }
     Task ExportBackup()
     {
-        var file = new SaveFileDialog { Filter = "RADVPN (*.radvpn)|*.radvpn", FileName = "RADVPN-2.0.3.radvpn" };
+        var file = new SaveFileDialog { Filter = "RADVPN (*.radvpn)|*.radvpn", FileName = "RADVPN-3.0.3.radvpn" };
         if (file.ShowDialog() == true)
             File.WriteAllBytes(file.FileName, Storage.Encrypt(data));
         return Task.CompletedTask;
@@ -240,7 +240,7 @@ internal sealed partial class MainWindow
             p.Children.Add(Empty("empty", () => { Navigate("configs"); return Task.CompletedTask; }));
         body.Children.Add(Card(p));
     }
-    JsonObject Diagnostics() => new() { ["appVersion"] = "2.0.3", ["coreVersion"] = data["coreVersion"]?.ToString(), ["channel"] = "experimental-unsigned", ["state"] = active, ["mode"] = Settings["mode"]?.ToString(), ["socksPort"] = Settings["port"]?.DeepClone(), ["httpPort"] = (Settings["port"]?.GetValue<int>() ?? 10808) + 1, ["driverFilePresent"] = File.Exists(Path.Combine(AppContext.BaseDirectory, "wintun.dll")), ["administrator"] = IsAdministrator(), ["deviceTunnelVerified"] = false, ["events"] = new JsonArray(events.Select(e => (JsonNode?)new JsonObject { ["time"] = e.Time.ToString("O"), ["code"] = e.Code }).ToArray()) };
+    JsonObject Diagnostics() => new() { ["appVersion"] = "3.0.3", ["coreVersion"] = data["coreVersion"]?.ToString(), ["channel"] = "experimental-unsigned", ["state"] = active, ["mode"] = Settings["mode"]?.ToString(), ["socksPort"] = Settings["port"]?.DeepClone(), ["httpPort"] = (Settings["port"]?.GetValue<int>() ?? 10808) + 1, ["driverFilePresent"] = File.Exists(Path.Combine(AppContext.BaseDirectory, "wintun.dll")), ["administrator"] = IsAdministrator(), ["deviceTunnelVerified"] = false, ["events"] = new JsonArray(events.Select(e => (JsonNode?)new JsonObject { ["time"] = e.Time.ToString("O"), ["code"] = e.Code }).ToArray()) };
     void Logs()
     {
         var p = Panel("connection_events");
@@ -291,13 +291,13 @@ internal sealed partial class MainWindow
     {
         var p = Panel("about");
         p.Children.Add(Glyphs.Icon("shield", B("Orange"), 66));
-        p.Children.Add(Label("RADVPN 2.0.3", 30, "Text", true));
+        p.Children.Add(Label("RADVPN 3.0.3", 30, "Text", true));
         p.Children.Add(Label(T("testing_channel"), 14, "Warning"));
         p.Children.Add(Label("Xray " + (data["coreVersion"]?.ToString() ?? "—"), 18, "Orange", true));
         p.Children.Add(Label(T("privacy"), 14, "Subtext"));
         p.Children.Add(Label(T("not_full_protection"), 14, "Warning"));
         p.Children.Add(Label(T("not_installed_driver"), 13, "Muted"));
-        p.Children.Add(Actions(Action("check_updates", () => { OpenUrl("https://github.com/salehsayyadi/RADVPN/releases"); return Task.CompletedTask; }, "globe"), Action("license_notices", () => { Process.Start(new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "THIRD_PARTY_NOTICES.md")) { UseShellExecute = true }); return Task.CompletedTask; }, "configs"), Action("open_data", () => { Directory.CreateDirectory(Path.GetDirectoryName(Storage.FilePath)!); Process.Start(new ProcessStartInfo("explorer.exe") { ArgumentList = { Path.GetDirectoryName(Storage.FilePath)! }, UseShellExecute = false }); return Task.CompletedTask; }, "profiles")));
+        p.Children.Add(Actions(Action("check_updates", CheckForUpdate, "globe"), Action("license_notices", () => { Process.Start(new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "THIRD_PARTY_NOTICES.md")) { UseShellExecute = true }); return Task.CompletedTask; }, "configs"), Action("open_data", () => { Directory.CreateDirectory(Path.GetDirectoryName(Storage.FilePath)!); Process.Start(new ProcessStartInfo("explorer.exe") { ArgumentList = { Path.GetDirectoryName(Storage.FilePath)! }, UseShellExecute = false }); return Task.CompletedTask; }, "profiles")));
         body.Children.Add(Card(p));
     }
 }

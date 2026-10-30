@@ -45,7 +45,7 @@ internal static class WindowSignals
     [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool PostMessage(IntPtr handle, int message, IntPtr wParam, IntPtr lParam);
     internal static void RequestQuit()
     {
-        var hwnd = FindWindow(null, "RADVPN 2.0.3");
+        var hwnd = FindWindow(null, "RADVPN 3.0.3");
         if (hwnd != IntPtr.Zero)
             PostMessage(hwnd, QuitMessage, IntPtr.Zero, IntPtr.Zero);
     }
