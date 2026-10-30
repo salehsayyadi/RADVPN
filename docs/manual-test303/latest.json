@@ -1,77 +1,78 @@
 {
-  "tag": "v3.0.3-manual-test.1",
+  "tag": "v3.0.3-rc.2",
   "published": true,
-  "source_sha": "c2b206663f9eb9d3e66ac213d3c5c5299b50d8c9",
-  "run_id": 41077139571,
-  "scope": "User-requested manual-test prerelease; NOT final/stable/production acceptance",
-  "release_url": "https://github.com/salehsayyadi/RADVPN/releases/tag/v3.0.3-manual-test.1",
+  "source_sha": "df491cfe9f2d1c1a8c4441246335ea1b7be501de",
+  "run_id": 41122217894,
+  "scope": "User-requested prerelease; stable promotion and old-test deletion require user acceptance",
+  "release_url": "https://github.com/salehsayyadi/RADVPN/releases/tag/v3.0.3-rc.2",
+  "windows_source_sha": "df491cfe9f2d1c1a8c4441246335ea1b7be501de",
+  "validation_run_id": 41122217823,
   "assets": [
     {
       "name": "ANDROID-MANUAL-INSTALL-REPORT.json",
       "size": 1238,
-      "digest": "sha256:b103b3d30f5bdfc25c032b564d83a32a3f91d2ee684fbd34ffae6ef532dd36fc",
-      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-manual-test.1/ANDROID-MANUAL-INSTALL-REPORT.json"
+      "digest": "sha256:2f41bd8fde29623cdb7c04daaca88b3e3484c7954a162803dbcc66ba8c49409f",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-rc.2/ANDROID-MANUAL-INSTALL-REPORT.json"
     },
     {
       "name": "ANDROID-MANUAL-PROVENANCE.json",
       "size": 459,
-      "digest": "sha256:934d254261123b3f8749eafb9292c1227cf2ea7579d687c87c1e3179d56f89e3",
-      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-manual-test.1/ANDROID-MANUAL-PROVENANCE.json"
+      "digest": "sha256:4bf1b741ac740055bd6e072a694a10fedd68d3334b833e2da563ecea9f317f66",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-rc.2/ANDROID-MANUAL-PROVENANCE.json"
     },
     {
       "name": "ANDROID-TEST-README.txt",
-      "size": 427,
-      "digest": "sha256:9894e452432d3368ce88cb5cb77506d29475440a0c6092b28366c8e0c63c79c3",
-      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-manual-test.1/ANDROID-TEST-README.txt"
-    },
-    {
-      "name": "MANUAL-TEST-PROVENANCE.json",
-      "size": 582,
-      "digest": "sha256:f666ecae70175fd5666902a5b11523e066e45b327b1655fc1f38a8600d20865f",
-      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-manual-test.1/MANUAL-TEST-PROVENANCE.json"
-    },
-    {
-      "name": "MANUAL-TEST-README.md",
-      "size": 2868,
-      "digest": "sha256:107d2e4f8811628fdc20b4f6c4a7513a7de79aae97d023159a08622264af905d",
-      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-manual-test.1/MANUAL-TEST-README.md"
+      "size": 234,
+      "digest": "sha256:7238a62d5dbbfacde3000a317733b335a4eff7ecba6ad1b2e1d8f0270d8a33c0",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-rc.2/ANDROID-TEST-README.txt"
     },
     {
       "name": "native-tests-303.json",
-      "size": 1015,
-      "digest": "sha256:13e6b157e2b930afb622324e98191dc61f2b39cffb4cbadfbad3362ced948f89",
-      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-manual-test.1/native-tests-303.json"
+      "size": 1248,
+      "digest": "sha256:4e95e912c005cf3a1b680914997db89853948955f4434978710f573d422f2064",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-rc.2/native-tests-303.json"
     },
     {
-      "name": "RADVPN-Android-3.0.3-MANUAL-TEST.apk",
+      "name": "RADVPN-3.0.3-Android-Test.apk",
       "size": 71476627,
-      "digest": "sha256:eb9b15f85a390667fc7947af554891b7971b42c8aaed121f49ffca607e6b8b47",
-      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-manual-test.1/RADVPN-Android-3.0.3-MANUAL-TEST.apk"
+      "digest": "sha256:f36264fc174e41e9df865b6d44760673557b545a78938e1d65318d2cb86e4e75",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-rc.2/RADVPN-3.0.3-Android-Test.apk"
     },
     {
-      "name": "RADVPN-Setup-3.0.3-x64.exe",
-      "size": 57526347,
-      "digest": "sha256:06937d25c1992950d511fa1a95848227ee1a87f8959a81ea039363a6a34435f0",
-      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-manual-test.1/RADVPN-Setup-3.0.3-x64.exe"
+      "name": "RADVPN-3.0.3-Windows-x64-Portable.zip",
+      "size": 81307978,
+      "digest": "sha256:e24e39bcff987eb6aea1b49685475a5fcd70350124ff48957625437a543cad96",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-rc.2/RADVPN-3.0.3-Windows-x64-Portable.zip"
     },
     {
-      "name": "RADVPN-Windows-Portable-3.0.3-x64.zip",
-      "size": 81298841,
-      "digest": "sha256:b0057edbae347339ddb7855592fca603c642545544e0b4ea14cbdf2987a43729",
-      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-manual-test.1/RADVPN-Windows-Portable-3.0.3-x64.zip"
+      "name": "RADVPN-3.0.3-Windows-x64-Setup.exe",
+      "size": 57524634,
+      "digest": "sha256:1f7b523787719784bb9f7385e86d9b6308de76107c80cac09b3c7d229e766d4e",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-rc.2/RADVPN-3.0.3-Windows-x64-Setup.exe"
+    },
+    {
+      "name": "RELEASE-NOTES.md",
+      "size": 2266,
+      "digest": "sha256:044a1344c18a29dbe58fa2f7de0d33deec5e3c8b2ad214410a04c148e9112dd5",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-rc.2/RELEASE-NOTES.md"
+    },
+    {
+      "name": "RELEASE-PROVENANCE.json",
+      "size": 862,
+      "digest": "sha256:d0563ed7d62569d4484c9ec8c436cefb8121be7aac5e87f8dcdf69bf944810ed",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-rc.2/RELEASE-PROVENANCE.json"
     },
     {
       "name": "SHA256SUMS.txt",
-      "size": 947,
-      "digest": "sha256:c6f9a06cbd6e5f225dffe1875fc5f9886d472b4d3e5f412e38dfcf7a8cb2a6b8",
-      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-manual-test.1/SHA256SUMS.txt"
+      "size": 939,
+      "digest": "sha256:50df66d68cc2df5d12432bb88d8e7eb545ac60b3aff6b83359a4d4e9f52b665b",
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-rc.2/SHA256SUMS.txt"
     },
     {
       "name": "upgrade-303-report.txt",
       "size": 663,
       "digest": "sha256:324017007e797fb652196fb7287e001b0282cbcef0023fe867e7c73695b7d914",
-      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-manual-test.1/upgrade-303-report.txt"
+      "url": "https://github.com/salehsayyadi/RADVPN/releases/download/v3.0.3-rc.2/upgrade-303-report.txt"
     }
-  ],
-  "windows_source_sha": "707d42daec2b3be8d0cb206cf6c3bc4cea685f30"
+  ]
 }
