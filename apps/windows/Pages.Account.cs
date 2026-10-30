@@ -46,6 +46,7 @@ internal sealed partial class MainWindow
                     page = "home";
                     Save();
                     Render();
+                    await SyncAccountSubscription();
                 }
                 finally { accountSigningIn = false; }
             }));
@@ -64,21 +65,8 @@ internal sealed partial class MainWindow
             panel.Children.Add(Action("update", async () => { await ValidateAccount(); Render(); }));
             panel.Children.Add(Action("account_import", async () =>
             {
-                await ValidateAccount();
-                var a = AccountState?["account"];
-                var url = a?["subscription"]?["url"]?.ToString();
-                if (string.IsNullOrWhiteSpace(url))
-                    throw new InvalidOperationException("account_subscription_pending");
-                var group = "radvpn-account-" + a!["account_id"];
-                var sub = Subs.FirstOrDefault(s => s?["id"]?.ToString() == group);
-                if (sub == null)
-                {
-                    sub = new JsonObject { ["id"] = group, ["name"] = "RADVPN account", ["url"] = url };
-                    Subs.Add(sub);
-                }
-                await Refresh(sub);
-                Save();
-                Render();
+                await ValidateAccount(false);
+                await SyncAccountSubscription(true);
             }));
             panel.Children.Add(Action("account_purchase", () =>
             {
@@ -139,7 +127,8 @@ internal sealed partial class MainWindow
         RepairSelection();
         Save();
     }
-    async Task ValidateAccount()
+    Task ValidateAccount() => ValidateAccount(true);
+    async Task ValidateAccount(bool syncSubscription)
     {
         var state = AccountState;
         if (state?["token"] == null)
@@ -154,6 +143,7 @@ internal sealed partial class MainWindow
             accountLease.MarkVerified();
             accountReady = true;
             Save();
+            if (syncSubscription) await SyncAccountSubscription();
         }
         catch (InvalidOperationException e) when (e.Message == "account_revoked") { if (ReferenceEquals(state, AccountState)) { await ClearAccount(); Render(); } throw; }
     }

@@ -335,6 +335,13 @@ class MainActivity : Activity() {
             }})
         }
     }
+    private val accountSubscriptions=AccountSubscriptionSync()
+    private fun syncAccountSubscription(force:Boolean=false) {
+        if(!accountReady)return
+        if(!isIdle){if(force)report("already_running");return}
+        accountSubscriptions.start(data,force,{task->job(task)},{task->handler.post{if(!destroyed)task()}},
+            {guard->accountReady&&isIdle&&guard.matches(data)},{repairSelection();save();render()},::report)
+    }
     private fun clearAccount() {
         if(active!="disconnected"||pending)startService(Intent(this,RadVpnService::class.java).setAction("stop"))
         accountReady=false;page="account";accountChecked=0L
@@ -360,7 +367,7 @@ class MainActivity : Activity() {
         if(data.optJSONObject("radvpn")?.optString("token").isNullOrBlank())return
         accountRequest({AccountApi.validate(data)}){result->
             data.getJSONObject("radvpn").put("endpoint",AccountApi.PRODUCTION_ENDPOINT).put("account",result)
-            accountReady=true;accountVerifiedAt=SystemClock.elapsedRealtime();accountChecked=accountVerifiedAt;save();go("home")
+            accountReady=true;accountVerifiedAt=SystemClock.elapsedRealtime();accountChecked=accountVerifiedAt;save();go("home");syncAccountSubscription()
         }
     }
     private fun accountHeartbeat() {
@@ -370,7 +377,7 @@ class MainActivity : Activity() {
         val snapshot=JSONObject(data.toString());val token=snapshot.optJSONObject("radvpn")?.optString("token")?:return
         try {
             val result=AccountApi.validate(snapshot)
-            handler.post{if(data.optJSONObject("radvpn")?.optString("token")==token){data.getJSONObject("radvpn").put("account",result);accountVerifiedAt=now;save()}}
+            handler.post{if(data.optJSONObject("radvpn")?.optString("token")==token){data.getJSONObject("radvpn").put("account",result);accountVerifiedAt=now;save();syncAccountSubscription()}}
         } catch(e:Exception) {
             handler.post{if(data.optJSONObject("radvpn")?.optString("token")==token){
                 if(e.message=="account_revoked")clearAccount()
@@ -383,8 +390,8 @@ class MainActivity : Activity() {
         val pageGuard=AccountRequestGuard(data)
         AccountScreen.render(this,body,data,accountReady,::t,{label(it)},
         {key,primary,action->button(key,primary,action)},{action,done->if(pageGuard.matches(data))accountRequest(action,done)},::restoreAccount,
-        {result->data.put("radvpn",result);accountReady=true;accountVerifiedAt=SystemClock.elapsedRealtime();accountChecked=accountVerifiedAt;save();go("home")},
-        {sub,fresh->updateSubscription(sub,fresh)},::save,{clearAccount();render()},::render,::report,::showDialog)
+        {result->data.put("radvpn",result);accountReady=true;accountVerifiedAt=SystemClock.elapsedRealtime();accountChecked=accountVerifiedAt;save();go("home");syncAccountSubscription()},
+        {_,_->syncAccountSubscription(true)},::save,{clearAccount();render()},::render,::report,::showDialog)
     }
 
     private fun repairSelection() { if (selected() == null) data.put("selected", items().firstOrNull { it.optBoolean("enabled", true) }?.optString("id") ?: "") }

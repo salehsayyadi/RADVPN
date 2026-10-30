@@ -37,6 +37,7 @@ internal static class NativeSmoke
                     throw new Exception("noncanonical API accepted");
             }
             checks.Add("production account API canonical restriction");
+            checks.AddRange(AccountSubscriptionFixtures.Verify());
             if (AccountLease.Within(null, 1, 1000) || !AccountLease.Within(1000, 61000, 1000) || AccountLease.Within(1000, 61001, 1000) || AccountLease.Within(1000, 999, 1000) || AccountLease.Within(1000, 1001, 0))
                 throw new Exception("monotonic account lease boundary");
             var lease = new AccountLease();

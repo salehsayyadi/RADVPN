@@ -84,6 +84,7 @@ class AccountGateTest {
    val guard=AccountRequestGuard(source);assertTrue(guard.matches(source));assertFalse(guard.matches(JSONObject(source.toString())))
    source.put("radvpn",JSONObject());assertFalse(guard.matches(source))
    checks.add("Old account request completion rejected after data/account reference replacement")
+   checks.addAll(AccountSubscriptionFixtures.verify())
    val directory=File(inst.targetContext.cacheDir,"account-vault-fixture").apply{mkdirs()}
    val context=object:ContextWrapper(inst.targetContext){override fun getFilesDir():File=directory}
    try{
