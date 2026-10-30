@@ -27,7 +27,7 @@ android {
   }
  }
  buildTypes {
-  create("testing") {
+  create("sandbox") {
    initWith(getByName("debug"))
    applicationIdSuffix = ".testing"
    versionNameSuffix = "-testing"

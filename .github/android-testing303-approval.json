@@ -1,8 +1,8 @@
 {
-  "version": "3.0.3-testing",
-  "package": "app.radvpn.testing",
-  "purpose": "User-requested separate install testing; production upgrade explicitly not claimed",
-  "production_signing_key_replacement": false,
-  "prerelease": true,
-  "make_latest": false
+    "version": "3.0.3-testing",
+    "package": "app.radvpn.testing",
+    "purpose": "User-requested separate install testing; production upgrade explicitly not claimed",
+    "production_signing_key_replacement": false,
+    "prerelease": true,
+    "make_latest": false
 }

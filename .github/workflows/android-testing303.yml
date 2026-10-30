@@ -41,8 +41,8 @@ jobs:
           gomobile bind -ldflags='-checklinkname=0 -s -w' -target=android/arm64,android/amd64 -androidapi=26 -o apps/android/app/libs/radengine.aar ./packages/mobile
           python3 scripts/collect-android-licenses.py
           python3 scripts/check.py
-          gradle -p apps/android --no-daemon assembleTesting lintTesting
-          cp apps/android/app/build/outputs/apk/testing/app-testing.apk dist/android-testing/RADVPN-Android-3.0.3-TEST-standalone.apk
+          gradle -p apps/android --no-daemon assembleSandbox lintSandbox
+          cp apps/android/app/build/outputs/apk/sandbox/app-sandbox.apk dist/android-testing/RADVPN-Android-3.0.3-TEST-standalone.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs dist/android-testing/*.apk > dist/android-testing/test-signature.txt
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/android-testing/*.apk > dist/android-testing/test-package.txt
           python3 - <<'PY'
