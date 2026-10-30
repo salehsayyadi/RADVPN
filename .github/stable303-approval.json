@@ -1,0 +1,22 @@
+{
+  "owner_test_accepted": true,
+  "promote_to_latest": true,
+  "delete_listed_prereleases": true,
+  "source_release_id": 429465633,
+  "source_tag": "v3.0.3-rc.2",
+  "source_sha": "df491cfe9f2d1c1a8c4441246335ea1b7be501de",
+  "target_tag": "3.0.3",
+  "preserve_release_id": 425695186,
+  "android_identity_policy": "preserve_exact_tested_standalone_apk_no_upgrade_claim",
+  "binary_assets": [
+    {"source": "RADVPN-3.0.3-Android-Test.apk", "destination": "RADVPN-Android.apk", "sha256": "f36264fc174e41e9df865b6d44760673557b545a78938e1d65318d2cb86e4e75"},
+    {"source": "RADVPN-3.0.3-Windows-x64-Setup.exe", "destination": "RADVPN-Windows-Setup.exe", "sha256": "1f7b523787719784bb9f7385e86d9b6308de76107c80cac09b3c7d229e766d4e"},
+    {"source": "RADVPN-3.0.3-Windows-x64-Portable.zip", "destination": "RADVPN-Windows-Portable.zip", "sha256": "e24e39bcff987eb6aea1b49685475a5fcd70350124ff48957625437a543cad96"}
+  ],
+  "prereleases_to_delete": [
+    {"id": 428793318, "tag": "v3.0.3"},
+    {"id": 429172446, "tag": "v3.0.3-manual-test.1"},
+    {"id": 428795098, "tag": "v3.0.3"},
+    {"id": 429465633, "tag": "v3.0.3-rc.2"}
+  ]
+}

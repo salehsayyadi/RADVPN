@@ -1,0 +1,32 @@
+name: Publish owner-approved 3.0.3 and clean reviewed prereleases
+on:
+  push:
+    branches: [feature/radvpn-3.0.3]
+    paths: [.github/stable303-approval.json]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: radvpn303-stable-promotion
+  cancel-in-progress: false
+jobs:
+  promote:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: false}
+      - name: Test stable-promotion safety contract before mutations
+        run: python3 -m unittest discover -s tests -p test_promote_approved303.py -v
+      - name: Publish exact owner-approved binaries before removing old prereleases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/promote-approved303.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: RADVPN-303-stable-release-audit
+          path: stable-release-audit/
+          if-no-files-found: warn
