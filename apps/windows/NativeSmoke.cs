@@ -121,6 +121,26 @@ internal static class NativeSmoke
                 if (Storage.Load(path)["selected"]?.ToString() != "fixture-not-user-credential-392135" || !Storage.Recovered)
                     throw new Exception("backup recovery");
                 checks.Add("DPAPI persistence, atomic backup and corrupted-primary recovery");
+                var accountPath = Path.Combine(dir, "account-fixture.bin");
+                var account = Storage.Fresh();
+                account["radvpn"] = new JsonObject { ["token"] = "LOCAL-NONAUTHENTIC-SESSION-FIXTURE", ["session_id"] = "fixture-session", ["endpoint"] = AccountApi.ProductionEndpoint };
+                account["lang"] = "fa";
+                account["profiles"]!.AsArray().Add(new JsonObject { ["id"] = "manual", ["name"] = "Manual", ["favorite"] = true });
+                account["profiles"]!.AsArray().Add(new JsonObject { ["id"] = "managed", ["group"] = "radvpn-account-fixture" });
+                account["subscriptions"]!.AsArray().Add(new JsonObject { ["id"] = "manual-sub" });
+                account["subscriptions"]!.AsArray().Add(new JsonObject { ["id"] = "radvpn-account-fixture" });
+                Storage.Save(account, accountPath);
+                if (System.Text.Encoding.UTF8.GetString(File.ReadAllBytes(accountPath)).Contains("LOCAL-NONAUTHENTIC-SESSION-FIXTURE", StringComparison.Ordinal))
+                    throw new Exception("session plaintext in vault");
+                var loadedAccount = Storage.Load(accountPath);
+                if (loadedAccount["radvpn"]?["token"]?.ToString() != "LOCAL-NONAUTHENTIC-SESSION-FIXTURE")
+                    throw new Exception("session persistence");
+                AccountSessionData.ClearManaged(loadedAccount);
+                Storage.Save(loadedAccount, accountPath);
+                var cleared = Storage.Load(accountPath);
+                if (cleared["radvpn"]?["token"] != null || cleared["profiles"]!.AsArray().Count != 1 || cleared["profiles"]![0]!["id"]?.ToString() != "manual" || cleared["profiles"]![0]!["favorite"]?.GetValue<bool>() != true || cleared["subscriptions"]!.AsArray().Count != 1 || cleared["subscriptions"]![0]!["id"]?.ToString() != "manual-sub" || cleared["lang"]?.ToString() != "fa")
+                    throw new Exception("account cleanup lost manual data");
+                checks.Add("DPAPI session fixture roundtrip; revoked managed data cleared while manual profiles/subscriptions/language persist; no live account claim");
             }
             finally { Directory.Delete(dir, true); }
             var ledger = new TrafficLedger();

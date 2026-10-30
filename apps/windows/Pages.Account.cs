@@ -12,7 +12,7 @@ internal sealed partial class MainWindow
     DateTime accountVerified = DateTime.MinValue;
     int accountTicks;
     bool accountReady, accountSigningIn;
-    bool ManagedProfile(JsonNode? p) => p?["group"]?.ToString().StartsWith("radvpn-account-", StringComparison.Ordinal) == true;
+    bool ManagedProfile(JsonNode? p) => AccountSessionData.Managed(p);
     void AccountPage()
     {
         var panel = Panel("account");
@@ -37,8 +37,9 @@ internal sealed partial class MainWindow
                 try
                 {
                     var endpoint = AccountApi.ProductionEndpoint;
-                    var result = await AccountApi.Call(endpoint, "v1/auth/login", payload: new JsonObject { ["code"] = code.Password.Trim(), ["platform"] = "windows", ["device_name"] = "RADVPN Windows" });
+                    var enteredCode = code.Password.Trim();
                     code.Clear();
+                    var result = await AccountApi.Call(endpoint, "v1/auth/login", payload: new JsonObject { ["code"] = enteredCode, ["platform"] = "windows", ["device_name"] = "RADVPN Windows" });
                     data["radvpn"] = new JsonObject { ["endpoint"] = endpoint, ["token"] = result["token"]!.DeepClone(), ["session_id"] = result["session_id"]!.DeepClone(), ["account"] = result["account"]!.DeepClone() };
                     accountVerified = DateTime.UtcNow;
                     accountReady = true;
@@ -86,6 +87,7 @@ internal sealed partial class MainWindow
                     Process.Start(new ProcessStartInfo(uri.ToString()) { UseShellExecute = true });
                 return Task.CompletedTask;
             }));
+            panel.Children.Add(Action("account_devices", ManageAccountDevices, "servers"));
             panel.Children.Add(Action("account_logout", async () =>
             {
                 // Keep the token on network failure: do not leak a paid slot by silently abandoning logout.
@@ -132,11 +134,7 @@ internal sealed partial class MainWindow
             await StopConnection();
         accountReady = false;
         page = "account";
-        foreach (var p in Profiles.Where(ManagedProfile).ToArray())
-            Profiles.Remove(p);
-        foreach (var s in Subs.Where(s => s?["id"]?.ToString().StartsWith("radvpn-account-", StringComparison.Ordinal) == true).ToArray())
-            Subs.Remove(s);
-        data["radvpn"] = new JsonObject { ["endpoint"] = AccountApi.ProductionEndpoint };
+        AccountSessionData.ClearManaged(data);
         accountVerified = DateTime.MinValue;
         RepairSelection();
         Save();
