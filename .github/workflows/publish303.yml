@@ -1,0 +1,26 @@
+name: Publish pinned RADVPN 3.0.3 Windows testing pre-release
+on:
+  push:
+    branches: [feature/radvpn-3.0.3]
+    paths: [.github/radvpn303-release-approval.json]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: publish-radvpn-v3.0.3
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Verify pinned passed artifact, then publish testing assets only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/publish-radvpn303.py
