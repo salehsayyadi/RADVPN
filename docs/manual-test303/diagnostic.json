@@ -1,5 +1,5 @@
 {
-  "run_id": 41069345424,
+  "run_id": 41073508651,
   "jobs": [
     {
       "name": "build-android-manual",
@@ -94,17 +94,30 @@
     "passed": false,
     "checks": [
       "Actual distributed v2.0.3 APK digest verified and installed",
-      "Test identity installs alongside app.radvpn without replacing production app/data"
+      "Test identity installs alongside app.radvpn without replacing production app/data",
+      "Activity launch returned Status ok",
+      "Test app process remains alive"
     ],
-    "error_type": "AssertionError"
+    "error_type": "AssertionError",
+    "stage": "ui_assertions",
+    "observed": {
+      "node_count": 12,
+      "has_code_label": false,
+      "has_sign_in": false,
+      "has_telegram": false,
+      "has_password": false,
+      "packages": [
+        "android"
+      ]
+    }
   },
   "ANDROID-MANUAL-PROVENANCE.json": {
-    "source_sha": "08a1116500985af6a51fa907c52ad6906fc5ab07",
-    "run_id": "41069345424",
+    "source_sha": "16c93fd3f77dec3ac925ce52b69c9d2865814513",
+    "run_id": "41073508651",
     "package": "app.radvpn.testing",
     "version": "3.0.3-testing",
-    "sha256": "d6a1f666e6f2811c4addd4c37d2db338de5a542210f1dc3f0cbebaa8eb49d811",
-    "signer_sha256": "0d0f2a53f8f62fbfd20a93136c6c85a978ec64c226d692331b50e4677f5fb244",
+    "sha256": "e0b18152fdb8438bb784148dee47ade45935cedf62bc4e43a2b86eb74624696e",
+    "signer_sha256": "131db2afe2ff22f5112fa2c92ee93930b4163795f4b41c70e89fb9a52459b5b0",
     "production_signing_compatible": false,
     "test_signing_persistence_guaranteed": false,
     "abis": [
