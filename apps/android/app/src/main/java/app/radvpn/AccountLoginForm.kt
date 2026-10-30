@@ -6,9 +6,11 @@ import android.net.Uri
 import android.text.InputType
 import android.widget.EditText
 import android.widget.LinearLayout
+import app.radvpn.ui.Design
 
 /** Login-only content: host supplies the existing dark/orange visual controls. */
 internal object AccountLoginForm {
+    const val REGISTRATION_URL = "https://t.me/RadVpn7bot?start=register"
     fun render(
         activity: Activity,
         parent: LinearLayout,
@@ -23,7 +25,7 @@ internal object AccountLoginForm {
         label(text("account_login_help"))
         button("account_get_telegram", true) {
             try {
-                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/RadVpn7bot?start=register")))
+                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(REGISTRATION_URL)))
             } catch (_: Exception) { explain() }
         }
         if (hasSavedSession) button("account_restore", false, restore)
@@ -31,6 +33,13 @@ internal object AccountLoginForm {
         val code = EditText(activity).apply {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             isSingleLine = true
+            setTextColor(Design.text); setHintTextColor(Design.muted)
+            background = Design.surface(activity,Design.input,Design.border,10)
+            setPadding(Design.dp(activity,12),Design.dp(activity,12),Design.dp(activity,12),Design.dp(activity,12))
+            minHeight = Design.dp(activity,48)
+            importantForAutofill = android.view.View.IMPORTANT_FOR_AUTOFILL_NO
+            imeOptions = android.view.inputmethod.EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING
+            contentDescription = text("account_code")
         }
         parent.addView(code)
         button("account_login", true) {

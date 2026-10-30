@@ -95,6 +95,23 @@ jobs:
           gomobile bind -ldflags='-checklinkname=0 -s -w' -target=android/arm64,android/amd64 -androidapi=26 -o apps/android/app/libs/radengine.aar ./packages/mobile
           python3 scripts/collect-android-licenses.py
           gradle -p apps/android --no-daemon compileDebugKotlin lintDebug
+      - name: Build debug instrumentation only (not a production signing substitute)
+        run: gradle -p apps/android --no-daemon assembleDebug assembleDebugAndroidTest
+      - name: Enable disposable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Verify installed login gate and Keystore on two phone sizes
+        uses: reactivecircus/android-emulator-runner@4c44018e59b437e86cdfc41da381398f93ed8808
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+          disable-animations: true
+          script: bash scripts/test-android-account-gate.sh
       - name: Build only with the existing configured identity
         if: env.RADVPN_SIGNING_CONFIGURED == 'true'
         run: gradle -p apps/android --no-daemon assembleRelease
@@ -111,5 +128,6 @@ jobs:
             apps/android/app/build/outputs/apk/release/app-release.apk
             apps/android/app/build/reports/lint-results-debug.html
             dist/android-upgrade-303-report.txt
+            dist/android/account-gate/**
           if-no-files-found: warn
 # This workflow has read-only repository permissions and cannot publish a release.
